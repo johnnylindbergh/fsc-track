@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Page | {{defaults.sysName}}</title>
+  <link rel="stylesheet" type="text/css" href="css/reset.css">
+  <link rel="stylesheet" type="text/css" href="css/defaults.css">
+  <link rel="stylesheet" type="text/css" href="css/navbar.css">
+</head>
+<body>
+  <div class="navbar">
+    <ul>
+      <li><a href="/">{{defaults.sysName}}</a></li>
+      <div style="float:right">
+        <li><a href="/auth/google">Log In</a></li>
+        <li><a href="/logout">Log Out</a></li>
+      </div>
+    </ul>
+  </div>
+  <div class="container">
+    <!-- Job Content Here -->
+     <form action="/deleteJob" method = "POST">
+      <table>
+        <tr>
+        <th>Jobs</th>
+      </tr>
+
+          {{#jobs}}
+            <tr>
+              <td>
+                <input type="radio" id="jobName" name="jobName" value="{{id}}">
+              </td>
+
+              <td>
+		<p>{{name}}</p>
+              </td>
+            </tr>
+          {{/jobs}}
+      </table>
+        <input type="submit" value="Delete Job">
+    </form>
+  </div>
+
+  <div class="container">
+    <!-- add job Content Here -->
+      <form action="/addJob" method ="POST">
+        <p>Add a Job</p>
+          <input name="jobName" type="text" autocomplete="off" placeholder="Enter new Job...">
+          <input type="submit" value="Create New Job">
+      </form>
+  </div>
+
+
+
+
+  <div class="container">
+    <!-- task Content Here -->
+     <form action="/deleteTask" method = "POST">
+      <table>
+        <tr>
+        <th>Tasks</th>
+      </tr>
+
+          {{#tasks}}
+            <tr>
+              <td>
+                <input type="radio" id="taskName" name="taskName" value="{{id}}">
+              </td>
+
+              <td>
+                <p>{{name}}</p>
+              </td>
+            </tr>
+          {{/tasks}}
+      </table>
+        <input type="submit" value="Delete task">
+    </form>
+  </div>
+
+  <div class="container">
+    <!-- add task Content Here -->
+      <form action="/addTask" method ="POST">
+        <p>Add a Task</p>
+          <input name="taskName" type="text" autocomplete="off" placeholder="Enter new task...">
+          <input type="submit" value="Create New Task">
+      </form>
+  </div>
+<div class="container">
+<!-- qr code generation content here -->
+ <a href="/qrgen/{{id}}">Generate Job-Task QR Code</a>
+</div>
+
+<div class="container">
+  <!-- timesheet COntent Here-->
+  <table class="timesheet">
+    <tr>
+      <td>
+        Job
+      </td>
+      <td>
+        Task
+      </td>
+      <td>
+        Name
+      </td>
+      <td>
+        Duration
+      </td>
+<!--       <td>
+        Clock In
+      </td>
+      <td>
+        Clock Out
+      </td> -->
+    </tr>
+ 
+  
+  {{#times}}
+    <tr>
+      <td>
+        {{name}} 
+      </td>
+      <td>
+        {{taskname}}
+      </td>
+      <td>
+        {{username}}
+      </td>
+      <td>
+        {{duration}}
+      </td>
+  <!--     <td>
+        {{clock_in}}
+      </td>
+      <td>
+        {{clock_out}}
+      </td> -->
+    </tr>
+  {{/times}}
+  
+  </table>
+</div>
+
+
+</body>
+</html>
