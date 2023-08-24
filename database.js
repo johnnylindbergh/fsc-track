@@ -141,7 +141,7 @@ module.exports = {
   isUserClockedIn: (id, cb) => {
     //get id and email
 
-    con.query('SELECT (name, clockedIn) FROM users WHERE id = ?;', (err, rows) =>{
+    con.query('SELECT (name, clockedIn) FROM users WHERE id = ?;', [id], (err, rows) =>{
       if (!err && rows !== undefined && rows.length > 0) {
         cb(err, rows)
       } else {
@@ -168,6 +168,24 @@ module.exports = {
         } else {
           cb (err || "Failed to clock out.")
         } 
+    });
+  },
+
+  clockInAndOut: (userId, jobId, taskId, cb) => {
+    con.query('SELECT clockedIn FROM users WHERE id = ?;' [userId], (err, rows) => {
+      if (!err && rows !== undefined && rows.length > 0) {
+        console.log("rows", rows)
+        if (rows.clockedIn == 0){
+          //clockin
+          module.exports.clockIn(userId, jobId, taskId, function (err){
+            cb(err);
+          });
+        } else {
+          // clockout 
+          module.exports.clockOut(userId, function (err){ });
+          cb(err);
+        }
+      }
     });
   },
 

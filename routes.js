@@ -52,18 +52,15 @@ module.exports = function(app) {
         render.jobs = jobs;
         db.getTasks(req, res, function (err, tasks){
           render.domain = sys.DOMAIN;
-          console.log("Domain:", sys.DOMAIN);
           render.tasks = tasks
           // create job - task pair
           render.jobTasks = [];
           for (var i = 0; i < jobs.length; i++){
              for (var j = 0; j < tasks.length; j++){
               var jobTaskPair = {job:jobs[i], task:tasks[j]};
-              console.log(jobTaskPair);
               render.jobTasks.push(jobTaskPair)
             }
           }
-          console.log(render);
           res.render('qr.html', render);
         });
       });
@@ -73,12 +70,12 @@ module.exports = function(app) {
    app.get('/qr/:jobId/:taskId', mid.isAuth, (req, res) => {
     var render = defaultRender(req);
     if (req.isAuthenticated() && req.user && req.user.local) {
-      console.log(req.params.jobId)
+      console.log(req.user.local.id, req.params.jobId, req.params.taskId);
       db.clockInAndOut(req.user.local.id, req.params.jobId, req.params.taskId, function(err){
         if (!err){
           res.redirect('/');
         } else {
-          res.send( err);
+          res.send(err);
         }
       });
     }
