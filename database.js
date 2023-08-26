@@ -205,73 +205,89 @@ module.exports = {
   },
 
   getTimesheet: (req, res, cb) => {
-    con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in;', (err, rows) => {
-              
+    con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY uid;', (err, rows) => {
+          
           //combine rows by matching job, task, userid, 
-          for (var i = 0; i < rows.length; i++){
-            // update blank durations
-            if (rows[i].duration == undefined){
-              var clock_in = moment(rows[i].clock_in)
-              var clock_out = moment(rows[i].clock_out)
-              rows[i].clock_in = clock_in
-              rows[i].clock_out = clock_out
-              var diff = moment.duration(clock_out.diff(clock_in));
-              // duration in hours
-              var hours = parseInt(diff.asHours());
-              // duration in minutes
-              var minutes = parseInt(diff.asMinutes()) % 60;
-              if (minutes < 10){
-                minutes = "0"+minutes;
-              }
+        
+            duplicates = false;
+            for (var i = 0; i < rows.length; i++){
+              // update blank durations
+              if (rows[i].duration == undefined){
+                var clock_in = moment(rows[i].clock_in)
+                var clock_out = moment(rows[i].clock_out)
+                rows[i].clock_in = clock_in
+                rows[i].clock_out = clock_out
+                var diff = moment.duration(clock_out.diff(clock_in));
+                // duration in hours
+                var hours = parseInt(diff.asHours());
+                // duration in minutes
+                var minutes = parseInt(diff.asMinutes()) % 60;
+                //duration in seconds
+                var seconds = parseInt(diff.asSeconds()) % 3600;
 
-              rows[i].duration = hours + ":" + minutes;
-            
-              con.query('UPDATE timesheet SET duration = ? WHERE id = ?;', [rows[i].duration, rows[i].uid], (err) =>{});
+                rows[i].duration = hours + (minutes/60) + (seconds /3600);
+                con.query('UPDATE timesheet SET duration = ? WHERE id = ?;', [rows[i].duration, rows[i].uid], (err) =>{
+                  console.log(err)
+                });
+              }
             }
+          var duplicates = true;
+            while (duplicates){
+              console.log("searching for duplicates...")
+            for (var i = 0; i < rows.length; i++){
+              for (var j = i; j < rows.length; j++){
+                duplicates = false;
+                if (i != j && rows[i].isArchived ==0 && rows[j].isArchived == 0 && rows[i].userid == rows[j].userid && rows[i].job == rows[j].job && rows[i].task == rows[j].task){
+                  console.log("duplicate found")
+                  duplicates = true;
+                  // var duplicates = true;
+                  // // combine
+                  // var clock_inA = moment(rows[i].clock_in)
+                  // var clock_outA = moment(rows[i].clock_out)
 
-            for (var j = 0; j < rows.length; j++){
-              if (i != j && rows[i].userid == rows[j].userid && rows[i].job == rows[j].job && rows[i].task == rows[j].task){
-                console.log("Duplicate found!")
-                // combine
-                var clock_inA = moment(rows[i].clock_in)
-                var clock_outA = moment(rows[i].clock_out)
+                  // var clock_inB = moment(rows[j].clock_in)
+                  // var clock_outB = moment(rows[j].clock_out)
 
-                var clock_inB = moment(rows[j].clock_in)
-                var clock_outB = moment(rows[j].clock_out)
+                  // var diffA = moment.duration(clock_outA.diff(clock_inA));
+                  // var diffB = moment.duration(clock_outB.diff(clock_inB));
+                  // //add differences together
+                  // var total = diffA.add(diffB)
 
-                var diffA = moment.duration(clock_outA.diff(clock_inA));
-                var diffB = moment.duration(clock_outB.diff(clock_inB));
-                //add differences together
-                var total = diffA.add(diffB)
+                  // var hours = parseInt(total.asHours());
+                  //   // duration in minutes
+                  // var minutes = parseInt(total.asMinutes()) % 60;
+          
+                  //console.log(total);
 
-                var hours = parseInt(total.asHours());
-                  // duration in minutes
-                var minutes = parseInt(total.asMinutes()) % 60;
-                if (minutes < 10){
-                  minutes = "0"+minutes;
+                  //remove duplicate entry
+                 // console.log(rows[i].duration, rows[j].duration, minutes)
+                  rows[i].duration = rows[i].duration + rows[j].duration
+                  rows[j].isArchived = 1;
+                  //console.log(rows);
+
+
                 }
-                //console.log(total);
-
-                //remove duplicate entry
-                console.log(rows[i].duration, rows[j].duration, minutes)
-                rows[i].duration = hours + ":" + minutes;
-                console.log(rows);
-                rows.pop(j);
-                console.log(rows)
-                j++;
+                
               }
+            }
+            
+          }
+         console.log(rows)
+         var noDup = [];
+          for (var i = 0; i < rows.length; i++){
+            if (rows[i].isArchived == 0){
+              noDup.push(rows[i]);
             }
           }
 
+                console.log(rows)
 
-          
          
     
-         if (!err && rows !== undefined && rows.length > 0) {
-        cb(err, rows)
-      } else {
-        cb(err || "Failed to get timesheet")
-      }    
+        
+        cb(err, noDup)
+
+        
     });
   }
 }

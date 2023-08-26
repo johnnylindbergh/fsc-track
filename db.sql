@@ -56,7 +56,7 @@ CREATE TABLE timesheet (
   task INT,
   clock_in DATETIME,
   clock_out DATETIME,
-  duration varchar(8),
+  duration float(8),
   FOREIGN KEY (job) REFERENCES jobs(id),
   FOREIGN KEY (task) REFERENCES tasks(id),
   FOREIGN KEY (userid) REFERENCES users(id),
