@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QR Codes | {{defaults.sysName}}</title>
+  <link rel="stylesheet" type="text/css" href="css/reset.css">
+  <link rel="stylesheet" type="text/css" href="css/defaults.css">
+  <link rel="stylesheet" type="text/css" href="css/navbar.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    
+</head>
+<body>
+  <div class="navbar">
+    <ul>
+      <li><a href="/">{{defaults.sysName}}</a></li>
+      <div style="float:right">
+        <li><a href="/auth/google">Log In</a></li>
+        <li><a href="/logout">Log Out</a></li>
+      </div>
+    </ul>
+  </div>
+
+  {{#auth}}
+  <div class="container">
+    <h2>
+      {{#message}}
+        <p>{{message}}</p>
+      {{/message}}
+    </h2> </br>
+  {{/auth}}
+
+  
+  <div class="container">
+    <!-- <p>the domain: {{domain}} </p> -->
+    {{#jobTasks}}
+    
+    
+     <img id='barcode' 
+            src="https://api.qrserver.com/v1/create-qr-code/?data={{domain}}/qr/{{job.id}}/{{task.id}}&amp size=100x100" 
+            alt="" 
+            title="{{job.name}} {{task.name}}" 
+            width="100" 
+            height="100" /> 
+      {{job.name}} {{task.name}}
+        </br>
+   {{/jobTasks}}
+   
+  </div>
+
+</body>
+</html>
+
