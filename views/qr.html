@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title> QR Codes | {{defaults.sysName}}</title>
+  <title>QR Codes | {{defaults.sysName}}</title>
   <link rel="stylesheet" type="text/css" href="css/reset.css">
   <link rel="stylesheet" type="text/css" href="css/defaults.css">
   <link rel="stylesheet" type="text/css" href="css/navbar.css">
@@ -36,7 +36,7 @@
     
     
      <img id='barcode' 
-            src="https://api.qrserver.com/v1/create-qr-code/?data={{domain}}/qr/{{job.id}}/{{task.id}}&amp size=100x100" 
+            src="https://api.qrserver.com/v1/create-qr-code/?data={{domain}}/qr/clockIn/{{job.id}}/{{task.id}}&amp size=100x100" 
             alt="" 
             title="{{job.name}} {{task.name}}" 
             width="100" 

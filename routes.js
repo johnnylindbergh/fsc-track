@@ -67,12 +67,14 @@ module.exports = function(app) {
     }
   });
 
-   app.get('/qr/:jobId/:taskId', mid.isAuth, (req, res) => {
+   app.get('/qr/clockIn/:jobId/:taskId/', mid.isAuth, (req, res) => {
+    console.log("QR code scanned")
     var render = defaultRender(req);
     if (req.isAuthenticated() && req.user && req.user.local) {
       console.log(req.user.local.id, req.params.jobId, req.params.taskId);
       db.clockInAndOut(req.user.local.id, req.params.jobId, req.params.taskId, function(err){
         if (!err){
+          console.log("redirecting")
           res.redirect('/');
         } else {
           res.send(err);
