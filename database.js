@@ -172,18 +172,33 @@ module.exports = {
   },
 
   clockInAndOut: (userId, jobId, taskId, cb) => {
-    con.query('SELECT clockedIn FROM users WHERE id = ?;' [userId], (err, rows) => {
+     console.log("clockInAndOut1")
+    con.query('SELECT clockedIn FROM users WHERE (id = ?);', [userId], (err, rows) =>{
+      console.log("rows", rows)
       if (!err && rows !== undefined && rows.length > 0) {
-        console.log("rows", rows)
-        if (rows.clockedIn == 0){
+      
+        if (rows[0].clockedIn == 0){
+            console.log("clockInAndOut2")
           //clockin
-          module.exports.clockIn(userId, jobId, taskId, function (err){
-            cb(err);
+          con.query('INSERT INTO timesheet (userid, job, task, clock_in) values (?, ?, ?, NOW()); SELECT * FROM timesheet WHERE id = LAST_INSERT_ID(); UPDATE users SET clockedIn = 1 where id = ?;', [userId, jobId, taskId, userId], (err, rows) =>{
+            if (!err) {
+              cb(err);
+            } else {
+              cb (err || "Failed to clock in.");
+            } 
           });
+
         } else {
+
           // clockout 
-          module.exports.clockOut(userId, function (err){ });
-          cb(err);
+          con.query('UPDATE timesheet SET clock_out = NOW() WHERE userid = ? AND clock_out IS NULL; UPDATE users SET clockedIn = 0 WHERE id = ?;', [userId, userId], (err) =>{
+            if (!err) {
+              cb(err);
+            } else {
+              cb (err || "Failed to clock out.")
+            } 
+          });
+        
         }
       }
     });
