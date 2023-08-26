@@ -234,6 +234,11 @@ app.get('/getRAlocationStats', (req, res) => {
 
 }
 
+function timesheetQueryRender(req, res, startTime, endTime, userId, jodId, taskId) {
+
+  // db.timesheetQuery...
+}
+
 function defaultRender(req) {
   if (req.isAuthenticated() && req.user && req.user.local) {
     // basic render object for fully authenticated user
