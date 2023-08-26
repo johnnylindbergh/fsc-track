@@ -233,12 +233,10 @@ module.exports = {
             }
           var duplicates = true;
             while (duplicates){
-              console.log("searching for duplicates...")
             for (var i = 0; i < rows.length; i++){
               for (var j = i; j < rows.length; j++){
                 duplicates = false;
                 if (i != j && rows[i].isArchived ==0 && rows[j].isArchived == 0 && rows[i].userid == rows[j].userid && rows[i].job == rows[j].job && rows[i].task == rows[j].task){
-                  console.log("duplicate found")
                   duplicates = true;
                   // var duplicates = true;
                   // // combine
@@ -272,7 +270,7 @@ module.exports = {
             }
             
           }
-         console.log(rows)
+          
          var noDup = [];
           for (var i = 0; i < rows.length; i++){
             if (rows[i].isArchived == 0){
@@ -280,7 +278,7 @@ module.exports = {
             }
           }
 
-                console.log(rows)
+              
 
          
     
