@@ -16,7 +16,16 @@
       </div>
     </ul>
   </div>
+  {{#auth}}
   <div class="container">
+    <h2>
+      {{#message}}
+        <p>{{message}}</p>
+      {{/message}}
+    </h2> 
+  </div>
+  {{/auth}}
+ <div class="container">
     <!-- Job Content Here -->
      <form action="/deleteJob" method = "POST">
       <table>
@@ -103,8 +112,12 @@
         Name
       </td>
       <td>
+        Duration (hh:ss)
+      </td>
+      <td>
         Duration (hours)
       </td>
+    
 <!--       <td>
         Clock In
       </td>
@@ -126,8 +139,13 @@
         {{username}}
       </td>
       <td>
+        {{formattedDuration}}
+      </td>
+      <td>
         {{duration}}
       </td>
+ 
+      
   <!--     <td>
         {{clock_in}}
       </td>

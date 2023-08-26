@@ -74,7 +74,6 @@ module.exports = function(app) {
       console.log(req.user.local.id, req.params.jobId, req.params.taskId);
       db.clockInAndOut(req.user.local.id, req.params.jobId, req.params.taskId, function(err){
         if (!err){
-          console.log("redirecting")
           res.redirect('/');
         } else {
           res.send(err);
