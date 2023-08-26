@@ -270,18 +270,15 @@ module.exports = {
             }
             
           }
-          
+        // remove deleted indicies to not confuse the mustache and format the duration
          var noDup = [];
           for (var i = 0; i < rows.length; i++){
             if (rows[i].isArchived == 0){
+              rows[i].formattedDuration = moment.utc(moment.duration(rows[i].duration, 'h').asMilliseconds()).format('HH:mm');
               noDup.push(rows[i]);
             }
           }
 
-              
-
-         
-    
         
         cb(err, noDup)
 
