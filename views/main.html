@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Main | {{defaults.sysName}}</title>
+  <link rel="stylesheet" type="text/css" href="css/reset.css">
+  <link rel="stylesheet" type="text/css" href="css/defaults.css">
+  <link rel="stylesheet" type="text/css" href="css/navbar.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <div class="navbar">
+    <ul>
+      <li><a href="/">{{defaults.sysName}}</a></li>
+      <div style="float:right">
+        <li><a href="/auth/google">Log In</a></li>
+        <li><a href="/logout">Log Out</a></li>
+      </div>
+    </ul>
+  </div>
+  {{#auth}}
+  <div class="container">
+    <h2>
+      {{#message}}
+        <p>{{message}}</p>
+      {{/message}}
+    </h2> </br>
+  {{/auth}}
+    {{^clockedIn}}
+    You are clocked out. </br>
+    <h2> Jobs </h2>
+    <form action="/clockIn" method="POST">
+      
+         {{#jobs}}
+            <tr>
+              <td>
+                <input type="radio" id="jobName" name="jobName" value="{{id}}">
+              </td>
+
+              <td>
+                {{name}}
+              </td> </br>
+            </tr>
+          {{/jobs}} </br>
+
+        <h2> Tasks </h2>
+          {{#tasks}}
+            <tr>
+              <td>
+                <input type="radio" id="taskName" name="taskName" value="{{id}}">
+              </td>
+
+              <td>
+                {{name}}
+              </td> </br>
+            </tr>
+          {{/tasks}} </br>
+
+      <input type="submit" value="Clock In">
+    </form>
+
+    {{/clockedIn}}
+    {{#clockedIn}}
+      You Are Clocked in
+      <form action="/clockout/{{id}}" method = "POST">
+        <input type="submit" value="Clock Out">
+      </form>
+    {{/clockedIn}}
+  <div class="container">
+   
+  </div>
+
+
+
+
+
+</body>
+</html>
+
