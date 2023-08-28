@@ -183,13 +183,10 @@ module.exports = {
   },
 
   clockInAndOut: (userId, jobId, taskId, cb) => {
-     console.log("clockInAndOut1")
     con.query('SELECT clockedIn FROM users WHERE (id = ?);', [userId], (err, rows) =>{
-      console.log("rows", rows)
       if (!err && rows !== undefined && rows.length > 0) {
       
         if (rows[0].clockedIn == 0){
-            console.log("clockInAndOut2")
           //clockin
           con.query('INSERT INTO timesheet (userid, job, task, clock_in) values (?, ?, ?, NOW()); SELECT * FROM timesheet WHERE id = LAST_INSERT_ID(); UPDATE users SET clockedIn = 1 where id = ?;', [userId, jobId, taskId, userId], (err, rows) =>{
             if (!err) {
@@ -299,7 +296,6 @@ module.exports = {
 
   getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) => {
     
-      console.log("Querying Database...");
         // format dates into strings for query, and make inclusive range
         var startString = startDate.format('YYYY-MM-DD');
         var endString = endDate.add(1, 'days').format('YYYY-MM-DD');
@@ -361,7 +357,6 @@ module.exports = {
                  // console.log(rows[i].duration, rows[j].duration, minutes)
                   rows[i].duration = rows[i].duration + rows[j].duration
                   rows[j].isArchived = 1;
-                  //console.log(rows);
 
 
                 }

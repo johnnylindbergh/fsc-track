@@ -79,7 +79,6 @@ module.exports = function(app) {
     console.log("QR code scanned")
     var render = defaultRender(req);
     if (req.isAuthenticated() && req.user && req.user.local) {
-      console.log(req.user.local.id, req.params.jobId, req.params.taskId);
       db.clockInAndOut(req.user.local.id, req.params.jobId, req.params.taskId, function(err){
         if (!err){
           res.redirect('/');
@@ -217,11 +216,6 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
    if (req.isAuthenticated() && req.user && req.user.local) {
 
       if (req.user.local.user_type == 1) {
-                 console.log("1", req.body.startDate)
-                console.log("2", req.body.endDate)
-                console.log("3", req.body.userId)
-                console.log("4", req.body.jobId)
-                console.log("5", req.body.taskId)
 
         var render = defaultRender(req);
         db.getJobs(req, res, function (err, jobs){
@@ -235,27 +229,21 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
 
               for (var i = 0; i < render.users.length; i++){
                 if (render.users[i].id == req.body.userId){
-                  console.log("selected")
                   render.users[i].selected = true;
                 }
               }
               
               for (var i = 0; i < render.jobs.length; i++){
                 if (render.jobs[i].id == req.body.jobId){
-                                    console.log("selected")
-
                   render.jobs[i].selected = true;
                 }
               }
                 for (var i = 0; i < render.tasks.length; i++){
                 if (render.tasks[i].id == req.body.taskId){
-                                    console.log("selected")
-
                   render.tasks[i].selected = true;
                 }
               }
 
-              console.log("filtering timesheet")
               
               // parse dates from request into moment objects
               var startDate = moment(req.body.startDate);
@@ -272,7 +260,6 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
               if (req.body.taskId == -1){
                             req.body.taskId = null;
               }
-              console.log(req.body)
 
               db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId,  function(err,rows){
                 if (!err && rows.length > 0){
@@ -282,7 +269,6 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
                 render.endDate = endDate;
 
 
-                console.log(render);
                 res.render("admin.html", render);
               }); 
 
