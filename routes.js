@@ -7,7 +7,13 @@ const db    = require('./database.js');
 const sys   = require('./settings.js');
 const mid   = require('./middleware.js');
 const moment = require('moment')
+const schedule = require('node-schedule');
 
+const job = schedule.scheduleJob('* 59 23 * *', function(){
+	db.allClockOut(function(err){
+		console.log("all clock out has been run.")
+	});
+});
 
 module.exports = function(app) {
 

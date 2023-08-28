@@ -212,6 +212,11 @@ module.exports = {
     });
   },
 
+  allClockOut: (cb) => {
+    con.query('UPDATE timesheet SET clock_out = NOW();');
+  },
+
+
   getTimesheet: (req, res, cb) => {
     con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY uid;', (err, rows) => {
           
