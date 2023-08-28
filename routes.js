@@ -248,6 +248,8 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
               // parse dates from request into moment objects
               var startDate = moment(req.body.startDate);
               var endDate = moment(req.body.endDate);
+              render.startDate = startDate;
+              render.endDate = endDate;
 
               if (req.body.userId == -1){
                 req.body.userId = null;
@@ -265,8 +267,7 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
                 if (!err && rows.length > 0){
                   render.results = rows;
                 }
-                render.startDate = startDate;
-                render.endDate = endDate;
+          
 
 
                 res.render("admin.html", render);

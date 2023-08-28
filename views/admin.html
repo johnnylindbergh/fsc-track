@@ -6,6 +6,7 @@
   <link rel="stylesheet" type="text/css" href="css/defaults.css">
   <link rel="stylesheet" type="text/css" href="css/navbar.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  
 </head>
 <body>
   <div class="navbar">
@@ -94,73 +95,16 @@
           <input type="submit" value="Create New Task">
       </form>
   </div>
-<div class="container">
-<!-- qr code generation content here -->
- <a href="/qr">Generate Job-Task QR Code</a>
-</div>
 
 <div class="container">
-  <!-- timesheet COntent Here-->
-  <table class="timesheet">
-    <tr>
-      <td>
-        Job
-      </td>
-      <td>
-        Task
-      </td>
-      <td>
-        Name
-      </td>
-      <td>
-        Duration (hh:ss)
-      </td>
-      <td>
-        Duration (hours)
-      </td>
-    
-<!--       <td>
-        Clock In
-      </td>
-      <td>
-        Clock Out
-      </td> -->
-    </tr>
- 
-  
-  {{#times}}
-    <tr>
-      <td>
-        {{name}} 
-      </td>
-      <td>
-        {{taskname}}
-      </td>
-      <td>
-        {{username}}
-      </td>
-      <td>
-        {{formattedDuration}}
-      </td>
-      <td>
-        {{duration}}
-      </td>
- 
-      
-  <!--     <td>
-        {{clock_in}}
-      </td>
-      <td>
-        {{clock_out}}
-      </td> -->
-    </tr>
-  {{/times}}
-  
-  </table>
+  <!-- qr code generation content here -->
+ <a href="/qr">Generate Job-Task QR Code</a> </br>
 </div>
+</br>
 
 <div class="searchBar">
-  <form action="/searchTimeSheet" method="POST">
+  <form action="/searchTimeSheet" id="searchForm" method="POST">
+
           <div >
             <b>Job:</b>&nbsp;
           </div>
