@@ -365,7 +365,7 @@ module.exports = {
             }
             
           }
-        // remove deleted indicies to not confuse the mustache and format the duration
+        // remove deleted indicies to not confuse the mustache and format the duration !! should this function remove duplicates ?? 
          var noDup = [];
           for (var i = 0; i < rows.length; i++){
             if (rows[i].isArchived == 0){
