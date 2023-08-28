@@ -6,6 +6,8 @@
 const db    = require('./database.js');
 const sys   = require('./settings.js');
 const mid   = require('./middleware.js');
+const moment = require('moment')
+
 
 module.exports = function(app) {
 
@@ -15,22 +17,28 @@ module.exports = function(app) {
       if (req.user.local.user_type == 1) {
 
         var render = defaultRender(req);
-        db.getJobs(req, res, function (err, jobs){
 
-          render.jobs = jobs;
-          db.getTasks(req, res, function(err, tasks){
 
-            render.tasks = tasks;
-            db.getTimesheet(req, res, function(err, times){
+        db.getUsers( function(err, users){
 
-              render.times = times;
-              res.render("admin.html", render);
+          render.users = users;
+          db.getJobs(req, res, function (err, jobs){
+
+            render.jobs = jobs;
+            db.getTasks(req, res, function(err, tasks){
+
+              render.tasks = tasks;
+              db.getTimesheet(req, res, function(err, times){
+
+                render.times = times;
+                res.render("admin.html", render);
+
+              });
 
             });
 
-          });
-
-        });      
+          });  
+      });    
 
       } else {
 
@@ -204,6 +212,102 @@ app.post('/clockOut', mid.isAuth, function(req, res){
 
 });
 
+app.post('/searchTimesheet', mid.isAuth, function(req, res){
+
+   if (req.isAuthenticated() && req.user && req.user.local) {
+
+      if (req.user.local.user_type == 1) {
+                 console.log("1", req.body.startDate)
+                console.log("2", req.body.endDate)
+                console.log("3", req.body.userId)
+                console.log("4", req.body.jobId)
+                console.log("5", req.body.taskId)
+
+        var render = defaultRender(req);
+        db.getJobs(req, res, function (err, jobs){
+
+          render.jobs = jobs;
+          db.getTasks(req, res, function(err, tasks){
+
+            render.tasks = tasks;
+            db.getUsers( function(err, rows){
+              render.users = rows;
+
+              for (var i = 0; i < render.users.length; i++){
+                if (render.users[i].id == req.body.userId){
+                  console.log("selected")
+                  render.users[i].selected = true;
+                }
+              }
+              
+              for (var i = 0; i < render.jobs.length; i++){
+                if (render.jobs[i].id == req.body.jobId){
+                                    console.log("selected")
+
+                  render.jobs[i].selected = true;
+                }
+              }
+                for (var i = 0; i < render.tasks.length; i++){
+                if (render.tasks[i].id == req.body.taskId){
+                                    console.log("selected")
+
+                  render.tasks[i].selected = true;
+                }
+              }
+
+              console.log("filtering timesheet")
+              
+              // parse dates from request into moment objects
+              var startDate = moment(req.body.startDate);
+              var endDate = moment(req.body.endDate);
+
+              if (req.body.userId == -1){
+                req.body.userId = null;
+              }
+              
+              if (req.body.jobId == -1){
+                req.body.jobId = null;
+              }
+              
+              if (req.body.taskId == -1){
+                            req.body.taskId = null;
+              }
+              console.log(req.body)
+
+              db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId,  function(err,rows){
+                if (!err && rows.length > 0){
+                  render.results = rows;
+                }
+                render.startDate = startDate;
+                render.endDate = endDate;
+
+
+                console.log(render);
+                res.render("admin.html", render);
+              }); 
+
+            });
+
+          });
+
+        });      
+
+      } else {
+
+         res.send("You are not an admin.")
+      }
+
+      } else {
+
+        res.render("/");
+      
+      }
+
+
+
+
+ });
+
 
 //    console.log(req._json);
  //   db.getJobs(req, res, function (err, rows){
@@ -212,13 +316,32 @@ app.post('/clockOut', mid.isAuth, function(req, res){
  //   });
 
   /*
+	isAuthPOST: function(req, res, next) {
+		if (req.isAuthenticated() && req.user.local) {
+			return next();
+		} else {
+			res.redirect('/');
+		}
+	},
     ************************************
     *                                  *
     *   Routes go here...              *
     *                                  *
     *   app.get('/', (req, res) => {   *
     *     ...                          *
-    *   });                    
+
+
+app.post('/clockOut', mid.isAuth, function(req, res){
+  var job = req.body.jobName;
+  var task = req.body.taskName;
+  var userId = req.user.local.id;
+  db.clockOut(userId, function(err){
+    if (!err){
+      res.redirect('/');
+    } else {
+      res.send(err);
+    }
+  });    *   });                    
 app.get('/getRAlocationStats', (req, res) => {
    // renderMessages(req,res)
    db.getRAlocationStats(req, res, function (loc){
@@ -232,6 +355,11 @@ app.get('/getRAlocationStats', (req, res) => {
     ************************************
   */
 
+}
+
+function timesheetQueryRender(req, res, startTime, endTime, userId, jodId, taskId) {
+
+  // db.timesheetQuery...
 }
 
 function defaultRender(req) {
