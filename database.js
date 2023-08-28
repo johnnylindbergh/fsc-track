@@ -137,11 +137,22 @@ module.exports = {
     });
   },
 
+  getUsers: (cb) => {
+
+    con.query('SELECT name, id FROM users;', (err, rows) =>{
+     if (!err && rows !== undefined && rows.length > 0){
+      cb(err, rows);
+     } else {
+      cb(err || "failed to get users;")
+     }
+    });
+
+  },
 
   isUserClockedIn: (id, cb) => {
     //get id and email
 
-    con.query('SELECT (name, clockedIn) FROM users WHERE id = ?;', [id], (err, rows) =>{
+    con.query('SELECT name, clockedIn FROM users WHERE id = ?;', [id], (err, rows) =>{
       if (!err && rows !== undefined && rows.length > 0) {
         cb(err, rows)
       } else {
@@ -287,13 +298,13 @@ module.exports = {
   },
 
   getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) => {
-     if (startDate.isBefore(endDate) || startDate.isSame(endDate)) {
+    
+      console.log("Querying Database...");
         // format dates into strings for query, and make inclusive range
         var startString = startDate.format('YYYY-MM-DD');
         var endString = endDate.add(1, 'days').format('YYYY-MM-DD');
-
-        con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 AND (timesheet.clock_in BETWEEN ? and ?) ORDER BY timesheet.clock_in;', [startString, endString], (err, rows) => {
-          
+      con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in;', (err, rows) => {
+          // AND (timesheet.clock_in BETWEEN ? and ?)
 
           //combine rows by matching job, task, userid, 
         
@@ -319,6 +330,7 @@ module.exports = {
                 });
               }
             }
+
           var duplicates = true;
             while (duplicates){
             for (var i = 0; i < rows.length; i++){
@@ -367,11 +379,68 @@ module.exports = {
             }
           }
 
-        
-        cb(err, noDup)
+          var filtered = noDup;
+
+          if (userId != null){
+            var userFilter = []
+            for (var i = 0; i < filtered.length; i++){
+              if (filtered[i].userid == userId){
+                userFilter.push(filtered[i]);
+              }
+            }
+            filtered = userFilter;
+          }
+
+          if (jobId != null){
+            var jobFilter = []
+            for (var i = 0; i < filtered.length; i++){
+              if (filtered[i].job == jobId){
+                jobFilter.push(filtered[i]);
+              }
+            }
+            filtered = jobFilter;
+
+          }
+
+          if (taskId != null){
+            var taskFilter = []
+            for (var i = 0; i < filtered.length; i++){
+              if (filtered[i].task == taskId){
+                taskFilter.push(filtered[i]);
+              }
+            }
+            filtered = taskFilter;
+
+          }
+
+          if (startDate.isValid()){
+            var startFilter = []
+            for (var i = 0; i < filtered.length; i++){
+              if (moment(filtered[i].clock_out).isAfter(startDate)){
+                startFilter.push(filtered[i]);
+              }
+            }
+            filtered = startFilter;
+
+          }
+
+          if (endDate.isValid()){
+            var endFilter = []
+            for (var i = 0; i < filtered.length; i++){
+              if (moment(filtered[i].clock_in).isBefore(endDate)){
+                endFilter.push(filtered[i]);
+              }
+            }
+            filtered = endFilter;
+
+          }
+
+
 
         
-    });
-  }
+        cb(err, filtered)
+  
+      });
+  
   },
 }

@@ -165,10 +165,17 @@
             <b>Job:</b>&nbsp;
           </div>
 
+          <select name="userId" onchange="this.form.submit();">
+            <option value="-1">All Users</option>
+            {{#users}}
+            <option value="{{id}}"{{#selected}}selected{{/selected}}>{{name}}</option>
+            {{/users}}
+          </select>  
+
           <select name="jobId" onchange="this.form.submit();">
             <option value="-1">All Jobs</option>
             {{#jobs}}
-            <option value="{{uid}}"{{#selected}}selected{{/selected}}>{{name}}</option>
+            <option value="{{id}}"{{#selected}}selected{{/selected}}>{{name}}</option>
             {{/jobs}}
           </select>  
 
@@ -178,7 +185,7 @@
           <select  name="taskId" onchange="this.form.submit();">
             <option value="-1">All Tasks</option>
             {{#tasks}}
-            <option value="{{uid}}"{{#selected}}selected{{/selected}}>{{name}}</option>
+            <option value="{{id}}"{{#selected}}selected{{/selected}}>{{name}}</option>
             {{/tasks}}
           </select>
 
@@ -196,6 +203,41 @@
 
         </form>
 </div>
+
+<div class = "container">
+  <table>
+    <th>
+      <tr>
+       <td>
+        Start Time
+      </td>
+         <td>
+        End Time
+      </td>
+       <td>
+        Job - task
+      </td>
+        <td>
+        Name
+      </td>
+       <td>
+        Duration
+      </td>
+    </tr>
+    </th>
+    {{#results}}
+          <tr>
+            <td>{{clock_in}}</td>
+            <td>{{clock_out}}</td>
+            <td>{{name}} - {{taskname}}</td>
+            <td>{{username}}</td>
+             <td>{{formattedDuration}}</td>
+          </tr>
+    {{/results}}
+  </table>
+
+</div>
+
 
 </body>
 </html>
