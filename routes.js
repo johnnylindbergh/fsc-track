@@ -6,6 +6,13 @@
 const db    = require('./database.js');
 const sys   = require('./settings.js');
 const mid   = require('./middleware.js');
+const schedule = require('node-schedule');
+
+const job = schedule.scheduleJob('* 59 23 * *', function(){
+    db.clockOutAll(function(err){
+       console.log('All users have been automatically clocked out at: ', new Date.toLocaleTimeString());
+    });
+});
 
 module.exports = function(app) {
 
