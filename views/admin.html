@@ -6,7 +6,22 @@
   <link rel="stylesheet" type="text/css" href="css/defaults.css">
   <link rel="stylesheet" type="text/css" href="css/navbar.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-  
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+  <script>
+    $("#searchForm button[value]").click(function(ev){
+    ev.preventDefault()// cancel form submission
+    if($(this).attr("value")=="search"){
+        //do button 1 thing
+      alert("search");
+    } if else ($(this).attr("value")=="download"){
+        //do button 1 thing
+      alert("download");
+    } 
+    // $("#my-form").submit(); if you want to submit the form
+});
+  </script>
 </head>
 <body>
   <div class="navbar">
@@ -54,7 +69,7 @@
   <div class="container">
     <!-- add job Content Here -->
       <form action="/addJob" method ="POST">
-        <p>Add a Job</p>
+        <b>Add a Job</b>
           <input name="jobName" type="text" autocomplete="off" placeholder="Enter new Job...">
           <input type="submit" value="Create New Job">
       </form>
@@ -90,7 +105,7 @@
   <div class="container">
     <!-- add task Content Here -->
       <form action="/addTask" method ="POST">
-        <p>Add a Task</p>
+        <b>Add a Task</b>
           <input name="taskName" type="text" autocomplete="off" placeholder="Enter new task...">
           <input type="submit" value="Create New Task">
       </form>
@@ -143,7 +158,8 @@
           
           <input type="date" name="endDate" value="{{endDate}}">
 
-          <button type="submit"><i class="fas fa-search"> </i></button>
+          <button value="search" type="submit"><i class="fas fa-search"> </i></button>
+           <button  value="download" type="submit"><i class="fas fa-download"> </i></button>
 
         </form>
 </div>
