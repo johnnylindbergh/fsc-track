@@ -6,7 +6,9 @@
 const creds   = require('./credentials.js');
 const sys     = require('./settings.js');
 const mysql   = require('mysql');
-const moment = require('moment')
+const moment = require('moment');
+
+
 
 // establish database connection
 const con = mysql.createPool({
@@ -45,7 +47,7 @@ module.exports = {
     */
 
     // make insert and retrieve inserted profile data (assumes default role is 1)
-    con.query('INSERT INTO users (email, user_type) VALUES (?, 1); SELECT * FROM users WHERE uid = LAST_INSERT_ID();', [user._json.email], (err, rows) => {
+    con.query('INSERT INTO users (email, name, user_type) VALUES (?, ?, 1); SELECT * FROM users WHERE uid = LAST_INSERT_ID();', [user._json.email, user._json.name], (err, rows) => {
       if (!err && rows !== undefined && rows.length > 1 && rows[1].length > 0) {
         // callback on generated profile
         cb(err, rows[1][0]);
@@ -521,7 +523,7 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
 
 
 
-         cb(err, filtered)
+         cb(filtered);
 
        });
 
