@@ -1,7 +1,2 @@
 "uid","userid","job","task","clock_in","clock_out","duration","name","isArchived","id","username","taskname","formattedDuration"
-"1","1","1","1","Sun Aug 20 2023 02:01:52 GMT-0400 (Eastern Daylight Time)","Sun Aug 20 2023 02:05:56 GMT-0400 (Eastern Daylight Time)","0.1502773","Arc of The Piedmont","0","1","Johnny","Cabinets","00:09"
-"3","1","2","1","Fri Aug 25 2023 22:38:06 GMT-0400 (Eastern Daylight Time)","Fri Aug 25 2023 22:38:09 GMT-0400 (Eastern Daylight Time)","0.0019444430000000001","BMC","0","1","Johnny","Cabinets","00:00"
-"4","1","2","2","Fri Aug 25 2023 22:44:37 GMT-0400 (Eastern Daylight Time)","Fri Aug 25 2023 22:44:42 GMT-0400 (Eastern Daylight Time)","0.00138889","BMC","0","1","Johnny","Doors","00:00"
-"6","1","1","2","Fri Aug 25 2023 23:16:23 GMT-0400 (Eastern Daylight Time)","Fri Aug 25 2023 23:16:25 GMT-0400 (Eastern Daylight Time)","0.002222226","Arc of The Piedmont","0","1","Johnny","Doors","00:00"
-"11","1","6","3","Tue Aug 29 2023 16:22:44 GMT-0400 (Eastern Daylight Time)","Wed Aug 30 2023 08:14:49 GMT-0400 (Eastern Daylight Time)","16.7347","Test Job","0","1","Johnny","Test Task","16:44"
 "12","2","2","1","Wed Aug 30 2023 16:20:36 GMT-0400 (Eastern Daylight Time)","Wed Aug 30 2023 16:21:01 GMT-0400 (Eastern Daylight Time)","0.00694444","BMC","0","2","Cristie","Cabinets","00:00"

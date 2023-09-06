@@ -104,13 +104,10 @@
 </br>
 
 <div class="searchBar">
-
+<b> Filter Results</b></br>&nbsp;
     <form  id="searchForm" action="/searchTimesheet" method="POST">
 	<input type="submit" formaction="default_url_when_press_enter" style="visibility: hidden; display: none;">
-          <div >
-            <b>Job:</b>&nbsp;
-          </div>
-
+          
           <select name="userId" onchange="this.form.submit();">
             <option value="-1">All Users</option>
             {{#users}}
@@ -125,9 +122,7 @@
             {{/jobs}}
           </select>  
 
-          <div >
-            <b>Task</b>&nbsp;
-          </div>
+
           <select  name="taskId" onchange="this.form.submit();">
             <option value="-1">All Tasks</option>
             {{#tasks}}
@@ -135,15 +130,10 @@
             {{/tasks}}
           </select>
 
-          <div>
-            <b>From:</b> &nbsp;
-          </div>
-
-          <input type="date" name="startDate" value="{{startDate}}">
-        
-            <b>To:</b>&nbsp;
           
-          <input type="date" name="endDate" value="{{endDate}}">
+            <b>From:</b> <input type="date" name="startDate" value="{{startDate}}"><b>To:</b>&nbsp;
+          
+            <input type="date" name="endDate" value="{{endDate}}">
 
           <button type="submit" name="search" formaction="/searchTimesheet"><i class="fas fa-search"> </i></button>
           <button type="submit" name="download" formaction="/searchTimesheetToCSV"><i class="fas fa-download"> </i></button>
