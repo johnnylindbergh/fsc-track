@@ -6,7 +6,7 @@
   <link rel="stylesheet" type="text/css" href="css/defaults.css">
   <link rel="stylesheet" type="text/css" href="css/navbar.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 </head>
 
 <body>
@@ -104,8 +104,9 @@
 </br>
 
 <div class="searchBar">
-  <!-- <form action="/searchTimeSheet" id="searchForm" method="POST"> -->
-    <form action="/searchTimesheetToCSV" id="searchForm" method="POST">
+
+    <form  id="searchForm" action="/searchTimesheet" method="POST">
+	<input type="submit" formaction="default_url_when_press_enter" style="visibility: hidden; display: none;">
           <div >
             <b>Job:</b>&nbsp;
           </div>
@@ -144,10 +145,9 @@
           
           <input type="date" name="endDate" value="{{endDate}}">
 
-          <button type="submit" name="search"><i class="fas fa-search"> </i></button>
-          <button type="submit" name="search"><i class="fas fa-download"> </i></button>
+          <button type="submit" name="search" formaction="/searchTimesheet"><i class="fas fa-search"> </i></button>
+          <button type="submit" name="download" formaction="/searchTimesheetToCSV"><i class="fas fa-download"> </i></button>
         </form>
-      <!-- </form> -->
 </div>
 
 <div class = "container">

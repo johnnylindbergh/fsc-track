@@ -8,6 +8,7 @@ const sys   = require('./settings.js');
 const mid   = require('./middleware.js');
 const moment = require('moment');
 const schedule = require('node-schedule');
+const fs = require('fs');
 
 const job = schedule.scheduleJob('* 59 23 * *', function(){
     db.clockOutAll(function(err){
@@ -374,8 +375,10 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
                 render.endDate = endDate;
 
                 
-
-                res.send(arrayToCSV(rows));
+		fs.writeFile('timesheet.csv',arrayToCSV(rows), function(){
+			console.log(err)
+			res.download('timesheet.csv');
+		});
               }); 
 
             });
