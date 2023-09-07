@@ -67,6 +67,16 @@ module.exports = {
     });
   },
 
+  getJobName: (jobId, cb) => {
+    con.query('SELECT (name) FROM jobs WHERE (isArchived = 0) AND (id = ?);',[jobId], (err, rows) => {
+      if (!err && rows !== undefined && rows.length > 0) {
+         cb(err, rows[0].name);
+      } else {
+         cb(err || "Failed to get jobs");
+      }
+    });
+  },
+
   createJob:  (name, cb) =>{
     con.query('INSERT INTO jobs (name) VALUES (?);', [name], (err) => {
       if (!err){
