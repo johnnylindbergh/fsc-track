@@ -8,6 +8,7 @@ const sys   = require('./settings.js');
 const mid   = require('./middleware.js');
 const moment = require('moment');
 const schedule = require('node-schedule');
+const fs = require('fs');
 
 const job = schedule.scheduleJob('* 59 23 * *', function(){
     db.clockOutAll(function(err){
@@ -57,33 +58,38 @@ module.exports = function(app) {
   });
 
   
-  app.get('/qr', mid.isAuth, (req, res) => {
+  app.get('/qrGen/:jobId/', mid.isAuth, (req, res) => {
     var render = defaultRender(req);
+    var jobId = req.params.jobId;
+
     if (req.isAuthenticated() && req.user && req.user.local) {
-      db.getJobs(req, res, function (err, jobs){
+      db.getJobs(req,res, function (err, jobs){
         render.jobs = jobs;
-        db.getTasks(req, res, function (err, tasks){
-          render.domain = sys.DOMAIN;
-          render.tasks = tasks
-          // create job - task pair
-          render.jobTasks = [];
-          for (var i = 0; i < jobs.length; i++){
-             for (var j = 0; j < tasks.length; j++){
-              var jobTaskPair = {job:jobs[i], task:tasks[j]};
+        db.getJobName(jobId, function (err, name){
+          render.jobName = name;
+          console.log(name);
+          db.getTasks(req, res, function (err, tasks){
+            render.domain = sys.DOMAIN;
+            render.tasks = tasks
+            // create job - task pair
+            render.jobTasks = [];
+
+            for (var j = 0; j < tasks.length; j++){
+              var jobTaskPair = {job:jobId, task:tasks[j]};
               render.jobTasks.push(jobTaskPair)
             }
-          }
-          res.render('qr.html', render);
+            
+            res.render('qr.html', render);
+          });
         });
       });
     }
   });
 
+
    app.get('/qr/:jobId/:taskId/', mid.isAuth, (req, res) => {
-    console.log("QR code scanned")
     var render = defaultRender(req);
     if (req.isAuthenticated() && req.user && req.user.local) {
-      console.log(req.user.local.id, req.params.jobId, req.params.taskId);
       db.clockInAndOut(req.user.local.id, req.params.jobId, req.params.taskId, function(err){
         if (!err){
           res.redirect('/');
@@ -115,7 +121,6 @@ module.exports = function(app) {
                db.lookUpUser(userEmail, function(err, rows){
 
                   render.clockedIn = rows.clockedIn;
-                  //console.log(render);
                   //res.send(render)
                   res.render("main.html", render);
               });
@@ -133,7 +138,6 @@ module.exports = function(app) {
 app.post('/addJob',mid.isAuth, function (req, res){
         // start with default render object
         var render = defaultRender(req);
-        //console.log(req.body.jobName);
         // ensure given name exists
         if (req.body.jobName) {
                 // create new job entry in DB
@@ -220,11 +224,7 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
    if (req.isAuthenticated() && req.user && req.user.local) {
 
       if (req.user.local.user_type == 1) {
-                 console.log("1", req.body.startDate)
-                console.log("2", req.body.endDate)
-                console.log("3", req.body.userId)
-                console.log("4", req.body.jobId)
-                console.log("5", req.body.taskId)
+
 
         var render = defaultRender(req);
         db.getJobs(req, res, function (err, jobs){
@@ -238,27 +238,23 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
 
               for (var i = 0; i < render.users.length; i++){
                 if (render.users[i].id == req.body.userId){
-                  console.log("selected")
                   render.users[i].selected = true;
                 }
               }
               
               for (var i = 0; i < render.jobs.length; i++){
                 if (render.jobs[i].id == req.body.jobId){
-                                    console.log("selected")
 
                   render.jobs[i].selected = true;
                 }
               }
                 for (var i = 0; i < render.tasks.length; i++){
                 if (render.tasks[i].id == req.body.taskId){
-                                    console.log("selected")
 
                   render.tasks[i].selected = true;
                 }
               }
 
-              console.log("filtering timesheet")
               
               // parse dates from request into moment objects
               var startDate = moment(req.body.startDate);
@@ -275,18 +271,17 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
               if (req.body.taskId == -1){
                             req.body.taskId = null;
               }
-              console.log(req.body)
 
               db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId,  function(err,rows){
                 if (!err && rows.length > 0){
                   render.results = rows;
                 }
+
                 render.startDate = startDate;
                 render.endDate = endDate;
 
 
 
-                console.log(render);
                 res.render("admin.html", render);
               }); 
 
@@ -310,34 +305,102 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
  });
 
 
-//    console.log(req._json);
- //   db.getJobs(req, res, function (err, rows){
-//      console.log(rows);
- //     res.render("sample.html",{jobs:rows});
- //   });
+app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
 
-  /*
-    ************************************
-    *                                  *
-    *   Routes go here...              *
-    *                                  *
-    *   app.get('/', (req, res) => {   *
-    *     ...                          *
-    *   });                    
-app.get('/getRAlocationStats', (req, res) => {
-   // renderMessages(req,res)
-   db.getRAlocationStats(req, res, function (loc){
-      console.log(loc);
-      res.render('locations.html', {locations:loc});
-   });
+   if (req.isAuthenticated() && req.user && req.user.local) {
+
+      if (req.user.local.user_type == 1) {
 
 
-});        *
-    *                                  *
-    ************************************
-  */
+        var render = defaultRender(req);
+        db.getJobs(req, res, function (err, jobs){
 
+          render.jobs = jobs;
+          db.getTasks(req, res, function(err, tasks){
+
+            render.tasks = tasks;
+            db.getUsers( function(err, rows){
+              render.users = rows;
+
+              for (var i = 0; i < render.users.length; i++){
+                if (render.users[i].id == req.body.userId){
+                  render.users[i].selected = true;
+                }
+              }
+              
+              for (var i = 0; i < render.jobs.length; i++){
+                if (render.jobs[i].id == req.body.jobId){
+
+                  render.jobs[i].selected = true;
+                }
+              }
+                for (var i = 0; i < render.tasks.length; i++){
+                if (render.tasks[i].id == req.body.taskId){
+
+                  render.tasks[i].selected = true;
+                }
+              }
+
+              
+              // parse dates from request into moment objects
+              var startDate = moment(req.body.startDate);
+              var endDate = moment(req.body.endDate);
+
+              if (req.body.userId == -1){
+                req.body.userId = null;
+              }
+              
+              if (req.body.jobId == -1){
+                req.body.jobId = null;
+              }
+              
+              if (req.body.taskId == -1){
+                            req.body.taskId = null;
+              }
+
+              db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId,  function(err,rows){
+                if (!err && rows.length > 0){
+                  render.results = rows;
+                }
+
+                render.startDate = startDate;
+                render.endDate = endDate;
+
+                
+		fs.writeFile('timesheet.csv',arrayToCSV(rows), function(){
+			res.download('timesheet.csv');
+		});
+              }); 
+
+            });
+
+          });
+
+        });      
+
+      } else {
+
+         res.send("You are not an admin.")
+      }
+
+      } else {
+
+        res.render("/");
+      
+      }
+
+ });
 }
+
+function arrayToCSV(objArray) {
+     const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
+     let str = `${Object.keys(array[0]).map(value => `"${value}"`).join(",")}` + '\r\n';
+
+     return array.reduce((str, next) => {
+         str += `${Object.values(next).map(value => `"${value}"`).join(",")}` + '\r\n';
+         return str;
+        }, str);
+ }
 
 
 function defaultRender(req) {

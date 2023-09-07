@@ -6,23 +6,9 @@
   <link rel="stylesheet" type="text/css" href="css/defaults.css">
   <link rel="stylesheet" type="text/css" href="css/navbar.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-
-  <script>
-    $("#searchForm button[value]").click(function(ev){
-    ev.preventDefault()// cancel form submission
-    if($(this).attr("value")=="search"){
-        //do button 1 thing
-      alert("search");
-    } if else ($(this).attr("value")=="download"){
-        //do button 1 thing
-      alert("download");
-    } 
-    // $("#my-form").submit(); if you want to submit the form
-});
-  </script>
 </head>
+
 <body>
   <div class="navbar">
     <ul>
@@ -113,17 +99,15 @@
 
 <div class="container">
   <!-- qr code generation content here -->
- <a href="/qr">Generate Job-Task QR Code</a> </br>
+ <a href="/qrGen/1">Generate Job-Task QR Code</a> </br>
 </div>
 </br>
 
 <div class="searchBar">
-  <form action="/searchTimeSheet" id="searchForm" method="POST">
-
-          <div >
-            <b>Job:</b>&nbsp;
-          </div>
-
+<b> Filter Results</b></br>&nbsp;
+    <form  id="searchForm" action="/searchTimesheet" method="POST">
+	<input type="submit" formaction="default_url_when_press_enter" style="visibility: hidden; display: none;">
+          
           <select name="userId" onchange="this.form.submit();">
             <option value="-1">All Users</option>
             {{#users}}
@@ -138,9 +122,7 @@
             {{/jobs}}
           </select>  
 
-          <div >
-            <b>Task</b>&nbsp;
-          </div>
+
           <select  name="taskId" onchange="this.form.submit();">
             <option value="-1">All Tasks</option>
             {{#tasks}}
@@ -148,19 +130,13 @@
             {{/tasks}}
           </select>
 
-          <div>
-            <b>From:</b> &nbsp;
-          </div>
-
-          <input type="date" name="startDate" value="{{startDate}}">
-        
-            <b>To:</b>&nbsp;
           
-          <input type="date" name="endDate" value="{{endDate}}">
+            <b>From:</b> <input type="date" name="startDate" value="{{startDate}}"><b>To:</b>&nbsp;
+          
+            <input type="date" name="endDate" value="{{endDate}}">
 
-          <button value="search" type="submit"><i class="fas fa-search"> </i></button>
-           <button  value="download" type="submit"><i class="fas fa-download"> </i></button>
-
+          <button type="submit" name="search" formaction="/searchTimesheet"><i class="fas fa-search"> </i></button>
+          <button type="submit" name="download" formaction="/searchTimesheetToCSV"><i class="fas fa-download"> </i></button>
         </form>
 </div>
 

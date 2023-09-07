@@ -6,7 +6,9 @@
 const creds   = require('./credentials.js');
 const sys     = require('./settings.js');
 const mysql   = require('mysql');
-const moment = require('moment')
+const moment = require('moment');
+
+
 
 // establish database connection
 const con = mysql.createPool({
@@ -45,7 +47,7 @@ module.exports = {
     */
 
     // make insert and retrieve inserted profile data (assumes default role is 1)
-    con.query('INSERT INTO users (email, user_type) VALUES (?, 1); SELECT * FROM users WHERE uid = LAST_INSERT_ID();', [user._json.email], (err, rows) => {
+    con.query('INSERT INTO users (email, name, user_type) VALUES (?, ?, 1); SELECT * FROM users WHERE uid = LAST_INSERT_ID();', [user._json.email, user._json.name], (err, rows) => {
       if (!err && rows !== undefined && rows.length > 1 && rows[1].length > 0) {
         // callback on generated profile
         cb(err, rows[1][0]);
@@ -59,6 +61,16 @@ module.exports = {
     con.query('SELECT * FROM jobs WHERE (isArchived = 0);', (err, rows) => {
       if (!err && rows !== undefined && rows.length > 0) {
          cb(err, rows)
+      } else {
+         cb(err || "Failed to get jobs");
+      }
+    });
+  },
+
+  getJobName: (jobId, cb) => {
+    con.query('SELECT (name) FROM jobs WHERE (isArchived = 0) AND (id = ?);',[jobId], (err, rows) => {
+      if (!err && rows !== undefined && rows.length > 0) {
+         cb(err, rows[0].name);
       } else {
          cb(err || "Failed to get jobs");
       }
@@ -184,13 +196,10 @@ module.exports = {
   },
 
   clockInAndOut: (userId, jobId, taskId, cb) => {
-     console.log("clockInAndOut1")
     con.query('SELECT clockedIn FROM users WHERE (id = ?);', [userId], (err, rows) =>{
-      console.log("rows", rows)
       if (!err && rows !== undefined && rows.length > 0) {
       
         if (rows[0].clockedIn == 0){
-            console.log("clockInAndOut2")
           //clockin
           con.query('INSERT INTO timesheet (userid, job, task, clock_in) values (?, ?, ?, NOW()); SELECT * FROM timesheet WHERE id = LAST_INSERT_ID(); UPDATE users SET clockedIn = 1 where id = ?;', [userId, jobId, taskId, userId], (err, rows) =>{
             if (!err) {
@@ -307,7 +316,6 @@ module.exports = {
 
 getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) => {
 
-       console.log("Querying Database...");
          // format dates into strings for query, and make inclusive range
          var startString = startDate.format('YYYY-MM-DD');
          var endString = endDate.add(1, 'days').format('YYYY-MM-DD');
@@ -334,7 +342,6 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
 
                  rows[i].duration = hours + (minutes/60) + (seconds /3600);
                  con.query('UPDATE timesheet SET duration = ? WHERE id = ?;', [rows[i].duration, rows[i].uid], (err) =>{
-                   console.log(err)
                  });
                }
              }
@@ -369,7 +376,6 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
                   // console.log(rows[i].duration, rows[j].duration, minutes)
                    rows[i].duration = rows[i].duration + rows[j].duration
                    rows[j].isArchived = 1;
-                   //console.log(rows);
 
 
                  }
@@ -454,7 +460,6 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
 
    getTimesheetQueryToCSV: (req, res, startDate, endDate, userId, jobId, taskId,  cb) => {
 
-       console.log("Querying Database...");
          // format dates into strings for query, and make inclusive range
          var startString = startDate.format('YYYY-MM-DD');
          var endString = endDate.add(1, 'days').format('YYYY-MM-DD');
@@ -521,7 +526,7 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
 
 
 
-         cb(err, filtered)
+         cb(filtered);
 
        });
 

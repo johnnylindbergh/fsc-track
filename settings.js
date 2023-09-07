@@ -9,13 +9,13 @@ module.exports = {
   PORT: 5000,
 
   // is the system in development mode (explicit error messages, etc)
-  DEV_MODE: true,
+  DEV_MODE: false,
 
   // name of database
   DB_NAME: 'fscTrack',
 
   // domain through which server is accessible
-  DOMAIN: 'http://fsc.johnnylindbergh.com',
+  DOMAIN: 'http://shop.franksaulconstruction.com',
 
   /*  does the system allow automatic creation of new user accounts
       when authentication is attempted. */
