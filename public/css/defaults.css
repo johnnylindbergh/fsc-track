@@ -18,6 +18,15 @@
   padding:10px;
 
 }
+
+.qrcontainer {
+  padding:50px;
+  width:90%;
+  column-width: 500px;
+
+
+}
+
 table {
   border-collapse: collapse;
   border-spacing: 0;

@@ -58,27 +58,34 @@ module.exports = function(app) {
   });
 
   
-  app.get('/qr', mid.isAuth, (req, res) => {
+  app.get('/qrGen/:jobId/', mid.isAuth, (req, res) => {
     var render = defaultRender(req);
+    var jobId = req.params.jobId;
+
     if (req.isAuthenticated() && req.user && req.user.local) {
-      db.getJobs(req, res, function (err, jobs){
+      db.getJobs(req,res, function (err, jobs){
         render.jobs = jobs;
-        db.getTasks(req, res, function (err, tasks){
-          render.domain = sys.DOMAIN;
-          render.tasks = tasks
-          // create job - task pair
-          render.jobTasks = [];
-          for (var i = 0; i < jobs.length; i++){
-             for (var j = 0; j < tasks.length; j++){
-              var jobTaskPair = {job:jobs[i], task:tasks[j]};
+        db.getJobName(jobId, function (err, name){
+          render.jobName = name;
+          console.log(name);
+          db.getTasks(req, res, function (err, tasks){
+            render.domain = sys.DOMAIN;
+            render.tasks = tasks
+            // create job - task pair
+            render.jobTasks = [];
+
+            for (var j = 0; j < tasks.length; j++){
+              var jobTaskPair = {job:jobId, task:tasks[j]};
               render.jobTasks.push(jobTaskPair)
             }
-          }
-          res.render('qr.html', render);
+            
+            res.render('qr.html', render);
+          });
         });
       });
     }
   });
+
 
    app.get('/qr/:jobId/:taskId/', mid.isAuth, (req, res) => {
     var render = defaultRender(req);
