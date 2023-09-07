@@ -1,7 +1,9 @@
 {
-  "name": "template",
+  "name": "FSCTrack",
   "version": "1.0.0",
-  "description": "Template description",
+  "author": "Johnny Lindbergh",
+  "description": "FSCTrack description",
+  "maintainerEmail": "lindberghjohnny@gmail.com",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -9,12 +11,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thomascastleman/node-template.git"
+    "url": "git+https://github.com/johnnylindbergh/fsc-track.git"
   },
-  "author": "Thomas Castleman",
-  "license": "MIT",
+  "license": "None",
   "bugs": {
-    "url": "https://github.com/thomascastleman/node-template/issues"
+    "url": "https://github.com/johnnylindbergh/fsc-track/issues"
   },
   "homepage": "https://github.com/thomascastleman/node-template#readme",
   "dependencies": {
@@ -22,7 +23,9 @@
     "cookie-parser": "^1.4.4",
     "cookie-session": "^1.3.3",
     "express": "^4.17.1",
-    "json-2-csv": "^4.1.0",
+    "greenlock": "^2.8.8",
+    "greenlock-express": "^4.0.3",
+    "greenlock-store-fs": "^3.2.2",
     "moment": "^2.29.4",
     "mustache-express": "^1.2.8",
     "mysql": "^2.17.1",
