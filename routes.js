@@ -2,7 +2,7 @@
 /*
   routes.js: System routes for most requests
 */
-
+"use strict";
 const db    = require('./database.js');
 const sys   = require('./settings.js');
 const mid   = require('./middleware.js');
@@ -67,7 +67,6 @@ module.exports = function(app) {
         render.jobs = jobs;
         db.getJobName(jobId, function (err, name){
           render.jobName = name;
-          console.log(name);
           db.getTasks(req, res, function (err, tasks){
             render.domain = sys.DOMAIN;
             render.tasks = tasks
