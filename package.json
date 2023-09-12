@@ -1,5 +1,5 @@
 {
-  "name": "FSCTrack",
+  "name": "fsctrack",
   "version": "1.0.0",
   "author": "Johnny Lindbergh",
   "description": "FSCTrack description",
@@ -13,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/johnnylindbergh/fsc-track.git"
   },
-  "license": "None",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/johnnylindbergh/fsc-track/issues"
   },
@@ -33,5 +33,11 @@
     "passport": "^0.5.3",
     "passport-google-oauth20": "^2.0.0",
     "querystring": "^0.2.0"
-  }
+  },
+  "devDependencies": {
+    "greenlock-manager-test": "^3.1.1"
+  },
+  "keywords": [
+    "timetracking"
+  ]
 }
