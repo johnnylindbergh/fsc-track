@@ -399,8 +399,16 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
       }
 
  });
-
-  app.post("")
+// updates inventory quantity 
+  app.post('/updateInventoryItem',  mid.isAuth, function(req, res){
+      if (req.local && req.local.user_type == 2){
+        db.updateInventoryQuantity(req.body.id, req.body.quantity, function(){
+          res.redirect('/')
+        });
+      } else {
+        res.send("You are not a manger.")
+      }
+  });
 }
 
 function arrayToCSV(objArray) {
