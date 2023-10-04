@@ -19,7 +19,7 @@ module.exports = {
 
   /*  does the system allow automatic creation of new user accounts
       when authentication is attempted. */
-  ALLOW_NEW_ACCOUNTS: true,
+  ALLOW_NEW_ACCOUNTS: false,
 
   /*  regex restriction to apply to emails of new accounts requesting access 
       (only if automatic creation enabled) */

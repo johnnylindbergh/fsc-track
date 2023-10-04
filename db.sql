@@ -21,6 +21,7 @@ CREATE TABLE users (
   user_type INT DEFAULT 2,
   name VARCHAR(64),
   email VARCHAR(64),
+  phone_number VARCHAR(64),
   clockedIn TINYINT(1) DEFAULT 0,
   public_key VARCHAR(64),
   authentication_token VARCHAR(64),
@@ -60,6 +61,26 @@ CREATE TABLE timesheet (
   FOREIGN KEY (job) REFERENCES jobs(id),
   FOREIGN KEY (task) REFERENCES tasks(id),
   FOREIGN KEY (userid) REFERENCES users(id),
+  PRIMARY KEY (id)
+
+);
+
+CREATE TABLE inventory (
+  id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(64),
+  quantity float(8),
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE inventory_job (
+  id INT NOT NULL AUTO_INCREMENT,
+  userid INT,
+  jobid INT,
+  taskid INT,
+  quantity_used float(8)
+  FOREIGN KEY (userid) REFERENCES users(id),
+  FOREIGN KEY (jobid) REFERENCES jobs(id),
+  FOREIGN KEY (taskid) REFERENCES tasks(id),
   PRIMARY KEY (id)
 
 );

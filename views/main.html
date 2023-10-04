@@ -64,10 +64,32 @@
       <form action="/clockout/{{id}}" method = "POST">
         <input type="submit" value="Clock Out">
       </form>
+      {{#isSupervisor}}
+      <form action="/updateInventoryItem" method="POST">
+        <div id="container">
+          <table>
+            <th>
+                <td>
+                </td>
+            </th>
+          {{#inventory}}
+            <tr>
+              <td>
+                {{name}}
+              </td>
+              <td>
+                <input type="checkbox" id= "item" label="{{id}}">
+                <input type="text" id="quantity" label="{{id}}">
+              </td>
+          </tr>
+          {{/inventory}}
+        </table>
+        </div>
+        <input type="submit">
+      </form>
+      {{/isSupervisor}}
     {{/clockedIn}}
-  <div class="container">
-   
-  </div>
+
 
 
 

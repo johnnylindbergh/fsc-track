@@ -7,8 +7,7 @@ const creds   = require('./credentials.js');
 const sys     = require('./settings.js');
 const mysql   = require('mysql');
 const moment = require('moment');
-
-
+moment().format();
 
 // establish database connection
 const con = mysql.createPool({
@@ -530,7 +529,49 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
 
        });
 
-   }
+   }, 
+
+    newInventoryItem:(name, quantity, cb) =>{
+      con.query('INSERT INTO inventory (name, quantity) VALUES (?, ?)', [name, quantity],(err) => {
+        if (err){
+          console.log(err);
+          cb(err);
+        }
+      });
+
+    },
+    // updates inventory quantity and should also check if the quantity is below set threshold
+    // if quantity is below threshold AND the reorder boolean is true, the order item function should be called with (itemId, quantity)
+
+    updateInventoryQuantity:(inventoryId, quantityUsed, reorder, cb) =>{
+      con.query('SELECT quantity FROM inventory WHERE id = ?;', [inventoryId],(err, rows)=>{
+        if (!err && rows.length > 0){
+          var newQuantity = rows[0].quantity - quantityUsed;
+          con.query('UPDATE inventory SET (quantity = ?) WHERE id = ?;', [newQuantity, inventoryId], (err) => {
+            console.log("the inventory has been updated");
+            cb(err);
+          });
+        }
+      });
+    },
+
+    getInventory:(cb) => {
+      con.query('select * from inventory;', (err, rows)=>{
+        if(!err && rows.length > 0){
+          cb(rows);
+        }
+      });
+    },
+
+    getPhoneNumber:(id, cb) => {
+      con.query('SELECT phone_number FROM users where id = ?;', [id], (err, rows)=>{
+        if (!err && rows.length > 0){
+          cb(rows[0]);
+        }
+      });
+    }
+
+
  
 
 }
