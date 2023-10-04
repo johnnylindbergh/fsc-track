@@ -540,8 +540,10 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
       });
 
     },
+    // updates inventory quantity and should also check if the quantity is below set threshold
+    // if quantity is below threshold AND the reorder boolean is true, the order item function should be called with (itemId, quantity)
 
-    updateInventoryQuantity:(inventoryId, quantityUsed, cb) =>{
+    updateInventoryQuantity:(inventoryId, quantityUsed, reorder, cb) =>{
       con.query('SELECT quantity FROM inventory WHERE id = ?;', [inventoryId],(err, rows)=>{
         if (!err && rows.length > 0){
           var newQuantity = rows[0].quantity - quantityUsed;
