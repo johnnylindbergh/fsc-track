@@ -118,10 +118,20 @@ module.exports = function(app) {
 
                render.tasks = tasks;
                db.lookUpUser(userEmail, function(err, rows){
-
-                  render.clockedIn = rows.clockedIn;
+                if (rows[0].user_type == 2){
+                  // user is super
+                  db.getInventory(function(err, rows){
+                    render.inventory = rows;
+                    render.isSupervisor = true;
+                  });
+                } else {
+                   render.clockedIn = rows.clockedIn;
                   //res.send(render)
                   res.render("main.html", render);
+
+                }
+
+                 
               });
             });
           });
@@ -389,6 +399,16 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
       }
 
  });
+// updates inventory quantity 
+  app.post('/updateInventoryItem',  mid.isAuth, function(req, res){
+      if (req.local && req.local.user_type == 2){
+        db.updateInventoryQuantity(req.body.id, req.body.quantity, function(){
+          res.redirect('/')
+        });
+      } else {
+        res.send("You are not a manger.")
+      }
+  });
 }
 
 function arrayToCSV(objArray) {
