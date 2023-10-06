@@ -14,6 +14,7 @@ CREATE TABLE user_types (
 -- role #1 is assumed default
 INSERT INTO user_types (title) VALUES ("Admin");
 INSERT INTO user_types (title) VALUES ("Worker");
+INSERT INTO user_types (title) VALUES ("Manager");
 
 -- user information
 CREATE TABLE users (
@@ -69,18 +70,20 @@ CREATE TABLE inventory (
   id INT NOT NULL AUTO_INCREMENT,
   name VARCHAR(64),
   quantity float(8),
+  threshold float(8),
   PRIMARY KEY (id)
 );
 
 CREATE TABLE inventory_job (
   id INT NOT NULL AUTO_INCREMENT,
+  timeRecorded DATETIME,
   userid INT,
   jobid INT,
   taskid INT,
-  quantity_used float(8)
-  FOREIGN KEY (userid) REFERENCES users(id),
-  FOREIGN KEY (jobid) REFERENCES jobs(id),
-  FOREIGN KEY (taskid) REFERENCES tasks(id),
+  quantity_used float(8),
+  -- FOREIGN KEY (userid) REFERENCES users(id),
+  -- FOREIGN KEY (jobid) REFERENCES jobs(id),
+  -- FOREIGN KEY (taskid) REFERENCES tasks(id),
   PRIMARY KEY (id)
 
 );

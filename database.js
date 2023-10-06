@@ -556,9 +556,11 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
     },
 
     getInventory:(cb) => {
-      con.query('select * from inventory;', (err, rows)=>{
+      con.query('SELECT * FROM inventory;', (err, rows)=>{
         if(!err && rows.length > 0){
-          cb(rows);
+          cb(err, rows);
+        } else {
+          cb(err | "The Inventory is Empty.")
         }
       });
     },
