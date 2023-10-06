@@ -44,4 +44,11 @@ module.exports = {
   // the updateInventory function has to have a lot of stuff email and twilio integration
   // 
 
+  // general
+  // if the user_type changes, the user must log out and back in again to update their local info. 
+  // perhaps the check should use lookUpUser instead of req.user.local for user_type info since it can change. req.user.local only used for static user data like name, email
+  // what google info can we pull?
+  // does inventory data need another download button 
+  // since inventory_job associates an inventory item to a job when a manager updates the value, should it also store the active task? 
+
 }
