@@ -150,13 +150,31 @@ module.exports = {
 
    getUsers: (cb) => {
 
-    con.query('SELECT name, id FROM users;', (err, rows) =>{
+    con.query('SELECT * FROM users;', (err, rows) =>{
      if (!err && rows !== undefined && rows.length > 0){
       cb(err, rows);
      } else {
       cb(err || "failed to get users;")
      }
     });
+
+  },
+
+
+   getAllUserData: (cb) => {
+
+    con.query('SELECT * FROM users;', (err, rows) =>{
+     if (!err && rows !== undefined && rows.length > 0){
+      cb(err, rows);
+     } else {
+      cb(err || "failed to get users;")
+     }
+    });
+
+  },
+
+  updateUserData: (userData, cb) => {
+    //?
 
   },
 

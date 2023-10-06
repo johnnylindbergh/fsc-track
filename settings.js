@@ -34,7 +34,13 @@ module.exports = {
   // if an item has been set to reorder when threshold is reached, use node mailer and the user defined email template. GENERATE EMAIL ONLY send text to gerry with item reorder request. if gerry approves, the email is sent if gerry declines, text: would you like to modify the order? if yes, modify order and loop if no, terminate 
   // option to change reorder email
   // option to change user data
+  // the search Timesheet post request must pull inventory, and order email options
+  // order email options:
 
+  // change the email itself
+  // change the confirmation process
+  // now there is no confirmation process it just sends to big G and then he forwards it to the supplier
+  // 
   // worker
   // the ability to add notes to the clockOut form
 
