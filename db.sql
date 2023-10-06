@@ -81,10 +81,12 @@ CREATE TABLE inventory_job (
   jobid INT,
   taskid INT,
   quantity_used float(8),
-  -- FOREIGN KEY (userid) REFERENCES users(id),
-  -- FOREIGN KEY (jobid) REFERENCES jobs(id),
-  -- FOREIGN KEY (taskid) REFERENCES tasks(id),
+  FOREIGN KEY (userid) REFERENCES users(id),
+  FOREIGN KEY (jobid) REFERENCES jobs(id),
+  FOREIGN KEY (taskid) REFERENCES tasks(id),
   PRIMARY KEY (id)
 
 );
+
+--ALTER TABLE inventory_job ADD CONSTRAINT foreign_key_user FOREIGN KEY (userid) REFERENCES users(id);
 
