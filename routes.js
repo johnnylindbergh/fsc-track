@@ -23,7 +23,7 @@ module.exports = function(app) {
     if (req.isAuthenticated() && req.user && req.user.local) {
       if (req.user.local.user_type == 1) {
 
-        var render = defaultRender(req);
+        var render = defaultAdminRender(req);
         db.getJobs(req, res, function (err, jobs){
 
           render.jobs = jobs;
@@ -36,7 +36,11 @@ module.exports = function(app) {
                 db.getUsers(function(err, users){
                   render.users = users;
 
-                  res.render("admin.html", render);
+                  db.getInventory(function(err, inventory){
+                    render.inventory = inventory;
+                    res.render("admin.html", render);
+                  });
+
                 });
 
             });
@@ -412,7 +416,7 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
 
         db.updateInventoryQuantity(req.body.item, req.body.quantity, false, function(err){
           if (!err){
-            res.redirect('/')
+            res.redirect('/#inventory')
           } else {
             res.send("An error has occured in /updateInventoryItem");
           }
@@ -435,7 +439,33 @@ function arrayToCSV(objArray) {
  }
 
 
+
 function defaultRender(req) {
+  if (req.isAuthenticated() && req.user && req.user.local) {
+    // basic render object for fully authenticated user
+    return {
+      inDevMode: sys.DEV_MODE,
+      auth: {
+        isAuthenticated: true,
+        userIsAdmin: req.user.local.isAdmin,
+        message: "Welcome,  " + req.user.name.givenName + "!"
+      },
+      defaults:{
+        sysName:sys.SYSTEM_NAME
+      }
+    };
+  } else {
+    // default welcome message for unauthenticated user
+    return {
+      inDevMode: sys.inDevMode,
+      auth: {
+        message: "Welcome! Please log in."
+      }
+    };
+  }
+}
+
+function defaultAdminRender(req) {
   if (req.isAuthenticated() && req.user && req.user.local) {
     // basic render object for fully authenticated user
     return {

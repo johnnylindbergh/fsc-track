@@ -71,6 +71,7 @@ CREATE TABLE inventory (
   name VARCHAR(64),
   quantity float(8),
   threshold float(8),
+  order TINYINT(1) DEFAULT 0,
   PRIMARY KEY (id)
 );
 
