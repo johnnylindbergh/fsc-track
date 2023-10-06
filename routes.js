@@ -106,7 +106,7 @@ module.exports = function(app) {
     if (req.isAuthenticated() && req.user && req.user.local) {
 
 
-     // if (req.user.local.user_type == 1 || req.user.local.user_type ==2){
+      if (req.user.local.user_type == 1 || req.user.local.user_type ==2 || req.user.local.user_type ==3){
 
   
           var userEmail = req.user.local.email;
@@ -117,15 +117,20 @@ module.exports = function(app) {
             db.getTasks(req, res, function (err, tasks){
 
                render.tasks = tasks;
-               db.lookUpUser(userEmail, function(err, rows){
-                if (rows[0].user_type == 2){
-                  // user is super
+               db.lookUpUser(userEmail, function(err, user){
+                render.clockedIn = user.clockedIn;
+                console.log(user);
+                if (user.user_type == 3){
+                  // user is super  
+                  render.isManager = true;  
+
                   db.getInventory(function(err, rows){
                     render.inventory = rows;
-                    render.isSupervisor = true;
+                   
+                    res.render("main.html", render);
                   });
                 } else {
-                   render.clockedIn = rows.clockedIn;
+                   render.clockedIn = user.clockedIn;
                   //res.send(render)
                   res.render("main.html", render);
 
@@ -135,7 +140,7 @@ module.exports = function(app) {
               });
             });
           });
-     // }
+      }
     } else {
        res.render("welcome.html", render);
     }
@@ -401,9 +406,16 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
  });
 // updates inventory quantity 
   app.post('/updateInventoryItem',  mid.isAuth, function(req, res){
-      if (req.local && req.local.user_type == 2){
-        db.updateInventoryQuantity(req.body.id, req.body.quantity, function(){
-          res.redirect('/')
+      if (req.user.local && req.user.local.user_type == 3){
+        console.log(req.body.quantity)
+        console.log(req.body.item)
+        db.updateInventoryQuantity(req.body.item, req.body.quantity, false, function(err){
+          if (!err){
+            res.redirect('/')
+          } else {
+            res.send("An error has occured in /updateInventoryItem");
+          }
+          
         });
       } else {
         res.send("You are not a manger.")
