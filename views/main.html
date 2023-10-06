@@ -64,6 +64,7 @@
       <form action="/clockout/{{id}}" method = "POST">
         <input type="submit" value="Clock Out">
       </form>
+    <div id = "container">
       {{#isManager}}
       <form action="/updateInventoryItem" method="POST">
         <div id="container">
@@ -78,8 +79,8 @@
                 {{name}}
               </td>
               <td>
-                <input type="checkbox" id= "item" value="{{id}}">
-                <input type="text" id="{{id}}">
+                <input type="checkbox" id="item" name= "item" value="{{id}}">
+                <input name="quantity" type="text" autocomplete="off" placeholder="Enter quantity used">
               </td>
           </tr>
           {{/inventory}}
@@ -88,6 +89,7 @@
         <input type="submit">
       </form>
       {{/isManager}}
+    </div>
     {{/clockedIn}}
 
 

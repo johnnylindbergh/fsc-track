@@ -409,6 +409,7 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
       if (req.user.local && req.user.local.user_type == 3){
         console.log(req.body.quantity)
         console.log(req.body.item)
+        // must handle items like [ '3', '4' ] [ '1', '2' ] (quantity1, quatity2,) for (itemId1, itemId2)
         db.updateInventoryQuantity(req.body.item, req.body.quantity, false, function(err){
           if (!err){
             res.redirect('/')
