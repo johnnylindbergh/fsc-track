@@ -533,9 +533,10 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
 
     newInventoryItem:(name, quantity, cb) =>{
       con.query('INSERT INTO inventory (name, quantity) VALUES (?, ?)', [name, quantity],(err) => {
-        if (err){
-          console.log(err);
+        if (!err){
           cb(err);
+        } else {
+          cb(err | "failed to update inventory")
         }
       });
 
@@ -544,15 +545,29 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
     // if quantity is below threshold AND the reorder boolean is true, the order item function should be called with (itemId, quantity)
 
     updateInventoryQuantity:(inventoryId, quantityUsed, reorder, cb) =>{
-      con.query('SELECT quantity FROM inventory WHERE id = ?;', [inventoryId],(err, rows)=>{
-        if (!err && rows.length > 0){
-          var newQuantity = rows[0].quantity - quantityUsed;
-          con.query('UPDATE inventory SET (quantity = ?) WHERE id = ?;', [newQuantity, inventoryId], (err) => {
-            console.log("the inventory has been updated");
-            cb(err);
+      if (inventoryId.length == quantityUsed.length && inventoryId.length >0){
+        console.log("Updating " + inventoryId.length + " items.")
+        for (var i = 0; i < inventoryId.length; i++){
+          var item = parseInt(inventoryId[i]);
+          var quantity = parseInt(quantityUsed[i]);
+          console.log("item:", item);
+          console.log("quantity:", quantity);
+
+          con.query('SELECT quantity FROM inventory WHERE id = ?;', [item],(err, rows)=>{
+            if (!err && rows.length > 0){
+              console.log(rows);
+              var newQuantity = rows[0].quantity - quantity;
+              con.query('UPDATE inventory SET quantity = ? WHERE id = ?;', [newQuantity, item], (err) => {
+                console.log(err);
+                
+              });
+            }
           });
         }
-      });
+
+         cb(null);
+      }
+      
     },
 
     getInventory:(cb) => {
