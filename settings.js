@@ -27,5 +27,21 @@ module.exports = {
 
   // name of this system
   SYSTEM_NAME: 'FSCTrack'
+  // admin
+  // inventory add/delete/ reorder options
+  // inventory job associations menu (list of job_iventory items grouped and counted)
+  // the update inventory item needs to make another query to inventory_job
+  // if an item has been set to reorder when threshold is reached, use node mailer and the user defined email template. GENERATE EMAIL ONLY send text to gerry with item reorder request. if gerry approves, the email is sent if gerry declines, text: would you like to modify the order? if yes, modify order and loop if no, terminate 
+  // option to change reorder email
+  // option to change user data
+
+  // worker
+  // the ability to add notes to the clockOut form
+
+
+  // manager
+  // the ability to add notes and INVENTORY CHANGES 
+  // the updateInventory function has to have a lot of stuff email and twilio integration
+  // 
 
 }
