@@ -571,14 +571,19 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
           console.log("item:", item);
           console.log("quantity:", quantity);
 
-          con.query('SELECT quantity FROM inventory WHERE id = ?;', [item],(err, rows)=>{
+          con.query('SELECT quantity, threshold, reorder FROM inventory WHERE id = ?;', [item],(err, rows)=>{
             if (!err && rows.length > 0){
               console.log(rows);
               var newQuantity = rows[0].quantity - quantity;
-              con.query('UPDATE inventory SET quantity = ? WHERE id = ?;', [newQuantity, item], (err) => {
+              if (newQuantity < rows[0].threshold && rows[0].reorder){
+                  // send reorder email with sendReorderEmail(item, threshold, )
+              }
+
+               con.query('UPDATE inventory SET quantity = ? WHERE id = ?;', [newQuantity, item], (err) => {
                 console.log(err);
                 
               });
+             
             }
           });
         }
@@ -598,12 +603,24 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
       });
     },
 
+    updateInventory: (inventory, cb) => {
+     // con.query("update")
+      cb(null)
+    },
+
     getPhoneNumber:(id, cb) => {
       con.query('SELECT phone_number FROM users where id = ?;', [id], (err, rows)=>{
         if (!err && rows.length > 0){
           cb(rows[0]);
         }
       });
+    },
+
+    updateUsers: (users, cb) =>{
+      for (var i = 0; i < users; i++){
+        console.log(users[i]);
+      }
+
     }
 
 
