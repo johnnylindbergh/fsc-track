@@ -426,6 +426,37 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
         res.send("You are not a manger.")
       }
   });
+
+  app.post('/addInventoryItem', mid.isAuth, function(req, res){
+    if (req.user.local && req.user.local.user_type == 1){
+      
+
+        db.newInventoryItem(req.body.itemName, req.body.quantity, function(err){
+          res.redirect("/admin");
+        });
+
+      }
+  });
+
+  app.post('/updateUsers',  mid.isAuth, function(req, res){
+      if (req.user.local && req.user.local.user_type == 1){
+      
+
+        db.updateUsers(req.body.users, function(err){
+          req.send("Updating Users is not fully operational yet.")
+        });
+
+      }
+  }); 
+
+  app.post('/updateInventory', mid.isAuth, function(req,res){
+      if (req.user.local && req.user.local.user_type == 1){
+        db.updateInventory(req.body.inventory, function(err){
+          res.send("Updating the inventory is not fully operational yet");
+
+        });
+      }
+  });
 }
 
 function arrayToCSV(objArray) {
