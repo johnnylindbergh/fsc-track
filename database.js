@@ -610,7 +610,12 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
     // updates inventory quantity and should also check if the quantity is below set threshold
     // if quantity is below threshold AND the reorder boolean is true, the order item function should be called with (itemId, quantity)
 
-    updateInventoryQuantity:(inventoryId, quantityUsed, reorder, cb) =>{
+    updateInventoryQuantity:(req, res, cb) =>{
+      console.log(req.body);
+      var inventoryId = req.body.item;
+      var quantityUsed = req.body.quantity
+
+      var reorder = req.body.reorder;
       if (inventoryId.length == quantityUsed.length && inventoryId.length >0){
         console.log("Updating " + inventoryId.length + " items.")
         for (var i = 0; i < inventoryId.length; i++){
@@ -641,6 +646,12 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
       
     },
 
+
+    updateInventoryQuantityManager:(req, res, cb) =>{
+      for (int)
+      var quantity = req.body.quantity
+    },
+
     getInventory:(cb) => {
       con.query('SELECT * FROM inventory;', (err, rows)=>{
         if(!err && rows.length > 0){
@@ -652,6 +663,36 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
     },
 
     updateInventory: (body, cb) => {
+      for (var i = 0; i < body.item_name.length; i++){
+        if (body.threshold[i] == null){
+          body.threshold[i] = 0;
+        }
+        con.query('UPDATE inventory SET name = ?, quantity = ?, threshold = ? WHERE id = ?;',[body.item_name[i], body.quantity[i], body.threshold[i], body.id[i]], (err) =>{
+          console.log(err);
+        });
+       
+      }
+      if (body.reorder == null){
+        body.reorder = [];
+      }
+      for (var i = 0; i < body.id.length; i++){
+        con.query('UPDATE inventory SET reorder = 0 where id = ?;',[body.id[i]], (err)=>{
+
+          });
+        for (var j = 0; j < body.reorder.length; j++){
+          if (body.id[i] == body.reorder[j]){
+              con.query('UPDATE inventory SET reorder = 1 where id = ?;',[body.id[i]], (err)=>{
+
+              });
+          }
+        }
+       
+      }
+        cb(null);
+       
+    },
+
+        updateInventoryManager: (body, cb) => {
       for (var i = 0; i < body.item_name.length; i++){
         if (body.threshold[i] == null){
           body.threshold[i] = 0;
