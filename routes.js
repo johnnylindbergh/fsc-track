@@ -110,7 +110,7 @@ module.exports = function(app) {
 
    });
 
-
+   app.get('/inventory')
 
   app.get('/', mid.isAuth, (req, res) => {
     var render = defaultRender(req);
@@ -136,8 +136,8 @@ module.exports = function(app) {
                   // user is super  
                   render.isManager = true;  
 
-                  db.getInventory(function(err, inventory){
-                    render.inventory = inventory;
+                  db.getInventory(function(err, rows){
+                    render.inventory = rows;
                    
                     res.render("main.html", render);
                   });
@@ -393,9 +393,9 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
                 render.endDate = endDate;
 
                 
-		fs.writeFile('timesheet.csv',arrayToCSV(rows), function(){
-			res.download('timesheet.csv');
-		});
+    fs.writeFile('timesheet.csv',arrayToCSV(rows), function(){
+      res.download('timesheet.csv');
+    });
               }); 
 
             });
@@ -419,10 +419,10 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
 // updates inventory quantity 
   app.post('/updateInventoryItem',  mid.isAuth, function(req, res){
       if (req.user.local && req.user.local.user_type == 3){
-        console.log(req.body.item)
+        //console.log(req.body.item)
         // must handle items like [ '3', '4' ] [ '1', '2' ] (quantity1, quatity2,) for (itemId1, itemId2)
 
-        db.updateInventoryQuantityManager(req, res, function(err){
+        db.updateInventoryQuantity(req.body.item, req.body.quantity, false, function(err){
           if (!err){
             res.redirect('/#inventory')
           } else {
@@ -459,13 +459,13 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
 
   app.post('/updateInventory', mid.isAuth, function(req,res){
       if (req.user.local && req.user.local.user_type == 1){
-      	for (var i = 0; i < req.body.item_name.length; i++){
-      		console.log("item "+ i +" : "+req.body.item_name[i]);
+        for (var i = 0; i < req.body.item_name.length; i++){
+          console.log("item "+ i +" : "+req.body.item_name[i]);
           console.log(req.body.quantity[i]);
           console.log(req.body.threshold[i]);
           console.log(req.body.reorder[i]);
           console.log(req.body.id[i]);
-      	}
+        }
         console.log(req.body);
 
         db.updateInventory(req.body, function(err){
@@ -473,9 +473,7 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
         });
       }
   });
-
-
-
+}
 
 function arrayToCSV(objArray) {
      const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;

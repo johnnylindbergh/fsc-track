@@ -646,9 +646,11 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
       
     },
 
+  
+
 
     updateInventoryQuantityManager:(req, res, cb) =>{
-      for (int)
+      //for (int)
       var quantity = req.body.quantity
     },
 
