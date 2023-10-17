@@ -10,6 +10,7 @@ const moment = require('moment');
 const schedule = require('node-schedule');
 const fs = require('fs');
 
+
 const job = schedule.scheduleJob('* 59 23 * *', function(){
     db.clockOutAll(function(err){
        console.log('All users have been automatically clocked out at: ', new Date.toLocaleTimeString());
@@ -36,10 +37,15 @@ module.exports = function(app) {
                 db.getUsers(function(err, users){
                   render.users = users;
 
-                  db.getInventory(function(err, inventory){
-                    render.inventory = inventory;
-                    res.render("admin.html", render);
+                  db. getUserHours(function(err, userHours){
+                    render.time = userHours;
+                    db.getInventory(function(err, inventory){
+                      render.inventory = inventory;
+                      res.render("admin.html", render);
+                    });
+
                   });
+             
 
                 });
 
@@ -300,7 +306,7 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
 
 
 
-                res.render("admin.html", render);
+                res.render("timesheet.html", render);
               }); 
 
             });
@@ -451,9 +457,17 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
 
   app.post('/updateInventory', mid.isAuth, function(req,res){
       if (req.user.local && req.user.local.user_type == 1){
-        db.updateInventory(req.body.inventory, function(err){
-          res.send("Updating the inventory is not fully operational yet");
+      	for (var i = 0; i < req.body.item_name.length; i++){
+      		console.log("item "+ i +" : "+req.body.item_name[i]);
+          console.log(req.body.quantity[i]);
+          console.log(req.body.threshold[i]);
+          console.log(req.body.reorder[i]);
+          console.log(req.body.id[i]);
+      	}
+        console.log(req.body);
 
+        db.updateInventory(req.body, function(err){
+          res.redirect("/admin");
         });
       }
   });
