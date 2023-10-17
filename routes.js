@@ -116,7 +116,9 @@ module.exports = function(app) {
     if (req.isAuthenticated() && req.user && req.user.local) {
 
 
+
       if (req.user.local.user_type == 1 || req.user.local.user_type ==2 || req.user.local.user_type ==3){
+
 
   
           var userEmail = req.user.local.email;
@@ -125,6 +127,13 @@ module.exports = function(app) {
 
             render.jobs = jobs;
             db.getTasks(req, res, function (err, tasks){
+              db.lookUpUser(req.user.local.email, function (err, rows){
+                render.tasks = tasks;
+                render.clockedIn = rows.clockedIn;
+                //res.send(render)
+                res.render("main.html", render);
+              });
+
 
                render.tasks = tasks;
                db.lookUpUser(userEmail, function(err, user){
@@ -144,12 +153,12 @@ module.exports = function(app) {
                   //res.send(render)
                   res.render("main.html", render);
 
-                }
+
+            });
 
                  
-              });
-            });
           });
+
       }
     } else {
        res.render("welcome.html", render);
