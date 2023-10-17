@@ -6,6 +6,25 @@
   <link rel="stylesheet" type="text/css" href="css/defaults.css">
   <link rel="stylesheet" type="text/css" href="css/navbar.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script>
+    function validateForm() {
+  let quantity = parseInt(document.forms["inventoryForm"]["quantity"].value);
+  let threshold = parseInt(document.forms["inventoryForm"]["threshold"].value);
+  let total = parseInt(document.forms["inventoryForm"]["total"].value);
+  if (total - quantity < threshold ) {
+    let text;
+    if (confirm("Press a button!") == true) {
+      text = "reorder request submitted";
+      return true;
+    } else {
+      text = "";
+      return false;
+    }
+    
+  }
+}
+  </script>
 </head>
 <body>
   <div class="navbar">
@@ -66,7 +85,7 @@
       </form>
     <div id = "container">
       {{#isManager}}
-      <form action="/updateInventoryItem" method="POST">
+      <form name ="inventoryForm"action="/updateInventoryItem" onsubmit="return validateForm()" method="POST">
         <div id="container">
           <table>
             <th>
@@ -79,6 +98,9 @@
                 {{name}}
               </td>
               <td>
+                <input type="text" name="id" value = "{{id}}" hidden>
+                <input type="text" name="total" value = "{{quantity}}" hidden>
+                <input type="text" name="threshold" value = "{{threshold}}" hidden>
                 <input type="checkbox" id="item" name= "item" value="{{id}}">
                 <input name="quantity" type="text" autocomplete="off" placeholder="Enter quantity used">
               </td>
