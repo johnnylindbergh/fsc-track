@@ -10,6 +10,7 @@ const moment = require('moment');
 const schedule = require('node-schedule');
 const fs = require('fs');
 
+
 const job = schedule.scheduleJob('* 59 23 * *', function(){
     db.clockOutAll(function(err){
        console.log('All users have been automatically clocked out at: ', new Date.toLocaleTimeString());
@@ -23,7 +24,7 @@ module.exports = function(app) {
     if (req.isAuthenticated() && req.user && req.user.local) {
       if (req.user.local.user_type == 1) {
 
-        var render = defaultRender(req);
+        var render = defaultAdminRender(req);
         db.getJobs(req, res, function (err, jobs){
 
           render.jobs = jobs;
@@ -36,7 +37,16 @@ module.exports = function(app) {
                 db.getUsers(function(err, users){
                   render.users = users;
 
-                  res.render("admin.html", render);
+                  db. getUserHours(function(err, userHours){
+                    render.time = userHours;
+                    db.getInventory(function(err, inventory){
+                      render.inventory = inventory;
+                      res.render("admin.html", render);
+                    });
+
+                  });
+             
+
                 });
 
             });
@@ -106,7 +116,9 @@ module.exports = function(app) {
     if (req.isAuthenticated() && req.user && req.user.local) {
 
 
-      if (req.user.local.user_type == 1 || req.user.local.user_type ==2 || req.user.local.user_type == 3){
+
+      if (req.user.local.user_type == 1 || req.user.local.user_type ==2 || req.user.local.user_type ==3){
+
 
   
           var userEmail = req.user.local.email;
@@ -123,12 +135,30 @@ module.exports = function(app) {
               });
 
 
+               render.tasks = tasks;
+               db.lookUpUser(userEmail, function(err, user){
+                render.clockedIn = user.clockedIn;
+                //console.log(user);
+                if (user.user_type == 3){
+                  // user is super  
+                  render.isManager = true;  
+
+                  db.getInventory(function(err, rows){
+                    render.inventory = rows;
+                   
+                    res.render("main.html", render);
+                  });
+                } else {
+                   render.clockedIn = user.clockedIn;
+                  //res.send(render)
+                  res.render("main.html", render);
+
+
             });
 
                  
           });
-        
-        
+
       }
     } else {
        res.render("welcome.html", render);
@@ -285,7 +315,7 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
 
 
 
-                res.render("admin.html", render);
+                res.render("timesheet.html", render);
               }); 
 
             });
@@ -395,12 +425,59 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
  });
 // updates inventory quantity 
   app.post('/updateInventoryItem',  mid.isAuth, function(req, res){
-      if (req.local && req.local.user_type == 2){
-        db.updateInventoryQuantity(req.body.id, req.body.quantity, function(){
-          res.redirect('/')
+      if (req.user.local && req.user.local.user_type == 3){
+        //console.log(req.body.item)
+        // must handle items like [ '3', '4' ] [ '1', '2' ] (quantity1, quatity2,) for (itemId1, itemId2)
+
+        db.updateInventoryQuantity(req.body.item, req.body.quantity, false, function(err){
+          if (!err){
+            res.redirect('/#inventory')
+          } else {
+            res.send("An error has occured in /updateInventoryItem");
+          }
+          
         });
       } else {
         res.send("You are not a manger.")
+      }
+  });
+
+  app.post('/addInventoryItem', mid.isAuth, function(req, res){
+    if (req.user.local && req.user.local.user_type == 1){
+      
+
+        db.newInventoryItem(req.body.itemName, req.body.quantity, function(err){
+          res.redirect("/admin");
+        });
+
+      }
+  });
+
+  app.post('/updateUsers',  mid.isAuth, function(req, res){
+      if (req.user.local && req.user.local.user_type == 1){
+      
+
+        db.updateUsers(req.body.users, function(err){
+          req.send("Updating Users is not fully operational yet.")
+        });
+
+      }
+  }); 
+
+  app.post('/updateInventory', mid.isAuth, function(req,res){
+      if (req.user.local && req.user.local.user_type == 1){
+      	for (var i = 0; i < req.body.item_name.length; i++){
+      		console.log("item "+ i +" : "+req.body.item_name[i]);
+          console.log(req.body.quantity[i]);
+          console.log(req.body.threshold[i]);
+          console.log(req.body.reorder[i]);
+          console.log(req.body.id[i]);
+      	}
+        console.log(req.body);
+
+        db.updateInventory(req.body, function(err){
+          res.redirect("/admin");
+        });
       }
   });
 }
@@ -416,7 +493,33 @@ function arrayToCSV(objArray) {
  }
 
 
+
 function defaultRender(req) {
+  if (req.isAuthenticated() && req.user && req.user.local) {
+    // basic render object for fully authenticated user
+    return {
+      inDevMode: sys.DEV_MODE,
+      auth: {
+        isAuthenticated: true,
+        userIsAdmin: req.user.local.isAdmin,
+        message: "Welcome,  " + req.user.name.givenName + "!"
+      },
+      defaults:{
+        sysName:sys.SYSTEM_NAME
+      }
+    };
+  } else {
+    // default welcome message for unauthenticated user
+    return {
+      inDevMode: sys.inDevMode,
+      auth: {
+        message: "Welcome! Please log in."
+      }
+    };
+  }
+}
+
+function defaultAdminRender(req) {
   if (req.isAuthenticated() && req.user && req.user.local) {
     // basic render object for fully authenticated user
     return {

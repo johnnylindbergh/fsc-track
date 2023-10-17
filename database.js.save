@@ -161,51 +161,6 @@ module.exports = {
   },
 
 
-// CREATE TABLE timesheet (
-//   id INT NOT NULL AUTO_INCREMENT,
-//   userid INT,
-//   job INT,
-//   task INT,
-//   clock_in DATETIME,
-//   clock_out DATETIME,
-//   duration float(8),
-//   notes VARCHAR(64),
-//   FOREIGN KEY (job) REFERENCES jobs(id),
-//   FOREIGN KEY (task) REFERENCES tasks(id),
-//   FOREIGN KEY (userid) REFERENCES users(id),
-
-// CREATE TABLE users (
-//   id INT NOT NULL AUTO_INCREMENT,
-//   user_type INT DEFAULT 2,
-//   name VARCHAR(64),
-//   email VARCHAR(64),
-//   phone_number VARCHAR(64),
-//   clockedIn TINYINT(1) DEFAULT 0,
-//   public_key VARCHAR(64),
-//   authentication_token VARCHAR(64),
-//   FOREIGN KEY (user_type) REFERENCES user_types(id),
-//   PRIMARY KEY (id)
-
-// );
-
-
-//  PRIMARY KEY (id)
-
-     getUsersHours: (cb) => {
-
-    con.query('SELECT timesheet.userid AS UserID, users.name as name SUM(timesheet.duration) AS TotalDuration FROM timesheet JOIN users users.id = timesheet.userid GROUP BY timesheet.userid;', (err, rows) =>{
-
-      if (!err && rows !== undefined && rows.length > 0){
-
-      cb(err, users);
-     } else {
-      cb(err || "failed to get users;")
-     }
-    });
-
-  },
-
-
    getAllUserData: (cb) => {
 
     con.query('SELECT * FROM users;', (err, rows) =>{
@@ -648,34 +603,9 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
       });
     },
 
-    updateInventory: (body, cb) => {
-      for (var i = 0; i < body.item_name.length; i++){
-        if (body.threshold[i] == null){
-          body.threshold[i] = 0;
-        }
-        con.query('UPDATE inventory SET name = ?, quantity = ?, threshold = ? WHERE id = ?;',[body.item_name[i], body.quantity[i], body.threshold[i], body.id[i]], (err) =>{
-          console.log(err);
-        });
-       
-      }
-      if (body.reorder == null){
-        body.reorder = [];
-      }
-      for (var i = 0; i < body.id.length; i++){
-        con.query('UPDATE inventory SET reorder = 0 where id = ?;',[body.id[i]], (err)=>{
-
-          });
-        for (var j = 0; j < body.reorder.length; j++){
-          if (body.id[i] == body.reorder[j]){
-              con.query('UPDATE inventory SET reorder = 1 where id = ?;',[body.id[i]], (err)=>{
-
-              });
-          }
-        }
-       
-      }
-        cb(null);
-       
+    updateInventory: (inventory, cb) => {
+     // con.query("update")
+      cb(null)
     },
 
     getPhoneNumber:(id, cb) => {
