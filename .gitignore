@@ -3,7 +3,8 @@
 /credentials.js
 
 package-lock.json
-
+# SSL Stuff
+greenlock.d/
 # Dependency directories
 node_modules/
 jspm_packages/
