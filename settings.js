@@ -26,7 +26,9 @@ module.exports = {
   EMAIL_RESTRICTION:  /.+?@franksaulconstruction\.com$/gm,
 
   // name of this system
-  SYSTEM_NAME: 'FSCTrack'
+  SYSTEM_NAME: 'FSCTrack',
+
+  
   // admin
   // inventory add/delete/ reorder options
   // inventory job associations menu (list of job_iventory items grouped and counted)
