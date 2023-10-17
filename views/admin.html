@@ -108,14 +108,14 @@
     <form  id="searchForm" action="/searchTimesheet" method="POST">
   <input type="submit" formaction="default_url_when_press_enter" style="visibility: hidden; display: none;">
           
-          <select name="userId" onchange="this.form.submit();">
+          <select name="userId">
             <option value="-1">All Users</option>
             {{#users}}
             <option value="{{id}}"{{#selected}}selected{{/selected}}>{{name}}</option>
             {{/users}}
           </select>  
 
-          <select name="jobId" onchange="this.form.submit();">
+          <select name="jobId" >
             <option value="-1">All Jobs</option>
             {{#jobs}}
             <option value="{{id}}"{{#selected}}selected{{/selected}}>{{name}}</option>
@@ -123,7 +123,7 @@
           </select>  
 
 
-          <select  name="taskId" onchange="this.form.submit();">
+          <select  name="taskId" >
             <option value="-1">All Tasks</option>
             {{#tasks}}
             <option value="{{id}}"{{#selected}}selected{{/selected}}>{{name}}</option>
@@ -135,11 +135,11 @@
           
             <input type="date" name="endDate" value="{{endDate}}">
 
-          <button type="submit" name="search" formaction="/searchTimesheet"><i class="fas fa-search"> </i></button>
+          <!-- <button type="submit" name="search" formaction="/searchTimesheet"><i class="fas fa-search"> </i></button> -->
           <button type="submit" name="download" formaction="/searchTimesheetToCSV"><i class="fas fa-download"> </i></button>
         </form>
 </div>
-
+<!-- 
 <div class = "container">
   <table>
     <th>
@@ -172,7 +172,7 @@
     {{/results}}
   </table>
 
-</div>
+</div> -->
 
 <div class="container">
   <h3>Inventory</h3>
@@ -180,6 +180,9 @@
     <table>
     <th>
       <tr>
+        <td>
+        QR Code
+      </td>
        <td>
         Item
       </td>
@@ -196,15 +199,31 @@
     </th>
     {{#inventory}}
           <tr>
-            <td><input name="item_name" type="text" autocomplete="off" placeholder="{{name}}" onchange="this.form.submit();" ></td>
-            <td><input name="quantity" type="text" autocomplete="off" placeholder="{{quantity}}" onchange="this.form.submit();" ></td>
+            <input name="id" type="text" value="{{id}}" hidden>
+            <td>
+              <!-- qr code content -->
+
+
+                <img class = "zoom-in-out-box"style=".hover:" id='barcode' 
+            src="https://api.qrserver.com/v1/create-qr-code/?data={{domain}}/qr/{{job}}/{{task.id}}&amp size=100x100" 
+            alt="" 
+            title="{{job.name}} {{task.name}}" 
+            width="50" 
+            height="50" /> 
+
+            </td>
+            <td><input name="item_name" type="text" autocomplete="off" value="{{name}}"  ></td>
+            <td><input name="quantity" type="text" autocomplete="off" value="{{quantity}}" ></td>
           
-              <td><input name="reorder" type="checkbox" onchange="this.form.submit()" {{#reorder}}checked{{/reorder}}></td>
-            <td><input name="threshold" type="text" autocomplete="off" placeholder="{{threshold}}" onchange="this.form.submit();" ></td>
-             <td></td>
+              <td><input name="reorder" value="{{id}}" type="checkbox" {{#reorder}}checked{{/reorder}}></td>
+            <td><input name="threshold" type="text" autocomplete="off" value="{{threshold}}" ></td>
+             <td><a href="/deleteInventory/{{id}}">
+              <i class="fas fa-trash"> </i></td>
           </tr>
     {{/inventory}}
   </table>
+      <input type="submit" value="Update Inventory">
+
 </form>
 </div>
 
@@ -241,9 +260,7 @@
         <td>
           Email
         </td>
-        <td>
-          This Weeks Hours
-        </td>
+
         <td>
           Phone Number
         </td>  
@@ -255,19 +272,17 @@
     {{#users}}
           <tr>
             <td>
-              <input name="name" type="text" autocomplete="off" placeholder="{{name}}" onchange="this.form.submit();" >
+              <input name="name" type="text" autocomplete="off" value="{{name}}" onchange="this.form.submit();" >
             </td>
             <td>
-              <input name="user_type" type="text" autocomplete="off" placeholder="{{user_type}}" onchange="this.form.submit();" >
+              <input name="user_type" type="text" autocomplete="off" value="{{user_type}}" onchange="this.form.submit();" >
             </td>
             <td>
-              <input name="email" type="text" autocomplete="off" placeholder="{{email}}" onchange="this.form.submit();" >
+              <input name="email" type="text" autocomplete="off" value="{{email}}" onchange="this.form.submit();" >
             </td>
-             <td>
-              {{this_weeks_hours}}
-            </td>
+
             <td>
-              <input name="phone_number" type="text" autocomplete="off" placeholder="{{phone_number}}" onchange="this.form.submit();" >
+              <input name="phone_number" type="text" autocomplete="off" value="{{phone_number}}" onchange="this.form.submit();" >
             </td>
              <td>{{clocked_in}}</td>
           </tr>
