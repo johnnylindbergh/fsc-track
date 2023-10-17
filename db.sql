@@ -60,7 +60,6 @@ CREATE TABLE timesheet (
   clock_out DATETIME,
   duration float(8),
   notes VARCHAR(64),
-  isArchived TINYINT(1) DEFAULT 0,
   FOREIGN KEY (job) REFERENCES jobs(id),
   FOREIGN KEY (task) REFERENCES tasks(id),
   FOREIGN KEY (userid) REFERENCES users(id),
@@ -74,22 +73,17 @@ CREATE TABLE inventory (
   description VARCHAR(64),
   quantity float(8),
   threshold float(8),
-  reorder TINYINT(1) DEFAULT 0,
-  isArchived TINYINT(1) DEFAULT 0,
+  order TINYINT(1) DEFAULT 0,
   PRIMARY KEY (id)
 );
 
 CREATE TABLE inventory_job (
   id INT NOT NULL AUTO_INCREMENT,
-  inventoryid INT,
   timeRecorded DATETIME,
   userid INT,
   jobid INT,
   taskid INT,
-
   quantity_used float(8),
- 
-  isArchived TINYINT(1) DEFAULT 0,
   FOREIGN KEY (inventoryid) REFERENCES inventory(id);
   FOREIGN KEY (userid) REFERENCES users(id),
   FOREIGN KEY (jobid) REFERENCES jobs(id),
