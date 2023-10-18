@@ -732,11 +732,15 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
       });
     },
 
-    updateUsers: (users, cb) =>{
-      for (var i = 0; i < users; i++){
-        console.log(users[i]);
-      }
-
+    updateUsers: (req, res, cb) =>{
+	for (var i = 0; i < req.body.id.length; i++){
+		console.log("userid:",req.body.id[i])
+		console.log("name:",req.body.name[i])
+		console.log("userType change to dropdown:",req.body.user_type[i])
+		console.log("email:",req.body.email[i])
+		console.log("phone_number:",req.body.phone_number[i])
+	}
+	cb("update users in progress")
     }
 
 

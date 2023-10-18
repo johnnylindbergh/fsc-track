@@ -450,7 +450,7 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
       if (req.user.local && req.user.local.user_type == 1){
       
 
-        db.updateUsers(req.body.users, function(err){
+        db.updateUsers(req, res, function(err){
           req.send("Updating Users is not fully operational yet.")
         });
 
