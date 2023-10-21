@@ -3,12 +3,13 @@
   routes.js: System routes for most requests
 */
 "use strict";
-const db    = require('./database.js');
-const sys   = require('./settings.js');
-const mid   = require('./middleware.js');
+const db = require('./database.js');
+const sys = require('./settings.js');
+const mid = require('./middleware.js');
 const moment = require('moment');
 const schedule = require('node-schedule');
 const fs = require('fs');
+const creds = require('./credentials.js');
 
 
 const job = schedule.scheduleJob('* 59 23 * *', function(){
@@ -22,38 +23,98 @@ module.exports = function(app) {
   app.get('/admin', mid.isAuth, (req, res) => {
 
     if (req.isAuthenticated() && req.user && req.user.local) {
+    
+
+        defaultAdminRender(req, res, function(render){
+
+            if (req.user.local.user_type == 1) {
+
+              res.render('admin.html', render);
+            } else {
+               res.send("You are not an admin.")
+            }
+        });
+        
+      } else {
+        res.redirect("/");
+      }
+  });
+
+
+  app.post('/admin', mid.isAuth, (req, res) => {
+   if (req.isAuthenticated() && req.user && req.user.local) {
+
       if (req.user.local.user_type == 1) {
 
-        var render = defaultAdminRender(req);
-        db.getJobs(req, res, function (err, jobs){
+
+        defaultAdminRender(req, res, function(render){
+          db.getJobs(req, res, function (err, jobs){
 
           render.jobs = jobs;
           db.getTasks(req, res, function(err, tasks){
 
             render.tasks = tasks;
-            db.getTimesheet(req, res, function(err, times){
+            db.getUsers( function(err, rows){
+              render.users = rows;
+              creds.email
+              for (var i = 0; i < render.users.length; i++){
+                if (render.users[i].id == req.body.userId){
+                  render.users[i].selected = true;
+                }
+              }
+              
+              for (var i = 0; i < render.jobs.length; i++){
+                if (render.jobs[i].id == req.body.jobId){
 
-                render.times = times;
-                db.getUsers(function(err, users){
-                  render.users = users;
+                  render.jobs[i].selected = true;
+                }
+              }
+                for (var i = 0; i < render.tasks.length; i++){
+                if (render.tasks[i].id == req.body.taskId){
 
-                  db. getUsersHours(function(err, userHours){
-                    render.times= userHours;
-                    db.getInventory(function(err, inventory){
-                      render.inventory = inventory;
-                      res.render("admin.html", render);
-                    });
+                  render.tasks[i].selected = true;
+                }
+              }
 
-                  });
-             
+              
+              // parse dates from request into moment objects
+              var startDate = moment(req.body.startDate);
+              var endDate = moment(req.body.endDate);
 
-                });
+              if (req.body.userId == -1){
+                req.body.userId = null;
+              }
+              
+              if (req.body.jobId == -1){
+                req.body.jobId = null;
+              }
+              
+              if (req.body.taskId == -1){
+                            req.body.taskId = null;
+              }
+
+              db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId,  function(err,rows){
+                if (!err && rows.length > 0){
+                  render.results = rows;
+                }
+
+                render.startDate = startDate;
+                render.endDate = endDate;
+
+
+
+                res.render("admin.html", render);
+              }); 
 
             });
 
           });
 
         });      
+
+        });
+
+        
 
       } else {
 
@@ -65,8 +126,8 @@ module.exports = function(app) {
         res.render("/");
       
       }
+    
   });
-
   
   app.get('/qrGen/:jobId/', mid.isAuth, (req, res) => {
     var render = defaultRender(req);
@@ -110,39 +171,50 @@ module.exports = function(app) {
 
    });
 
-   app.get('/inventory')
+ 
 
-  app.get('/', mid.isAuth, (req, res) => {
+app.get('/', mid.isAuth, (req, res) => {
     var render = defaultRender(req);
 
     if (req.isAuthenticated() && req.user && req.user.local) {
 
+   
+
 
       if (req.user.local.user_type == 1 || req.user.local.user_type ==2 || req.user.local.user_type ==3){
-
-  
+ 
           var userEmail = req.user.local.email;
           var userId = req.user.local.id;
+            console.log("default render before db")
           db.getJobs(req, res, function (err, jobs){
+               console.log("default render")
+
 
             render.jobs = jobs;
             db.getTasks(req, res, function (err, tasks){
+                   console.log("default render1")
+
 
                render.tasks = tasks;
                db.lookUpUser(userEmail, function(err, user){
                 render.clockedIn = user.clockedIn;
                 //console.log(user);
+                   console.log("default render2")
+
                 if (user.user_type == 3){
                   // user is super  
                   render.isManager = true;  
 
                   db.getInventory(function(err, rows){
                     render.inventory = rows;
-                   
+                    console.log("default render3")
+
                     res.render("main.html", render);
                   });
+
                 } else {
-                   render.clockedIn = user.clockedIn;
+
+                  render.clockedIn = user.clockedIn;
                   //res.send(render)
                   res.render("main.html", render);
 
@@ -152,11 +224,15 @@ module.exports = function(app) {
               });
             });
           });
+
       }
+
+
     } else {
        res.render("welcome.html", render);
     }
   });
+
 
 //app.post("clockIn")
 
@@ -252,7 +328,8 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
       if (req.user.local.user_type == 1) {
 
 
-        var render = defaultRender(req);
+        var render = defaultAdminRender(req);
+
         db.getJobs(req, res, function (err, jobs){
 
           render.jobs = jobs;
@@ -308,7 +385,7 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
 
 
 
-                res.render("timesheet.html", render);
+                res.render("admin.html", render);
               }); 
 
             });
@@ -512,28 +589,42 @@ function defaultRender(req) {
   }
 }
 
-function defaultAdminRender(req) {
-  if (req.isAuthenticated() && req.user && req.user.local) {
-    // basic render object for fully authenticated user
-    return {
-      inDevMode: sys.DEV_MODE,
-      auth: {
-        isAuthenticated: true,
-        userIsAdmin: req.user.local.isAdmin,
-        message: "Welcome,  " + req.user.name.givenName + "!"
-      },
-      defaults:{
-        sysName:sys.SYSTEM_NAME,
-        domain:sys.DOMAIN
-      }
-    };
-  } else {
-    // default welcome message for unauthenticated user
-    return {
-      inDevMode: sys.inDevMode,
-      auth: {
-        message: "Welcome! Please log in."
-      }
-    };
-  }
+function defaultAdminRender(req, res, cb) {
+
+
+
+        var render = {};
+        db.getJobs(req, res, function (err, jobs){
+
+          render.jobs = jobs;
+          db.getTasks(req, res, function(err, tasks){
+
+            render.tasks = tasks;
+            db.getTimesheet(req, res, function(err, times){
+
+                render.times = times;
+                db.getUsers(function(err, users){
+                  render.users = users;
+
+                  db. getUsersHours(function(err, userHours){
+                    render.times= userHours;
+                    db.getInventory(function(err, inventory){
+                      render.inventory = inventory;
+                      cb(render);
+                    });
+
+                  });
+             
+
+                });
+
+            });
+
+          });
+
+        });      
+
+ 
 }
+
+
