@@ -59,7 +59,7 @@ module.exports = {
   getJobs: (req,res, cb) => {
     con.query('SELECT * FROM jobs WHERE (isArchived = 0);', (err, rows) => {
       if (!err && rows !== undefined && rows.length > 0) {
-         cb(err, rows)
+        console.log(err);
       } else {
          cb(err || "Failed to get jobs");
       }
@@ -597,8 +597,8 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
 
    }, 
 
-    newInventoryItem:(name, quantity, cb) =>{
-      con.query('INSERT INTO inventory (name, quantity) VALUES (?, ?)', [name, quantity],(err) => {
+    newInventoryItem:(name, quantity, reorder, threshold, cb) =>{
+      con.query('INSERT INTO inventory (name, quantity, reorder, threshold) VALUES (?, ?)', [name, quantity, reorder, threshold],(err) => {
         if (!err){
           cb(err);
         } else {

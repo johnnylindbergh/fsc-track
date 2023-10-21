@@ -130,16 +130,23 @@
             {{/tasks}}
           </select>
 
+          <select  name="inventory" >
+            <option value="-1">All Inventory</option>
+            {{#inventory}}
+            <option value="{{id}}"{{#selected}}selected{{/selected}}>{{name}}</option>
+            {{/inventory}}
+          </select>
+
           
             <b>From:</b> <input type="date" name="startDate" value="{{startDate}}"><b>To:</b>&nbsp;
           
             <input type="date" name="endDate" value="{{endDate}}">
 
-          <!-- <button type="submit" name="search" formaction="/searchTimesheet"><i class="fas fa-search"> </i></button> -->
+          <button type="submit" name="search" formaction="/admin"><i class="fas fa-search"> </i></button>
           <button type="submit" name="download" formaction="/searchTimesheetToCSV"><i class="fas fa-download"> </i></button>
         </form>
 </div>
-<!-- 
+
 <div class = "container">
   <table>
     <th>
@@ -171,8 +178,7 @@
           </tr>
     {{/results}}
   </table>
-
-</div> -->
+</div>
 
 <div class="container">
   <h3>Inventory</h3>
@@ -233,6 +239,7 @@
         <b>Add an inventory Item</b>
           <input name="itemName" type="text" autocomplete="off" placeholder="Enter new inventory item...">
            <input name="quantity" type="text" autocomplete="off" placeholder="Enter a quantity">
+           <input name="reorder" type="checkbox" autocomplete="off" >
           <input type="submit" value="Create New Inventory Item">
       </form>
   </div>
@@ -272,7 +279,7 @@
     {{#users}}
           <tr>
             <td>
-	      <input name=="id" type="text" value="{{id}}" hidden>
+	      <input name="id" type="text" value="{{id}}" hidden>
               <input name="name" type="text" autocomplete="off" value="{{name}}" onchange="this.form.submit();" >
             </td>
             <td>
