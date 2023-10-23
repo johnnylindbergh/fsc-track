@@ -186,6 +186,7 @@ app.get('/', mid.isAuth, (req, res) => {
           var userEmail = req.user.local.email;
           var userId = req.user.local.id;
             console.log("default render before db")
+
           db.getJobs(req, res, function (err, jobs){
                console.log("default render")
 
