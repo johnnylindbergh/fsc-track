@@ -611,36 +611,41 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
     // if quantity is below threshold AND the reorder boolean is true, the order item function should be called with (itemId, quantity)
 
     updateInventoryQuantity:(req, res, cb) =>{
-      console.log(req.body);
-      var inventoryId = req.body.item;
+      var inventoryId = req.body.id;
       var quantityUsed = req.body.quantity
+      var total = req.body.total;
+      var items = [req.body.item]; // ie the box was checked but listen to the quantity used
 
-      var reorder = req.body.reorder;
+
       if (inventoryId.length == quantityUsed.length && inventoryId.length >0){
         console.log("Updating " + inventoryId.length + " items.")
         for (var i = 0; i < inventoryId.length; i++){
-          var item = parseInt(inventoryId[i]);
-          var quantity = parseInt(quantityUsed[i]);
-          console.log("item:", item);
-          console.log("quantity:", quantity);
+          if (quantityUsed[i] != ''){
 
-          con.query('SELECT quantity, threshold, reorder FROM inventory WHERE id = ?;', [item],(err, rows)=>{
-            if (!err && rows.length > 0){
-              console.log(rows);
-              var newQuantity = rows[0].quantity - quantity;
-              if (newQuantity < rows[0].threshold && rows[0].reorder){
-                  // send reorder email with sendReorderEmail(item, threshold, )
+            
+            var item = parseInt(inventoryId[i]);
+            var quantity = parseInt(quantityUsed[i]);
+            console.log("item:", item);
+            console.log("quantity:", quantity);
+
+            con.query('SELECT quantity, threshold, reorder FROM inventory WHERE id = ?;', [item],(err, rows)=>{
+              if (!err && rows.length > 0){
+                console.log(rows);
+                var newQuantity = rows[0].quantity - quantity;
+                if (newQuantity < rows[0].threshold && rows[0].reorder){
+                    // send reorder email with sendReorderEmail(item, threshold, )
+                   
+                }
+
+                 con.query('UPDATE inventory SET quantity = ? WHERE id = ?;', [newQuantity, item], (err) => {
+                  console.log(err);
+                  
+                });
+               
               }
-
-               con.query('UPDATE inventory SET quantity = ? WHERE id = ?;', [newQuantity, item], (err) => {
-                console.log(err);
-                
-              });
-             
-            }
-          });
+            });
+          }
         }
-
          cb(null);
       }
       
