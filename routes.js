@@ -56,8 +56,9 @@ module.exports = function(app) {
         });      
 
       } else {
-
-         res.send("You are not an admin.")
+	 var params = [];
+	params.fr = "You are not an admin."
+         res.err(params)
       }
 
       } else {
