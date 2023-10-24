@@ -66,6 +66,107 @@ module.exports = function(app) {
       
       }
   });
+  
+  app.post('/admin', mid.isAuth, (req, res) => {
+
+    if (req.isAuthenticated() && req.user && req.user.local) {
+      if (req.user.local.user_type == 1) {
+
+        var render = defaultAdminRender(req);
+        db.getJobs(req, res, function (err, jobs){
+
+          render.jobs = jobs;
+          db.getTasks(req, res, function(err, tasks){
+
+            render.tasks = tasks;
+            db.getTimesheet(req, res, function(err, times){
+
+                render.times = times;
+                db.getUsers(function(err, users){
+                  render.users = users;
+
+                  db. getUsersHours(function(err, userHours){
+                    render.times= userHours;
+
+                    db.getInventory(function(err, inventory){
+                      render.inventory = inventory;
+                      console.log(inventory)
+                      // now filter
+                      for (var i = 0; i < render.users.length; i++){
+                        if (render.users[i].id == req.body.userId){
+                          render.users[i].selected = true;
+                        }
+                      }
+              
+                      for (var i = 0; i < render.jobs.length; i++){
+                        if (render.jobs[i].id == req.body.jobId){
+
+                          render.jobs[i].selected = true;
+                        }
+                      }
+                        for (var i = 0; i < render.tasks.length; i++){
+                        if (render.tasks[i].id == req.body.taskId){
+
+                          render.tasks[i].selected = true;
+                        }
+                      }
+
+              
+                      // parse dates from request into moment objects
+                      var startDate = moment(req.body.startDate);
+                      var endDate = moment(req.body.endDate);
+
+                      if (req.body.userId == -1){
+                        req.body.userId = null;
+                      }
+                      
+                      if (req.body.jobId == -1){
+                        req.body.jobId = null;
+                      }
+                      
+                      if (req.body.taskId == -1){
+                                    req.body.taskId = null;
+                      }
+
+                      db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId,  function(err,rows){
+                        if (!err && rows.length > 0){
+                          render.results = rows;
+                        }
+
+                        render.startDate = startDate;
+                        render.endDate = endDate;
+
+
+
+                        res.render("admin.html", render);
+                      }); 
+
+           
+                    });
+
+
+                  });
+             
+
+                });
+
+            });
+
+          });
+
+        });      
+
+      } else {
+
+         res.send("You are not an admin.")
+      }
+
+      } else {
+
+        res.render("/");
+      
+      }
+  });
 
   
   app.get('/qrGen/:jobId/', mid.isAuth, (req, res) => {
@@ -110,7 +211,7 @@ module.exports = function(app) {
 
    });
 
-   app.get('/inventory')
+  
 
   app.get('/', mid.isAuth, (req, res) => {
     var render = defaultRender(req);
@@ -131,13 +232,13 @@ module.exports = function(app) {
                render.tasks = tasks;
                db.lookUpUser(userEmail, function(err, user){
                 render.clockedIn = user.clockedIn;
-                //console.log(user);
+                console.log("User GET / : ",user.name);
                 if (user.user_type == 3){
                   // user is super  
                   render.isManager = true;  
 
-                  db.getInventory(function(err, rows){
-                    render.inventory = rows;
+                  db.getInventory(function(err, inventory){
+                    render.inventory = inventory;
                    
                     res.render("main.html", render);
                   });
@@ -422,7 +523,7 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
         //console.log(req.body.item)
         // must handle items like [ '3', '4' ] [ '1', '2' ] (quantity1, quatity2,) for (itemId1, itemId2)
 
-        db.updateInventoryQuantity(req.body.item, req.body.quantity, false, function(err){
+        db.updateInventoryQuantity(req, res, function(err){
           if (!err){
             res.redirect('/#inventory')
           } else {

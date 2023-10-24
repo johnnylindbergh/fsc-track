@@ -81,11 +81,13 @@
     {{#clockedIn}}
       You Are Clocked in
       <form action="/clockout/{{id}}" method = "POST">
+        <h2>Notes</h2>
+        <textarea name="notes" cols="40" rows="5"></textarea> </br>
         <input type="submit" value="Clock Out">
       </form>
     <div id = "container">
       {{#isManager}}
-      <form name ="inventoryForm"action="/updateInventoryItem" onsubmit="return validateForm()" method="POST">
+      <form name ="inventoryForm"action="/updateInventoryItem" method="POST">
         <div id="container">
           <table>
             <th>
@@ -95,11 +97,13 @@
           {{#inventory}}
             <tr>
               <td>
-                {{name}}
+                <b>{{name}}</b>
               </td>
               <td>
                 <input type="text" name="id" value = "{{id}}" hidden>
-                <input type="text" name="total" value = "{{quantity}}" hidden>
+                <input type="text" name="total" value = "{{quantity}}" hidden >
+                <b>{{quantity}}</b>
+
                 <input type="text" name="threshold" value = "{{threshold}}" hidden>
                 <input type="checkbox" id="item" name= "item" value="{{id}}">
                 <input name="quantity" type="text" autocomplete="off" placeholder="Enter quantity used">
