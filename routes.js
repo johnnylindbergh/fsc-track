@@ -528,7 +528,7 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
       if (req.user.local && req.user.local.user_type == 1){
       
 
-        db.updateUsers(req, res, function(err){
+        db.updateUsers(req.body.users, function(err){
           req.send("Updating Users is not fully operational yet.")
         });
 
@@ -590,42 +590,28 @@ function defaultRender(req) {
   }
 }
 
-function defaultAdminRender(req, res, cb) {
-
-
-
-        var render = {};
-        db.getJobs(req, res, function (err, jobs){
-
-          render.jobs = jobs;
-          db.getTasks(req, res, function(err, tasks){
-
-            render.tasks = tasks;
-            db.getTimesheet(req, res, function(err, times){
-
-                render.times = times;
-                db.getUsers(function(err, users){
-                  render.users = users;
-
-                  db. getUsersHours(function(err, userHours){
-                    render.times= userHours;
-                    db.getInventory(function(err, inventory){
-                      render.inventory = inventory;
-                      cb(render);
-                    });
-
-                  });
-             
-
-                });
-
-            });
-
-          });
-
-        });      
-
- 
+function defaultAdminRender(req) {
+  if (req.isAuthenticated() && req.user && req.user.local) {
+    // basic render object for fully authenticated user
+    return {
+      inDevMode: sys.DEV_MODE,
+      auth: {
+        isAuthenticated: true,
+        userIsAdmin: req.user.local.isAdmin,
+        message: "Welcome,  " + req.user.name.givenName + "!"
+      },
+      defaults:{
+        sysName:sys.SYSTEM_NAME,
+        domain:sys.DOMAIN
+      }
+    };
+  } else {
+    // default welcome message for unauthenticated user
+    return {
+      inDevMode: sys.inDevMode,
+      auth: {
+        message: "Welcome! Please log in."
+      }
+    };
+  }
 }
-
-
