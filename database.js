@@ -641,7 +641,10 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
                   console.log(err);
                   
                 });
-               
+		// job id needs to be added to the manager update inventory form
+		 con.query('INSERT INTO job_inventory (jobid, inventoryid) values (?,?)', [jobid, item], (err)=>{
+			console.log(err);	
+		 });               
               }
             });
           }
