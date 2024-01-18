@@ -193,11 +193,11 @@ module.exports = {
 
      getUsersHours: (cb) => {
 
-    con.query('SELECT timesheet.userid AS UserID, users.name as name SUM(timesheet.duration) AS TotalDuration FROM timesheet JOIN users users.id = timesheet.userid GROUP BY timesheet.userid;', (err, rows) =>{
+    con.query('SELECT timesheet.userid AS UserID, users.name as name, SUM(timesheet.duration) AS TotalDuration FROM timesheet JOIN users ON users.id = timesheet.userid GROUP BY timesheet.userid;', (err, rows) =>{
 
       if (!err && rows !== undefined && rows.length > 0){
 
-      cb(err, users);
+      cb(err, rows);
      } else {
       cb(err || "failed to get users;")
      }
@@ -250,8 +250,16 @@ module.exports = {
     });
   },
 
-  clockOut: (id, cb) => {
-    con.query('UPDATE timesheet SET clock_out = NOW() WHERE userid = ? AND clock_out IS NULL; UPDATE users SET clockedIn = 0 WHERE id = ?;', [id, id], (err) =>{
+
+
+  clockOut: (req, cb) => {
+
+    var job = req.body.jobName;
+    var task = req.body.taskName;
+    var userId = req.user.local.id;
+    var notes = req.body.notes;
+    
+    con.query('UPDATE timesheet SET clock_out = NOW(), notes = ? WHERE userid = ? AND clock_out IS NULL; UPDATE users SET clockedIn = 0 WHERE id = ?;', [notes, userId, userId], (err) =>{
         if (!err) {
           cb(err);
         } else {
@@ -674,9 +682,9 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
 
     updateInventory: (body, cb) => {
       for (var i = 0; i < body.item_name.length; i++){
-        if (body.threshold[i] == null){
-          body.threshold[i] = 0;
-        }
+      
+        body.quantity[i] /= 1.0; 
+        body.threshold[i] /= 1.0;
         con.query('UPDATE inventory SET name = ?, quantity = ?, threshold = ? WHERE id = ?;',[body.item_name[i], body.quantity[i], body.threshold[i], body.id[i]], (err) =>{
           console.log(err);
         });

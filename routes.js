@@ -26,20 +26,25 @@ module.exports = function(app) {
 
         var render = defaultAdminRender(req);
         db.getJobs(req, res, function (err, jobs){
-
+          console.log(err);
           render.jobs = jobs;
           db.getTasks(req, res, function(err, tasks){
-
+            console.log(err);
             render.tasks = tasks;
             db.getTimesheet(req, res, function(err, times){
-
+              console.log(err);
                 render.times = times;
                 db.getUsers(function(err, users){
                   render.users = users;
-
+                  console.log(err);
                   db. getUsersHours(function(err, userHours){
+                    
+                    console.log(err);
+
                     render.times= userHours;
+
                     db.getInventory(function(err, inventory){
+                      console.log(err);
                       render.inventory = inventory;
                       res.render("admin.html", render);
                     });
@@ -334,10 +339,8 @@ app.post('/deleteTask', mid.isAuth, function(req, res){
 });
 
 app.post('/clockOut', mid.isAuth, function(req, res){
-  var job = req.body.jobName;
-  var task = req.body.taskName;
-  var userId = req.user.local.id;
-  db.clockOut(userId, function(err){
+
+  db.clockOut(req, function(err){
     if (!err){
       res.redirect('/');
     } else {
@@ -553,7 +556,7 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
       
 
         db.updateUsers(req, res, function(err){
-          req.send("Updating Users is not fully operational yet.")
+          res.send("Updating Users is not fully operational yet.")
         });
 
       }
@@ -561,11 +564,14 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
 
   app.post('/updateInventory', mid.isAuth, function(req,res){
       if (req.user.local && req.user.local.user_type == 1){
-        for (var i = 0; i < req.body.item_name.length; i++){
+        for (var i = 0; i < req.body.id.length; i++){
           console.log("item "+ i +" : "+req.body.item_name[i]);
           console.log(req.body.quantity[i]);
           console.log(req.body.threshold[i]);
-          console.log(req.body.reorder[i]);
+          // if reorder is not selected it does not appear in req.body
+          if (req.body.reorder && req.body.reorder[i]){
+            console.log(req.body.reorder[i]);
+          }
           console.log(req.body.id[i]);
         }
         console.log(req.body);
