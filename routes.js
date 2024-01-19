@@ -26,25 +26,22 @@ module.exports = function(app) {
 
         var render = defaultAdminRender(req);
         db.getJobs(req, res, function (err, jobs){
-          console.log(err);
           render.jobs = jobs;
           db.getTasks(req, res, function(err, tasks){
-            console.log(err);
             render.tasks = tasks;
             db.getTimesheet(req, res, function(err, times){
-              console.log(err);
                 render.times = times;
                 db.getUsers(function(err, users){
                   render.users = users;
-                  console.log(err);
+                  console.log("User error: ",err);
                   db. getUsersHours(function(err, userHours){
                     
-                    console.log(err);
+                    console.log("Timesheet Error:",err);
 
                     render.times= userHours;
 
                     db.getInventory(function(err, inventory){
-                      console.log(err);
+                      console.log("inventory error:", err);
                       render.inventory = inventory;
                       res.render("admin.html", render);
                     });
