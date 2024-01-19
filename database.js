@@ -623,7 +623,8 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
       var quantityUsed = req.body.quantity
       var total = req.body.total;
       var items = [req.body.item]; // ie the box was checked but listen to the quantity used
-
+      var currentJob = req.body.jobId;
+      
 
       if (inventoryId.length == quantityUsed.length && inventoryId.length >0){
         console.log("Updating " + inventoryId.length + " items.")
@@ -650,7 +651,7 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
                   
                 });
 		// job id needs to be added to the manager update inventory form
-		 con.query('INSERT INTO job_inventory (jobid, inventoryid) values (?,?)', [jobid, item], (err)=>{
+		 con.query('INSERT INTO inventory_job (jobid, inventoryid) values (?,?)', [currentJob, item], (err)=>{
 			console.log(err);	
 		 });               
               }
