@@ -306,7 +306,7 @@ module.exports = {
 
   },
   getTimesheet: (req, res, cb) => {
-    con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY uid;', (err, rows) => {
+    con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in ASC;', (err, rows) => {
           
           //combine rows by matching job, task, userid, 
         
@@ -624,7 +624,7 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
       var total = req.body.total;
       var items = [req.body.item]; // ie the box was checked but listen to the quantity used
       var currentJob = req.body.jobId;
-      
+
 
       if (inventoryId.length == quantityUsed.length && inventoryId.length >0){
         console.log("Updating " + inventoryId.length + " items.")
@@ -643,7 +643,7 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
                 var newQuantity = rows[0].quantity - quantity;
                 if (newQuantity < rows[0].threshold && rows[0].reorder){
                     // send reorder email with sendReorderEmail(item, threshold, )
-                   
+                    console.log("sending reorderEmail")
                 }
 
                  con.query('UPDATE inventory SET quantity = ? WHERE id = ?;', [newQuantity, item], (err) => {

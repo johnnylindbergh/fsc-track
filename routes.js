@@ -31,6 +31,7 @@ module.exports = function(app) {
             render.tasks = tasks;
             db.getTimesheet(req, res, function(err, times){
                 render.times = times;
+                console.log(times);
                 db.getUsers(function(err, users){
                   render.users = users;
                   console.log("User error: ",err);
@@ -70,6 +71,13 @@ module.exports = function(app) {
       }
   });
   
+  app.get('/getTimesheet', mid.isAuth, (req, res) =>{
+    db.getTimesheet(req, res, function(err, times){
+      // must process first
+      res.send(times);
+    });
+
+  });
   app.post('/admin', mid.isAuth, (req, res) => {
 
     if (req.isAuthenticated() && req.user && req.user.local) {
