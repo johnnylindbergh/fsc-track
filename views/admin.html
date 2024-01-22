@@ -30,10 +30,13 @@
     </h2> 
   </div>
   {{/auth}}
-  
-  <canvas id="histogram" width="400" height="400"></canvas>
-{{#times}}  {{/times}} 
+
+  <div class= "container">
+    <canvas id="histogram" style="width:100%;max-width:700px"></canvas>
+  </div>
+
  <script type="text/javascript" src="/histogram.js"></script>
+
  <div class="container">
     <!-- Job Content Here -->
      <form action="/deleteJob" method = "POST">

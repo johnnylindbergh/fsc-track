@@ -10,27 +10,22 @@ function httpGetAsync(theUrl, callback)
 }
 
 httpGetAsync("/getTimesheet", function(cb) {
-  alert(cb);
-})
+  var timesheet = JSON.parse(cb);
 
-const xValues = ["Italy", "France", "Spain", "USA", "Argentina"];
-const yValues = [55, 49, 44, 24, 15];
-const barColors = ["red", "green","blue","orange","brown"];
+  const xyValues = timesheet.map(function(value,index) { return {x: Date.parse(value.clock_in).toString(), y:value.duration} });
+  console.log("xyValues:", xyValues);
+   var canvas = $('#histogram');
 
-new Chart("myChart", {
-  type: "bar",
+new Chart(canvas, {
+  type: "scatter",
   data: {
-    labels: xValues,
     datasets: [{
-      backgroundColor: barColors,
-      data: yValues
+      pointRadius: 4,
+      pointBackgroundColor: "rgba(0,0,255,1)",
+      data: xyValues
     }]
   },
-  options: {
-    legend: {display: false},
-    title: {
-      display: true,
-      text: "World Wine Production 2018"
-    }
-  }
 });
+})
+
+
