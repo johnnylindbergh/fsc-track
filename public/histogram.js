@@ -1,5 +1,4 @@
-function httpGetAsync(theUrl, callback)
-{
+function httpGetAsync(theUrl, callback) {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
@@ -10,22 +9,28 @@ function httpGetAsync(theUrl, callback)
 }
 
 httpGetAsync("/getTimesheet", function(cb) {
-  var timesheet = JSON.parse(cb);
-
-  const xyValues = timesheet.map(function(value,index) { return {x: Date.parse(value.clock_in).toString(), y:value.duration} });
-  console.log("xyValues:", xyValues);
-   var canvas = $('#histogram');
-
-new Chart(canvas, {
-  type: "scatter",
-  data: {
-    datasets: [{
-      pointRadius: 4,
-      pointBackgroundColor: "rgba(0,0,255,1)",
-      data: xyValues
-    }]
-  },
+    var timesheet = JSON.parse(cb);
+    const data = timesheet.map(function(value) {
+    // Assuming 'value' has properties that can be used to calculate 'net', 'cogs', and 'gm'
+    return {
+      x: value.duration,
+        y: moment(value.clock_in).format("YYYY-MM-DD")
+        
+    };
 });
-})
+    console.log("data:", data);
 
 
+    var ctx = document.getElementById('histogram').getContext('2d');
+      const stackedLine = new Chart(ctx, {
+    type: 'line',
+    data: data,
+    options: {
+        scales: {
+            y: {
+                stacked: true
+            }
+        }
+    }
+});
+});
