@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Main | {{defaults.sysName}}</title>
+  <link rel="stylesheet" type="text/css" href="../css/reset.css">
+  <link rel="stylesheet" type="text/css" href="../css/defaults.css">
+  <link rel="stylesheet" type="text/css" href="../css/navbar.css">
+</head>
+<body>
+  <div class="navbar">
+    <ul>
+      <li><a href="/">{{defaults.sysName}}</a></li>
+      <div style="float:right">
+        <li><a href="/auth/google">Log In</a></li>
+        <li><a href="/logout">Log Out</a></li>
+      </div>
+    </ul>
+  </div>
+  {{#auth}}
+  <div class="container">
+    <h2>
+      {{#message}}
+        <p>{{message}}</p>
+      {{/message}}
+    </h2> </br>
+  {{/auth}}
+  {{^auth}}
+    Please Log in to continue.
+  {{/auth}}
+  
+  <div class="container">
+   {{#user}}
+	<form action="updateUser" method="post">
+    <input name="id" type="text" value="{{id}}" hidden>
+    <input id= "name" type="text" default=" {{name}}"></br>
+    <input id= "userType" type="text">{{user_ype}}</input></br>
+    <input id= "email" type="text">{{email}}</input></br>
+    <input type="submit"></input></br>
+  </form>
+   {{/user}}
+  </div>
+
+
+
+
+
+</body>
+</html>

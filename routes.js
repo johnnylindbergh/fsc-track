@@ -567,6 +567,24 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
       }
   }); 
 
+   app.get('/modifyUser/:id',  mid.isAuth, function(req, res){
+      if (req.user.local && req.user.local.user_type == 1){
+          if (req.user.local.user_type == 1) {
+               var userId = req.params.id;
+        var render = defaultAdminRender(req);
+        }
+
+        db.getUsers(function(err, users){
+          render.user = users[userId];
+          console.log( render.user);
+          res.render('modifyUser.html', render);
+        });    
+
+          
+        
+      }
+  }); 
+
   app.post('/updateInventory', mid.isAuth, function(req,res){
       if (req.user.local && req.user.local.user_type == 1){
         for (var i = 0; i < req.body.id.length; i++){

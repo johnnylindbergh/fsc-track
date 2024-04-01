@@ -266,10 +266,13 @@
 
 <div class="container">
   <h3>Users</h3>
-  <form action="/updateUsers" method="POST">
+
     <table>
     <th>
       <tr>
+           <td>
+            
+      </td>
        <td>
         Name
       </td>
@@ -279,10 +282,7 @@
         <td>
           Email
         </td>
-
-        <td>
-          Phone Number
-        </td>  
+ 
         <td>
           clocked In
         </td>  
@@ -290,25 +290,18 @@
     </th>
     {{#users}}
           <tr>
-            <td>
+    
 	      <input name="id" type="text" value="{{id}}" hidden>
-              <input name="name" type="text" autocomplete="off" value="{{name}}" onchange="this.form.submit();" >
-            </td>
-            <td>
-              <input name="user_type" type="text" autocomplete="off" value="{{user_type}}" onchange="this.form.submit();" >
-            </td>
-            <td>
-              <input name="email" type="text" autocomplete="off" value="{{email}}" onchange="this.form.submit();" >
-            </td>
+              <td><a href="/modifyUser/{{id}}">edit</a></td>
+              <td> {{name}} </td>
+            <td> {{user_type}} </td>
+            <td> {{email}} </td>
 
-            <td>
-              <input name="phone_number" type="text" autocomplete="off" value="{{phone_number}}" onchange="this.form.submit();" >
-            </td>
+          
              <td>{{clockedIn}}</td>
           </tr>
     {{/users}}
   </table>
-</form>
 </div>
 
 
