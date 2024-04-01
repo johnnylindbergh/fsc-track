@@ -8,7 +8,10 @@
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
-</script>
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js">
+  </script>
+  
 </head>
 
 <body>
@@ -189,7 +192,7 @@
   </table>
 </div>
 
-<div class="container">
+<!-- <div class="container">
   <h3>Inventory</h3>
   <form action="/updateInventory" method="POST">
     <table>
@@ -216,7 +219,7 @@
           <tr>
             <input name="id" type="text" value="{{id}}" hidden>
             <td>
-              <!-- qr code content -->
+        
 
 
                 <img class = "zoom-in-out-box"style=".hover:" id='barcode' 
@@ -243,7 +246,7 @@
 </div>
 
   <div class="container">
-    <!-- add inventory Content Here -->
+
       <form action="/addInventoryItem" method ="POST">
         <b>Add an inventory Item</b>
           <input name="itemName" type="text" autocomplete="off" placeholder="Enter new inventory item...">
@@ -258,7 +261,7 @@
   {{#email}}
   {{/email}}
 </div>
-
+ -->
 
 
 <div class="container">

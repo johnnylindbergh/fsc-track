@@ -23,7 +23,7 @@ module.exports = {
 
   /*  regex restriction to apply to emails of new accounts requesting access 
       (only if automatic creation enabled) */
-  EMAIL_RESTRICTION:  /.+?@franksaulconstruction\.com$/gm,
+  // EMAIL_RESTRICTION:  /.+?@franksaulconstruction\.com$/gm,
 
   // name of this system
   SYSTEM_NAME: 'FSCTrack',
