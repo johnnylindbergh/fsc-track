@@ -33,10 +33,10 @@
     </h2> 
   </div>
   {{/auth}}
-
+<!-- 
   <div class= "container">
     <canvas id="histogram" style="width:100%;max-width:700px"></canvas>
-  </div>
+  </div> -->
 
  <script type="text/javascript" src="/histogram.js"></script>
 
@@ -119,6 +119,12 @@
 <b> Filter Results</b></br>&nbsp;
     <form  id="searchForm" action="/searchTimesheet" method="POST">
   <input type="submit" formaction="default_url_when_press_enter" style="visibility: hidden; display: none;">
+        <select name="weekId">
+            <option value="-1">All Weeks</option>
+            {{#weeks}}
+            <option value="{{id}}"{{#selected}}selected{{/selected}}>{{weekDate}}</option>
+            {{/weeks}}
+          </select>
           
           <select name="userId">
             <option value="-1">All Users</option>
@@ -159,7 +165,11 @@
         </form>
 </div>
 
+
+
 <div class = "container">
+
+  
   <table>
     <th>
       <tr>
@@ -180,6 +190,8 @@
       </td>
     </tr>
     </th>
+   
+
     {{#results}}
           <tr>
             <td>{{clock_in}}</td>
@@ -191,6 +203,7 @@
     {{/results}}
   </table>
 </div>
+
 
 <!-- <div class="container">
   <h3>Inventory</h3>
@@ -271,7 +284,7 @@
     <th>
       <tr>
            <td>
-            
+            modify
       </td>
        <td>
         Name
@@ -291,7 +304,6 @@
     {{#users}}
           <tr>
     
-	      <input name="id" type="text" value="{{id}}" hidden>
               <td><a href="/modifyUser/{{id}}">edit</a></td>
               <td> {{name}} </td>
             <td> {{user_type}} </td>
@@ -302,7 +314,7 @@
           </tr>
     {{/users}}
   </table>
-</div>
+</div> </br>
 
 
 

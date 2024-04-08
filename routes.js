@@ -34,7 +34,7 @@ module.exports = function(app) {
                 console.log(times);
                 db.getUsers(function(err, users){
                   render.users = users;
-                  console.log("User error: ",err);
+                  console.log("Users: ",users);
                   db. getUsersHours(function(err, userHours){
                     
                     console.log("Timesheet Error:",err);
@@ -556,14 +556,16 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
       }
   });
 
-  app.post('/updateUsers',  mid.isAuth, function(req, res){
+  app.post('/updateUser/',  mid.isAuth, function(req, res){
       if (req.user.local && req.user.local.user_type == 1){
-      
+        if (req.user.local.user_type == 1) {
+        
 
-        db.updateUsers(req, res, function(err){
-          res.send("Updating Users is not fully operational yet.")
-        });
+          db.updateUser(req, res, function(err){
+            res.redirect("/admin");
+          });
 
+        }
       }
   }); 
 
@@ -572,13 +574,14 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
           if (req.user.local.user_type == 1) {
                var userId = req.params.id;
         var render = defaultAdminRender(req);
-        }
-
-        db.getUsers(function(err, users){
-          render.user = users[userId];
+         db.getUsers(function(err, users){
+          render.user = users[userId-1];
           console.log( render.user);
           res.render('modifyUser.html', render);
         });    
+        }
+
+       
 
           
         

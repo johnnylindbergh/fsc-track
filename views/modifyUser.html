@@ -20,7 +20,7 @@
   <div class="container">
     <h2>
       {{#message}}
-        <p>{{message}}</p>
+        <!-- <p>{{message}}</p> -->
       {{/message}}
     </h2> </br>
   {{/auth}}
@@ -30,12 +30,30 @@
   
   <div class="container">
    {{#user}}
-	<form action="updateUser" method="post">
+	<form action="/updateUser/" method="post">
     <input name="id" type="text" value="{{id}}" hidden>
-    <input id= "name" type="text" default=" {{name}}"></br>
-    <input id= "userType" type="text">{{user_ype}}</input></br>
-    <input id= "email" type="text">{{email}}</input></br>
-    <input type="submit"></input></br>
+    <table>
+      <tr>
+
+      <td> Name: </td> <td><input name= "name" type="text" value=" {{name}}"></td>
+
+      </tr>
+
+      <tr>
+
+      <td>User Type: </td> <td><input name= "user_type" type="text" value = "{{user_type}}"></td>
+
+      </tr>
+
+      <tr>
+
+      <td>Email: </td> <td><input name= "email" type="text" value="{{email}}"></td>
+
+      </tr>
+
+
+    <tr><td><input type="submit"></br> <input type="button" value="delete user"></input></td></tr>
+  </table>
   </form>
    {{/user}}
   </div>
