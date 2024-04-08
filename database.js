@@ -18,6 +18,8 @@ const con = mysql.createPool({
   multipleStatements: true
 });
 
+let weeks = [];
+
 module.exports = {
   connection: con,
 
@@ -386,6 +388,22 @@ module.exports = {
         
     });
   },
+
+  calulateWeeks: (cb) =>{
+
+  },
+
+  getWeek: (cb) => {
+    // get the last 5 weeks and store as a local variable
+    con.query('SELECT * FROM timesheet order by clock_in;', (err, rows)=>{
+      if (!err){
+
+
+      }
+    });
+
+  },
+
 
 getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) => {
 
@@ -758,7 +776,26 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
     console.log("phone_number:",req.body.phone_number[i])
   }
   cb("update users in progress")
+    },
+
+    updateUser: (req, res, cb) =>{
+      console.log("userid:",req.body.id)
+      console.log("name:",req.body.name)
+      console.log("userType change to dropdown:",req.body.user_type)
+      console.log("email:",req.body.email)
+
+      con.query('UPDATE users SET name = ?, user_type = ?, email = ? WHERE id = 1;', [req.body.name, req.body.user_type,req.body.email, req.body.id], (err)=>{
+        if (!err){
+          cb(err);
+        } else {
+          console.log("failed to update user");
+        }
+      })
+ 
     }
+
+
+    
 
 
  
