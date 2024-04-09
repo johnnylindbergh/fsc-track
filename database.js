@@ -729,7 +729,7 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
        
     },
 
-        updateInventoryManager: (body, cb) => {
+    updateInventoryManager: (body, cb) => {
       for (var i = 0; i < body.item_name.length; i++){
         if (body.threshold[i] == null){
           body.threshold[i] = 0;
@@ -768,14 +768,16 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
     },
 
     updateUsers: (req, res, cb) =>{
-  for (var i = 0; i < req.body.id.length; i++){
-    console.log("userid:",req.body.id[i])
-    console.log("name:",req.body.name[i])
-    console.log("userType change to dropdown:",req.body.user_type[i])
-    console.log("email:",req.body.email[i])
-    console.log("phone_number:",req.body.phone_number[i])
-  }
-  cb("update users in progress")
+      for (var i = 0; i < req.body.id.length; i++){
+        console.log("userid:",req.body.id[i])
+        console.log("name:",req.body.name[i])
+        console.log("userType change to dropdown:",req.body.user_type[i])
+        console.log("email:",req.body.email[i])
+        console.log("phone_number:",req.body.phone_number[i])
+      }
+  
+      cb("update users in progress")
+    
     },
 
     updateUser: (req, res, cb) =>{
@@ -790,8 +792,80 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
         } else {
           console.log("failed to update user");
         }
-      })
+      });
  
+    },
+
+    getTestData: function(n){
+      // populates the timesheet table with test data
+      var randomDate = moment();
+      for (var i = 0; i < n; i++){
+        randomDate.subtract(Math.random() * 5, 'd');
+        console.log(randomDate.format('YYYY-MM-DD'));
+
+        con.query('INSERT INTO timesheet (userid, job, task, clock_in, clock_out) VALUES (1, 1, 1, ?, ?)', [randomDate.format('YYYY-MM-DD'), randomDate.format('YYYY-MM-DD')]);
+
+      }
+    },
+
+    getWeeks: (times, cb) => {
+      var weeks = [];
+      var segmentedTimeSheet = [];
+      var n_weeks = 6;
+      // times ordered by clock_in 
+
+      // get last input 
+      // get the date that is six weeks before that date
+      // segment by mondays
+      console.log("Starting with:", times[times.length-1]);
+
+      var endDate = moment(times[0].clock_in);
+      var startDate = moment(endDate).subtract(28, 'd'); // subtract 42 to get previous 6 weeks
+      console.log("startDate:", startDate.format('YYYY-MM-DD'));
+      console.log("end Date:", endDate.format('YYYY-MM-DD'));
+      var i;
+
+      for ( i = 1; i < times.length; i++){
+        currentTime = moment(times[times.length-1].clock_in);
+        if (currentTime.isAfter(startDate) && currentTime.isBefore(endDate)){
+            break;
+        }
+      }
+
+      var startIndex = i;
+
+      var mondayEnd = moment(times[i]).isoWeekday(7); // use 7 to start on sunday
+      var mondayStart = mondayEnd.subtract(7, 'd');
+      var segmentIndex = 0;
+
+      // loop
+        for (var i = 0; i < 6; i++){
+
+          weeks[i] = [];
+          var inRange = true;
+
+          while (inRange){
+
+            currentTime = moment(times[segmentIndex].clock_in);
+            if(currentTime.isAfter(mondayEnd) && currentTime.isBefore){
+               weeks[i].push(currentTime);
+               segmentIndex++; // current time is within range ; go to next
+            } else { // current time is out of range
+              // compute new mondays
+              mondayEnd = mondayStart;
+              mondayStart = mondayEnd.subtract(7, 'd');
+              break; // out of while 
+
+            }  
+          
+          }
+
+        }
+
+      console.log("starting index", startIndex);
+
+     
+      cb(weeks);
     }
 
 

@@ -30,27 +30,32 @@ module.exports = function(app) {
           db.getTasks(req, res, function(err, tasks){
             render.tasks = tasks;
             db.getTimesheet(req, res, function(err, times){
+
                 render.times = times;
-                console.log(times);
-                db.getUsers(function(err, users){
-                  render.users = users;
-                  console.log("Users: ",users);
-                  db. getUsersHours(function(err, userHours){
-                    
-                    console.log("Timesheet Error:",err);
+                //console.log(times);
+                db.getWeeks(times, function(weeks){
+                  db.getUsers(function(err, users){
+                    render.users = users;
+                   // console.log("Users: ",users);
+                    db. getUsersHours(function(err, userHours){
+                      
+                      //console.log("Timesheet Error:",err);
 
-                    render.times= userHours;
+                      render.times= userHours;
 
-                    db.getInventory(function(err, inventory){
-                      console.log("inventory error:", err);
-                      render.inventory = inventory;
-                      res.render("admin.html", render);
+                      db.getInventory(function(err, inventory){
+                        //console.log("inventory error:", err);
+                        render.inventory = inventory;
+                        res.render("admin.html", render);
+                      });
+
                     });
+               
 
                   });
-             
 
                 });
+
 
             });
 
