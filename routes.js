@@ -29,11 +29,12 @@ module.exports = function(app) {
           render.jobs = jobs;
           db.getTasks(req, res, function(err, tasks){
             render.tasks = tasks;
-            db.getTimesheet(req, res, function(err, times){
-
+            db.getWholeTimesheet(req, res, function(times){
+                console.log(times.length);
                 render.times = times;
                 //console.log(times);
-                db.getWeeks(times, function(weeks){
+                db.getWeeks(times, function(nominalWeeks){
+                  render.nominalWeeks = nominalWeeks;
                   db.getUsers(function(err, users){
                     render.users = users;
                    // console.log("Users: ",users);
@@ -98,7 +99,12 @@ module.exports = function(app) {
             db.getTimesheet(req, res, function(err, times){
 
                 render.times = times;
-                db.getUsers(function(err, users){
+
+                db.getWholeTimesheet(req, res, function(times){
+                  db.getWeeks(times, function(nominalWeeks){
+                    console.log(nominalWeeks);
+                    render.nominalWeeks = nominalWeeks;
+                  db.getUsers(function(err, users){
                   render.users = users;
 
                   db. getUsersHours(function(err, userHours){
@@ -132,6 +138,10 @@ module.exports = function(app) {
                       var startDate = moment(req.body.startDate);
                       var endDate = moment(req.body.endDate);
 
+                      if (req.body.weekId == -1){
+                        req.body.weekId = null;
+                      }
+
                       if (req.body.userId == -1){
                         req.body.userId = null;
                       }
@@ -141,10 +151,10 @@ module.exports = function(app) {
                       }
                       
                       if (req.body.taskId == -1){
-                                    req.body.taskId = null;
+                        req.body.taskId = null;
                       }
 
-                      db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId,  function(err,rows){
+                      db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId, req.body.weekId,  function(err,rows){
                         if (!err && rows.length > 0){
                           render.results = rows;
                         }
@@ -165,6 +175,14 @@ module.exports = function(app) {
              
 
                 });
+                  
+                 });
+
+                });
+
+
+
+                
 
             });
 
@@ -368,7 +386,11 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
 
 
         var render = defaultRender(req);
-        db.getJobs(req, res, function (err, jobs){
+
+        db.getCachedWeeks(function(err, getCachedWeeks){
+
+          render.weeks = getCachedWeeks;
+          db.getJobs(req, res, function (err, jobs){
 
           render.jobs = jobs;
           db.getTasks(req, res, function(err, tasks){
@@ -376,6 +398,12 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
             render.tasks = tasks;
             db.getUsers( function(err, rows){
               render.users = rows;
+
+              for (var i = 0; i < render.weeks.length; i++){
+                if (render.weeks[i].id == req.body.weekId){
+                  render.weeks[i].selected = true;
+                }
+              }
 
               for (var i = 0; i < render.users.length; i++){
                 if (render.users[i].id == req.body.userId){
@@ -430,7 +458,10 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
 
           });
 
-        });      
+        }); 
+
+        });
+     
 
       } else {
 

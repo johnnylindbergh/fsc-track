@@ -121,9 +121,9 @@
   <input type="submit" formaction="default_url_when_press_enter" style="visibility: hidden; display: none;">
         <select name="weekId">
             <option value="-1">All Weeks</option>
-            {{#weeks}}
-            <option value="{{id}}"{{#selected}}selected{{/selected}}>{{weekDate}}</option>
-            {{/weeks}}
+            {{#nominalWeeks}}
+            <option value="{{id}}"{{#selected}}selected{{/selected}}>{{name}}</option>
+            {{/nominalWeeks}}
           </select>
           
           <select name="userId">
