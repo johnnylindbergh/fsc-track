@@ -18,7 +18,8 @@ const con = mysql.createPool({
   multipleStatements: true
 });
 
-let weeks = [];
+let cachedWeeks = [];
+let nominalWeeks = []; // array of strings to display in form
 
 module.exports = {
   connection: con,
@@ -307,6 +308,20 @@ module.exports = {
 
 
   },
+
+  getWholeTimesheet: (req,res,cb) =>{
+        con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in ASC;', (err, rows) => {
+          if (!err){
+            cb(rows);
+          } else {
+            console.log("getTimesheet Query fail");
+            cb(err);
+          }
+        });
+
+
+  },
+
   getTimesheet: (req, res, cb) => {
     con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in ASC;', (err, rows) => {
           
@@ -405,7 +420,7 @@ module.exports = {
   },
 
 
-getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) => {
+getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,  cb) => {
 
          // format dates into strings for query, and make inclusive range
          var startString = startDate.format('YYYY-MM-DD');
@@ -482,6 +497,11 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
                rows[i].formattedDuration = moment.utc(moment.duration(rows[i].duration, 'h').asMilliseconds()).format('HH:mm');
                noDup.push(rows[i]);
              }
+           }
+
+
+          if (weekId != null){
+             filtered = cachedWeeks[weekId];
            }
 
            var filtered = noDup;
@@ -812,60 +832,132 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId,  cb) =>
       var weeks = [];
       var segmentedTimeSheet = [];
       var n_weeks = 6;
+      var lookBack = 28; // number of days to look back
+      nominalWeeks = [];
       // times ordered by clock_in 
 
       // get last input 
       // get the date that is six weeks before that date
       // segment by mondays
-      console.log("Starting with:", times[times.length-1]);
+      console.log("Ending with:", times[times.length-1]);
 
-      var endDate = moment(times[0].clock_in);
-      var startDate = moment(endDate).subtract(28, 'd'); // subtract 42 to get previous 6 weeks
+      var endDate = moment(times[times.length-1].clock_in); // last date (ordered by date)
+      var startDate = moment(endDate).subtract(lookBack, 'd'); // subtract 28 to get day 4 weeks before
       console.log("startDate:", startDate.format('YYYY-MM-DD'));
       console.log("end Date:", endDate.format('YYYY-MM-DD'));
       var i;
 
-      for ( i = 1; i < times.length; i++){
-        currentTime = moment(times[times.length-1].clock_in);
-        if (currentTime.isAfter(startDate) && currentTime.isBefore(endDate)){
+      for ( i = 0; i < times.length-1 ; i++){
+        currentTime = moment(times[i].clock_in);
+        if (currentTime.isAfter(startDate) ){
             break;
         }
       }
 
-      var startIndex = i;
+      var startIndex = i-1; // represents the first day in the past lookBack days range
 
-      var mondayEnd = moment(times[i]).isoWeekday(7); // use 7 to start on sunday
-      var mondayStart = mondayEnd.subtract(7, 'd');
-      var segmentIndex = 0;
+      console.log("Starting with ", times[startIndex]);
 
-      // loop
-        for (var i = 0; i < 6; i++){
+      console.log("indecies:", startIndex, times.length-1 );
 
-          weeks[i] = [];
-          var inRange = true;
+    
+      // this function needs to be redone
+      var weekEnd = moment(times[startIndex]).isoWeekday(7); // use 7 to start on sunday
+     
+      var weekStart = weekEnd.clone();
+      weekStart.subtract(7,'d');
 
-          while (inRange){
+      console.log("Start week: ", weekStart.format('YYYY-MM-DD'));
+      console.log("End week: ", weekEnd.format('YYYY-MM-DD'));
 
-            currentTime = moment(times[segmentIndex].clock_in);
-            if(currentTime.isAfter(mondayEnd) && currentTime.isBefore){
-               weeks[i].push(currentTime);
-               segmentIndex++; // current time is within range ; go to next
-            } else { // current time is out of range
-              // compute new mondays
-              mondayEnd = mondayStart;
-              mondayStart = mondayEnd.subtract(7, 'd');
-              break; // out of while 
+      var segmentIndex = times.length-1;
 
-            }  
-          
+      for (var i = 0; i < lookBack/7; i++){
+        console.log("computing week ", i);
+        weeks[i] = [];
+
+        var weekHasData = false; 
+
+        while (segmentIndex > startIndex){
+          console.log("inside loop")
+          var currentTime = moment(times[segmentIndex].clock_in);
+          if(currentTime.isAfter(weekStart)){
+            console.log("found data for this week")
+            weeks[i].push(times[segmentIndex]);
+            segmentIndex--;
+            weekHasData = true;
+          } else {
+            // current time is before the week start.
+              console.log("new week")
+             break;
           }
-
         }
 
-      console.log("starting index", startIndex);
+        if (weekHasData){
+          var weekNumber = (lookBack/7) - i // inverted
+          var weekString;
+          var weekObject;
+          if (weekNumber == 1){
+            weekString = "Week " + weekNumber + " (last entered week)";
+            weekObject = {};
+            weekObject.id = i;
+            weekObject.name = weekString
+            nominalWeeks.push(weekObject);
+          } else {
+            weekString = "Week " + weekNumber;
+            weekObject = {};
+            weekObject.id = i;
+            weekObject.name = weekString
+            nominalWeeks.push(weekObject);
+          }
+          
+        }
+
+        weekEnd.subtract(7, 'd');
+        weekStart.subtract(7, 'd');
+
+        console.log("Start week: ", weekStart.format('YYYY-MM-DD'));
+      console.log("End week: ", weekEnd.format('YYYY-MM-DD'));
+
+       }
+
+       console.log(nominalWeeks);
+
+      // // loop
+      // for (var i = 0; i < (lookBack/7); i++){
+
+      //     weeks[i] = [];
+      //     var inRange = true;
+
+      //     while (inRange && segmentIndex > 0){
+      //       console.log(times[segmentIndex])
+      //       currentTime = moment(times[segmentIndex].clock_in);
+      //       if(currentTime.isAfter(weekStart) && currentTime.isBefore(weekEnd)){
+      //         console.log("found an entry in range")
+      //          weeks[i].push(currentTime);
+      //          segmentIndex--; // current time is within range ; go to next
+      //       } else { // current time is out of range
+      //         // compute new mondays
+      //         weekEnd.subtract(7, 'd');
+      //         weekStart.subtract(7, 'd');
+      //         inrange = false;
+      //         //break;
+
+      //       }  
+          
+      //     }
+
+      //   }
+                  console.log(weeks);
+                  cachedWeeks = weeks;
 
      
-      cb(weeks);
+       cb(nominalWeeks);
+    },
+
+    getCachedWeeks: (cb)=>{
+
+      cb(nominalWeeks);
     }
 
 
