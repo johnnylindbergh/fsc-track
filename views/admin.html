@@ -12,6 +12,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 
+
   
 </head>
 
@@ -126,7 +127,9 @@
             <option value="{{id}}"{{#selected}}selected{{/selected}}>{{name}}</option>
             {{/nominalWeeks}}
           </select>
+
            or
+
           <select name="userId">
             <option value="-1">All Users</option>
             {{#users}}
@@ -166,6 +169,7 @@
         </form>
 </div>
 
+
 {{#searchScroll}}
   <script>
 $("#searchResults").css("border-color", "red");
@@ -174,6 +178,7 @@ $("#searchResults").css("border-color", "red");
 
 
 <div id = "searchResults" class = "container" >
+
 
   
   <table>
@@ -289,6 +294,7 @@ $("#searchResults").css("border-color", "red");
     <table>
     <th>
       <tr>
+
       <td>
         modify
       </td>
@@ -302,18 +308,21 @@ $("#searchResults").css("border-color", "red");
           Email
         </td>
  
+
     </tr>
     </th>
     {{#users}}
           <tr>
     
               <td><a href="/modifyUser/{{id}}">edit</a></td> 
+
               <td> {{name}} </td>
             <td> {{user_type}} </td>
             <td> {{email}} </td>
 
           
              <td>{{#clockedIn}}Clocked In {{/clockedIn}} {{^clockedIn}}Clocked Out {{/clockedIn}}</td>
+
           </tr>
     {{/users}}
   </table>

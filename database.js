@@ -21,6 +21,7 @@ const con = mysql.createPool({
 let cachedWeeks = [];
 let cachedNominalWeeks = []; // array of strings to display in form
 
+
 module.exports = {
   connection: con,
   cachedNominalWeeks:cachedNominalWeeks,
@@ -158,6 +159,7 @@ module.exports = {
 
   },
 
+
    getUsers: (cb) => {
 
     con.query('SELECT * FROM users;', (err, rows) =>{
@@ -170,7 +172,38 @@ module.exports = {
 
   },
 
-  getUsersHours: (cb) => {
+
+// CREATE TABLE timesheet (
+//   id INT NOT NULL AUTO_INCREMENT,
+//   userid INT,
+//   job INT,
+//   task INT,
+//   clock_in DATETIME,
+//   clock_out DATETIME,
+//   duration float(8),
+//   notes VARCHAR(64),
+//   FOREIGN KEY (job) REFERENCES jobs(id),
+//   FOREIGN KEY (task) REFERENCES tasks(id),
+//   FOREIGN KEY (userid) REFERENCES users(id),
+
+// CREATE TABLE users (
+//   id INT NOT NULL AUTO_INCREMENT,
+//   user_type INT DEFAULT 2,
+//   name VARCHAR(64),
+//   email VARCHAR(64),
+//   phone_number VARCHAR(64),
+//   clockedIn TINYINT(1) DEFAULT 0,
+//   public_key VARCHAR(64),
+//   authentication_token VARCHAR(64),
+//   FOREIGN KEY (user_type) REFERENCES user_types(id),
+//   PRIMARY KEY (id)
+
+// );
+
+
+//  PRIMARY KEY (id)
+
+     getUsersHours: (cb) => {
 
     con.query('SELECT timesheet.userid AS UserID, users.name as name, SUM(timesheet.duration) AS TotalDuration FROM timesheet JOIN users ON users.id = timesheet.userid GROUP BY timesheet.userid;', (err, rows) =>{
 
@@ -291,6 +324,8 @@ module.exports = {
             cb(rows);
           } else {
             console.log("getWholeTimesheet Query fail: " + err);
+
+
             cb(err);
           }
         });
@@ -332,6 +367,10 @@ module.exports = {
                 duplicates = false;
                 if (i != j && rows[i].isArchived ==0 && rows[j].isArchived == 0 && rows[i].userid == rows[j].userid && rows[i].job == rows[j].job && rows[i].task == rows[j].task){
                   duplicates = true;
+
+                  rows[i].duration = rows[i].duration + rows[j].duration
+                  rows[j].isArchived = 1;
+
                   rows[i].duration = rows[i].duration + rows[j].duration
                   rows[j].isArchived = 1;
                   //console.log(rows);
@@ -414,6 +453,7 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
                  duplicates = false;
                  if (i != j && rows[i].isArchived ==0 && rows[j].isArchived == 0 && rows[i].userid == rows[j].userid && rows[i].job == rows[j].job && rows[i].task == rows[j].task){
                    duplicates = true;
+
                    rows[i].duration = rows[i].duration + rows[j].duration
                    rows[j].isArchived = 1;
 
@@ -433,10 +473,15 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
              }
            }
 
-
        
 
            var filtered = rows;
+
+          if (weekId != null){
+             filtered = cachedWeeks[weekId];
+           }
+
+
 
            if (userId != null){
              var userFilter = []
@@ -492,9 +537,11 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
 
            }
 
+
             if (weekId != null){
              filtered = cachedWeeks[weekId];
            }
+
 
 
 
@@ -601,7 +648,7 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
 
 
       if (inventoryId.length == quantityUsed.length && inventoryId.length >0){
-        //console.log("Updating " + inventoryId.length + " items.")
+
         for (var i = 0; i < inventoryId.length; i++){
           if (quantityUsed[i] != ''){
 
@@ -622,6 +669,7 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
 
                  con.query('UPDATE inventory SET quantity = ? WHERE id = ?;', [newQuantity, item], (err) => {
                       console.log(err);
+
                   
                 });
 		// job id needs to be added to the manager update inventory form
@@ -723,6 +771,7 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
       });
     },
 
+
     updateUser: (req, res, cb) =>{
       console.log("userid:",req.body.id)
       console.log("name:",req.body.name)
@@ -730,6 +779,7 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
       console.log("email:",req.body.email)
 
       con.query('UPDATE users SET name = ?, user_type = ?, email = ? WHERE id = ?;', [req.body.name, req.body.user_type,req.body.email, req.body.id], (err)=>{
+
         if (!err){
           cb(err);
         } else {
@@ -766,6 +816,7 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
       var endDate = moment(times[times.length-1].clock_in); // last date (ordered by date)
       var startDate = moment(endDate).subtract(lookBack, 'd'); // subtract 28 to get day 4 weeks before
 
+
       var i;
 
       for ( i = 0; i < times.length-1 ; i++){
@@ -777,6 +828,11 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
 
       var startIndex = i-1; // represents the first day in the past lookBack days range
 
+      console.log("Starting with ", times[startIndex]);
+
+      console.log("indecies:", startIndex, times.length-1 );
+
+
     
       // this function needs to be redone
       var weekEnd = moment(times[startIndex]).isoWeekday(7); // use 7 to start on sunday
@@ -787,19 +843,24 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
       var segmentIndex = times.length-1;
 
       for (var i = 0; i < lookBack/7; i++){
-        weeks[i] = [];
+
 
         var weekHasData = false; 
 
-        while (segmentIndex > startIndex){
+        var ITR = 0;
+        var MAX_ITR = 0;
+        while (segmentIndex > startIndex && ITR < MAX_ITR ){
+          ITR++;
+          console.log(segmentIndex)
           var currentTime = moment(times[segmentIndex].clock_in);
           if(currentTime.isAfter(weekStart)){
+
             weeks[i].push(times[segmentIndex]);
             segmentIndex--;
             weekHasData = true;
           } else {
             // current time is before the week start.
-             break;
+
           }
         }
 
@@ -834,7 +895,6 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
       cachedNominalWeeks = nominalWeeks;
 
       cachedWeeks = weeks;
-
      
        cb(nominalWeeks);
     },

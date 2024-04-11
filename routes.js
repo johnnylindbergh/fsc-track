@@ -30,7 +30,6 @@ module.exports = function(app) {
           db.getTasks(req, res, function(err, tasks){
             render.tasks = tasks;
             db.getWholeTimesheet(req, res, function(times){
-                //console.log(times.length);
                 render.times = times;
                 //console.log(times);
                 db.getWeeks(times, function(nominalWeeks){
@@ -102,7 +101,7 @@ module.exports = function(app) {
 
                 db.getWholeTimesheet(req, res, function(times){
                   db.getWeeks(times, function(nominalWeeks){
-                    //console.log(nominalWeeks);
+
                     render.nominalWeeks = nominalWeeks;
                   db.getUsers(function(err, users){
                   render.users = users;
@@ -112,7 +111,7 @@ module.exports = function(app) {
 
                     db.getInventory(function(err, inventory){
                       render.inventory = inventory;
-                      //console.log(inventory)
+
                       // now filter
                       for (var i = 0; i < render.users.length; i++){
                         if (render.users[i].id == req.body.userId){
@@ -163,6 +162,7 @@ module.exports = function(app) {
                         render.endDate = endDate;
                         //render.nominalWeeks = db.nominalWeeks;
                         render.searchScroll = true;
+
 
 
 
@@ -444,6 +444,7 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
               }
 
               db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId, req.body.weekId,  function(err,rows){
+
                 if (!err && rows.length > 0){
                   render.results = rows;
                 }
@@ -484,6 +485,7 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
    if (req.isAuthenticated() && req.user && req.user.local) {
 
       if (req.user.local.user_type == 1) {
+
 
         var render = defaultRender(req);
         db.getJobs(req, res, function (err, jobs){
@@ -531,11 +533,13 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
                             req.body.taskId = null;
               }
 
+
               if (req.body.weekId == -1){
                             req.body.weekId = null;
               }
 
               db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId, req.body.weekId,  function(err,rows){
+
                 if (!err && rows.length > 0){
                   render.results = rows;
                 }
@@ -612,6 +616,7 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
 
    app.get('/modifyUser/:id',  mid.isAuth, function(req, res){
       if (req.user.local && req.user.local.user_type == 1){
+
         if (req.user.local.user_type == 1) {
           var userId = req.params.id;
           var render = defaultAdminRender(req);
@@ -621,22 +626,21 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
             res.render('modifyUser.html', render);
           });    
         }
+
       }
   }); 
 
   app.post('/updateInventory', mid.isAuth, function(req,res){
       if (req.user.local && req.user.local.user_type == 1){
         for (var i = 0; i < req.body.id.length; i++){
-          //console.log("item "+ i +" : "+req.body.item_name[i]);
-          //console.log(req.body.quantity[i]);
-          //console.log(req.body.threshold[i]);
-          // if reorder is not selected it does not appear in req.body
+
           if (req.body.reorder && req.body.reorder[i]){
             //console.log(req.body.reorder[i]);
           }
           //console.log(req.body.id[i]);
         }
         //console.log(req.body);
+
 
         db.updateInventory(req.body, function(err){
           res.redirect("/admin");
