@@ -7,10 +7,11 @@
   <link rel="stylesheet" type="text/css" href="css/navbar.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js">
-  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+
   
 </head>
 
@@ -125,7 +126,7 @@
             <option value="{{id}}"{{#selected}}selected{{/selected}}>{{name}}</option>
             {{/nominalWeeks}}
           </select>
-          
+           or
           <select name="userId">
             <option value="-1">All Users</option>
             {{#users}}
@@ -165,9 +166,14 @@
         </form>
 </div>
 
+{{#searchScroll}}
+  <script>
+$("#searchResults").css("border-color", "red");
+  </script>
+  {{/searchScroll}} 
 
 
-<div class = "container">
+<div id = "searchResults" class = "container" >
 
   
   <table>
@@ -283,8 +289,8 @@
     <table>
     <th>
       <tr>
-           <td>
-            modify
+      <td>
+        modify
       </td>
        <td>
         Name
@@ -296,21 +302,18 @@
           Email
         </td>
  
-        <td>
-          clocked In
-        </td>  
     </tr>
     </th>
     {{#users}}
           <tr>
     
-              <td><a href="/modifyUser/{{id}}">edit</a></td>
+              <td><a href="/modifyUser/{{id}}">edit</a></td> 
               <td> {{name}} </td>
             <td> {{user_type}} </td>
             <td> {{email}} </td>
 
           
-             <td>{{clockedIn}}</td>
+             <td>{{#clockedIn}}Clocked In {{/clockedIn}} {{^clockedIn}}Clocked Out {{/clockedIn}}</td>
           </tr>
     {{/users}}
   </table>
