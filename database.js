@@ -828,9 +828,7 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
 
       var startIndex = i-1; // represents the first day in the past lookBack days range
 
-      console.log("Starting with ", times[startIndex]);
 
-      console.log("indecies:", startIndex, times.length-1 );
 
 
     
@@ -844,14 +842,12 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
 
       for (var i = 0; i < lookBack/7; i++){
 
-
+        weeks[i] = [];
         var weekHasData = false; 
 
-        var ITR = 0;
-        var MAX_ITR = 0;
-        while (segmentIndex > startIndex && ITR < MAX_ITR ){
-          ITR++;
-          console.log(segmentIndex)
+
+        while (segmentIndex > startIndex ){
+       
           var currentTime = moment(times[segmentIndex].clock_in);
           if(currentTime.isAfter(weekStart)){
 
@@ -860,6 +856,7 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
             weekHasData = true;
           } else {
             // current time is before the week start.
+            break;
 
           }
         }
