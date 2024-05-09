@@ -1,29 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Main | {{defaults.sysName}}</title>
+  <title> Main | {{defaults.sysName}}</title>
   <link rel="stylesheet" type="text/css" href="css/reset.css">
   <link rel="stylesheet" type="text/css" href="css/defaults.css">
   <link rel="stylesheet" type="text/css" href="css/navbar.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script>
+
     function validateForm() {
-  let quantity = parseInt(document.forms["inventoryForm"]["quantity"].value);
-  let threshold = parseInt(document.forms["inventoryForm"]["threshold"].value);
-  let total = parseInt(document.forms["inventoryForm"]["total"].value);
-  if (total - quantity < threshold ) {
-    let text;
-    if (confirm("Press a button!") == true) {
-      text = "reorder request submitted";
-      return true;
-    } else {
-      text = "";
-      return false;
+      let quantity = parseInt(document.forms["inventoryForm"]["quantity"].value);
+      let threshold = parseInt(document.forms["inventoryForm"]["threshold"].value);
+      let total = parseInt(document.forms["inventoryForm"]["total"].value);
+      if (total - quantity < threshold ) {
+        let text;
+        if (confirm("Press a button!") == true) {
+          text = "reorder request submitted";
+          return true;
+        } else {
+          text = "";
+          return false;
+        }
+      }
     }
-    
-  }
-}
+
   </script>
 </head>
 <body>
@@ -81,6 +83,7 @@
     {{/clockedIn}}
     {{#clockedIn}}
       You Are Clocked in
+      <!-- TIME SINCE CLOCK_IN: {{clock_in}} -->
       <form action="/clockout/{{id}}" method = "POST">
         <h2>Notes</h2>
         <textarea name="notes" cols="40" rows="5">{{notes}}</textarea> </br>

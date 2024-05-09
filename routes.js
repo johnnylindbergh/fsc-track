@@ -268,6 +268,7 @@ module.exports = function(app) {
                render.tasks = tasks;
                db.lookUpUser(userEmail, function(err, user){
                 render.clockedIn = user.clockedIn;
+                // render.clock_in = user.clock_in
                 console.log("User GET / : ",user.name);
                 if (user.user_type == 3){
                   // user is super  
@@ -332,7 +333,7 @@ app.post('/clockIn', mid.isAuth, function(req, res){
   var job = req.body.jobName;
   var task = req.body.taskName;
   var userId = req.user.local.id;
-  db.clockIn(userId, job, task, function(err){
+  db.clockIn(userId, job, task, function(err){ // this function now must add the clock_in time to the user table
     if (!err){
       res.redirect('/');
     } else {
@@ -370,7 +371,7 @@ app.post('/deleteTask', mid.isAuth, function(req, res){
 
 app.post('/clockOut', mid.isAuth, function(req, res){
 
-  db.clockOut(req, function(err){
+  db.clockOut(req, function(err){ // this function must update the user table to set clockedIn to false and set the clock_in time to null (this shouldn't really search timesheet)
     if (!err){
       res.redirect('/');
     } else {
