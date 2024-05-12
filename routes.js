@@ -267,26 +267,14 @@ module.exports = function(app) {
 
                render.tasks = tasks;
                db.lookUpUser(userEmail, function(err, user){
+                console.log(user);
                 render.clockedIn = user.clockedIn;
                 // render.clock_in = user.clock_in
                 console.log("User GET / : ",user.name);
-                if (user.user_type == 3){
-                  // user is super  
-                  render.isManager = true;  
 
-                  db.getInventory(function(err, inventory){
-                    render.inventory = inventory;
-                   
-                    res.render("main.html", render);
-                  });
-                } else {
                    render.clockedIn = user.clockedIn;
                   //res.send(render)
                   res.render("main.html", render);
-
-                }
-
-                 
               });
             });
           });
@@ -297,6 +285,18 @@ module.exports = function(app) {
   });
 
 //app.post("clockIn")
+
+
+  app.get('/clockInDuration', mid.isAuth, (req, res) => {
+     if (req.isAuthenticated() && req.user && req.user.local){
+
+      db.getClockInDuration(req.user.local.id, function(clockInDuration){
+          res.send(clockInDuration);
+      });
+
+     }
+
+  });
 
 
 app.post('/addJob',mid.isAuth, function (req, res){

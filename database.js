@@ -262,6 +262,21 @@ module.exports = {
     });
   },
 
+  getClockInDuration: (userId, cb) => {
+    if (userId != null){
+      con.query('SELECT * FROM timesheet WHERE userid = ? AND clock_out is NULL;', [userId], (err,rows) => {
+        
+        if (!err && rows !== undefined && rows.length > 0) {
+          cb(err, rows)
+        } else {
+          cb(err || "Failed to get clock in duration")
+        }
+          
+
+      });
+    }
+  },
+
 
 
   clockOut: (req, cb) => {
