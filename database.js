@@ -295,6 +295,9 @@ module.exports = {
     });
   },
 
+
+  // toggle user clock in status
+
   clockInAndOut: (userId, jobId, taskId, cb) => {
     con.query('SELECT clockedIn FROM users WHERE (id = ?);', [userId], (err, rows) =>{
       if (!err && rows !== undefined && rows.length > 0) {
@@ -325,6 +328,7 @@ module.exports = {
     });
   },
 
+  // clockout all users;
   clockOutAll: (cb) => {
     con.query('UPDATE timesheet SET clocked_out = NOW() WHERE clocked_out IS NULL;', (err) =>{
       cb(err);

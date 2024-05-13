@@ -265,16 +265,26 @@ module.exports = function(app) {
             render.jobs = jobs;
             db.getTasks(req, res, function (err, tasks){
 
+
                render.tasks = tasks;
                db.lookUpUser(userEmail, function(err, user){
-                console.log(user);
-                render.clockedIn = user.clockedIn;
-                // render.clock_in = user.clock_in
-                console.log("User GET / : ",user.name);
-
-                   render.clockedIn = user.clockedIn;
+                  console.log("User GET / : ",user.name);
+                  render.clockedIn = user.clockedIn;
                   //res.send(render)
-                  res.render("main.html", render);
+                  render.clockedIn = user.clockedIn;
+            
+                    db.getClockInDuration(req.user.local.id, function (err, row){
+                      if (!err && err == null){
+                          render.clock_in = row[0].clock_in;
+                      }
+                    
+                      res.render("main.html", render);
+                    });
+             
+
+                    
+
+                  
               });
             });
           });
