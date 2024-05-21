@@ -1,4 +1,5 @@
-
+#csv files
+*.csv
 # Credentials file
 /credentials.js
 
