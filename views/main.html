@@ -9,7 +9,6 @@
 <script src="
 https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
 "></script>  
-<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,32 +17,9 @@ https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
 
   <script>
 
-    // function validateForm() {
-    //   let quantity = parseInt(document.forms["inventoryForm"]["quantity"].value);
-    //   let threshold = parseInt(document.forms["inventoryForm"]["threshold"].value);
-    //   let total = parseInt(document.forms["inventoryForm"]["total"].value);
-    //   if (total - quantity < threshold ) {
-    //     let text;
-    //     if (confirm("Press a button!") == true) {
-    //       text = "reorder request submitted";
-    //       return true;
-    //     } else {
-    //       text = "";
-    //       return false;
-    //     }
-    //   }
-    // }
-
-// $.get( "https://shop.franksaulconstruction.com/clockInDuration", function( data ) {
-//   $( ".duration" ).html( data );
-//   console.log(data);
-//   alert( "Load was performed." );
-// });
-  //$(function() {
-
       var clock_in = moment($('#clock_in').html());
       var now;
-      console.log($('clock_in').html());
+      console.log($('#clock_in').html()); // Fix typo in console.log statement
 
       function loadDuration(){
         now = moment();
@@ -63,14 +39,12 @@ https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
 
       setInterval(loadDuration, 1000);
 
-//  });
-
 
   </script>
 </head>
 <body>
   <div class="navbar">
-    <ul>
+    <ul> 
       <li><a href="/">{{defaults.sysName}}</a></li>
       <li><a href="/admin">admin</a></li>
       <div style="float:right">
@@ -79,7 +53,7 @@ https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
       </div>
     </ul>
   </div>
-  {{#auth}}
+  {{#auth}} 
   <div class="container">
     <h2>
       {{#message}}

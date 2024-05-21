@@ -352,6 +352,40 @@ module.exports = {
 
   },
 
+  updateAllDurations: () =>{
+    con.query('SELECT * FROM timesheet;', (err, rows)=>{
+      if (!err & rows.length()>0){
+        // compute durations
+        for (var i = 0; i < rows.length(); i++){
+          var clock_in = moment(rows[i].clock_in)
+          var now = moment();
+          rows[i].clock_in = clock_in
+          rows[i].clock_out = clock_out
+          var diff = moment.duration(clock_out.diff(clock_in));
+          // duration in hours
+          var hours = parseInt(diff.asHours());
+          // duration in minutes
+          var minutes = parseInt(diff.asMinutes()) % 60;
+          //duration in seconds
+          var seconds = parseInt(diff.asSeconds()) % 3600;
+
+          rows[i].duration = hours + (minutes/60) + (seconds /3600);
+        }
+        // update durations
+        for (var i = 0; i < rows.length(); i++){
+          con.query('INSERT INTO timesheet (duration) VALUES (?) WHERE id = ?;', [rows[i].duration, rows[i].id], (err) => {
+            if (!err){
+              //console.log("updated duration")
+            } else {
+              console.log("error updating durations");
+            }
+          });
+        }
+      }
+      
+    });
+  },
+
   getTimesheet: (req, res, cb) => {
     con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in ASC;', (err, rows) => {
           
