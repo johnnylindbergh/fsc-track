@@ -7,6 +7,7 @@ const creds   = require('./credentials.js');
 const sys     = require('./settings.js');
 const mysql   = require('mysql');
 const moment = require('moment');
+const date = require('date-and-time') 
 moment().format();
 
 // establish database connection
@@ -338,7 +339,7 @@ module.exports = {
   },
 
   getWholeTimesheet: (req,res,cb) =>{
-        con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in ASC;', (err, rows) => {
+        con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, timesheet.notes, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in ASC;', (err, rows) => {
           if (!err){
             cb(rows);
           } else {
@@ -350,37 +351,30 @@ module.exports = {
         });
 
 
-  },
+  },            
 
   updateAllDurations: () =>{
-    con.query('SELECT * FROM timesheet;', (err, rows)=>{
-      if (!err & rows.length()>0){
+    con.query('SELECT clock_in, clock_out, TIMEDIFF(clock_out, clock_in) as duration FROM timesheet;', (err, rows)=>{
+      if (!err && rows.length >0){
         // compute durations
-        for (var i = 0; i < rows.length(); i++){
-          var clock_in = moment(rows[i].clock_in)
-          var now = moment();
-          rows[i].clock_in = clock_in
-          rows[i].clock_out = clock_out
-          var diff = moment.duration(clock_out.diff(clock_in));
-          // duration in hours
-          var hours = parseInt(diff.asHours());
-          // duration in minutes
-          var minutes = parseInt(diff.asMinutes()) % 60;
-          //duration in seconds
-          var seconds = parseInt(diff.asSeconds()) % 3600;
+        for (let i = 0; i < rows.length; i++){
+          console.log(rows[i].duration);
+          var duration = moment.duration(rows[i].duration);
+          console.log(duration.asHours());
+          rows[i].duration = duration.asHours();
 
-          rows[i].duration = hours + (minutes/60) + (seconds /3600);
-        }
-        // update durations
-        for (var i = 0; i < rows.length(); i++){
-          con.query('INSERT INTO timesheet (duration) VALUES (?) WHERE id = ?;', [rows[i].duration, rows[i].id], (err) => {
+
+
+          con.query('UPDATE timesheet SET duration = ? WHERE id = ?;', [rows[i].duration, rows[i].id], (err) => {
             if (!err){
               //console.log("updated duration")
             } else {
-              console.log("error updating durations");
+              console.log("error updating durations", err);
             }
           });
         }
+      } else {
+        console.log(err);
       }
       
     });
@@ -391,7 +385,7 @@ module.exports = {
           
           //combine rows by matching job, task, userid, 
         
-            duplicates = false;
+            duplicatfes = false;
             for (var i = 0; i < rows.length; i++){
               // update blank durations
               if (rows[i].duration == undefined){
@@ -424,8 +418,6 @@ module.exports = {
                   rows[i].duration = rows[i].duration + rows[j].duration
                   rows[j].isArchived = 1;
 
-                  rows[i].duration = rows[i].duration + rows[j].duration
-                  rows[j].isArchived = 1;
                   //console.log(rows);
 
 
@@ -472,212 +464,30 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
          // format dates into strings for query, and make inclusive range
          var startString = startDate.format('YYYY-MM-DD');
          var endString = endDate.add(1, 'days').format('YYYY-MM-DD');
-       con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in;', (err, rows) => {
+       con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, timesheet.notes, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in;', (err, rows) => {
            // AND (timesheet.clock_in BETWEEN ? and ?)
 
            //combine rows by matching job, task, userid, 
 
-             duplicates = false;
+           //  duplicates = false;
              for (var i = 0; i < rows.length; i++){
+
                // update blank durations
-               if (rows[i].duration == undefined){
-                 var clock_in = moment(rows[i].clock_in)
-                 var clock_out = moment(rows[i].clock_out)
-                 rows[i].clock_in = clock_in
-                 rows[i].clock_out = clock_out
-                 var diff = moment.duration(clock_out.diff(clock_in));
-                 // duration in hours
-                 var hours = parseInt(diff.asHours());
-                 // duration in minutes
-                 var minutes = parseInt(diff.asMinutes()) % 60;
-                 //duration in seconds
-                 var seconds = parseInt(diff.asSeconds()) % 3600;
+               var clock_in = moment(rows[i].clock_in).format('MMMM Do YYYY, h:mm:ss a');
+               var clock_out = moment(rows[i].clock_out).format('MMMM Do YYYY, h:mm:ss a');
+               rows[i].clock_in = clock_in;
+               rows[i].clock_out = clock_out;
 
-                 rows[i].duration = hours + (minutes/60) + (seconds /3600);
-                 con.query('UPDATE timesheet SET duration = ? WHERE id = ?;', [rows[i].duration, rows[i].uid], (err) =>{
-                 });
-               }
              }
 
-           var duplicates = true;
-             while (duplicates){
-             for (var i = 0; i < rows.length; i++){
-               for (var j = i; j < rows.length; j++){
-                 duplicates = false;
-                 if (i != j && rows[i].isArchived ==0 && rows[j].isArchived == 0 && rows[i].userid == rows[j].userid && rows[i].job == rows[j].job && rows[i].task == rows[j].task){
-                   duplicates = true;
-
-                   rows[i].duration = rows[i].duration + rows[j].duration
-                   rows[j].isArchived = 1;
-
-
-                 }
-
-               }
-             }
-
-           }
-         // remove deleted indicies to not confuse the mustache and format the duration
-          var noDup = [];
-           for (var i = 0; i < rows.length; i++){
-             if (rows[i].isArchived == 0){
-               rows[i].formattedDuration = moment.utc(moment.duration(rows[i].duration, 'h').asMilliseconds()).format('HH:mm');
-               noDup.push(rows[i]);
-             }
-           }
-
-       
-
-           var filtered = rows;
-
-          if (weekId != null){
-             filtered = cachedWeeks[weekId];
-           }
 
 
 
-           if (userId != null){
-             var userFilter = []
-             for (var i = 0; i < filtered.length; i++){
-               if (filtered[i].userid == userId){
-                 userFilter.push(filtered[i]);
-               }
-             }
-             filtered = userFilter;
-           }
-
-           if (jobId != null){
-             var jobFilter = []
-             for (var i = 0; i < filtered.length; i++){
-               if (filtered[i].job == jobId){
-                 jobFilter.push(filtered[i]);
-               }
-             }
-             filtered = jobFilter;
-
-           }
-
-           if (taskId != null){
-             var taskFilter = []
-             for (var i = 0; i < filtered.length; i++){
-               if (filtered[i].task == taskId){
-                 taskFilter.push(filtered[i]);
-               }
-             }
-             filtered = taskFilter;
-
-           }
-
-           if (startDate.isValid()){
-             var startFilter = []
-             for (var i = 0; i < filtered.length; i++){
-               if (moment(filtered[i].clock_out).isAfter(startDate)){
-                 startFilter.push(filtered[i]);
-               }
-             }
-             filtered = startFilter;
-
-           }
-
-           if (endDate.isValid()){
-             var endFilter = []
-             for (var i = 0; i < filtered.length; i++){
-               if (moment(filtered[i].clock_in).isBefore(endDate)){
-                 endFilter.push(filtered[i]);
-               }
-             }
-             filtered = endFilter;
-
-           }
-
-
-            if (weekId != null){
-             filtered = cachedWeeks[weekId];
-           }
-
-
-
-
-
-         cb(err, filtered)
+         cb(err, rows)
 
        });
 
    },
-
-   getTimesheetQueryToCSV: (req, res, startDate, endDate, userId, jobId, taskId,  cb) => {
-
-         // format dates into strings for query, and make inclusive range
-         var startString = startDate.format('YYYY-MM-DD');
-         var endString = endDate.add(1, 'days').format('YYYY-MM-DD');
-       con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_inINTO OUTFILE "/var/fsc/mysql-files/timesheet.csv";', (err, rows) => {
-           // AND (timesheet.clock_in BETWEEN ? and ?)
-
-
-           var filtered = rows;
-
-           if (userId != null){
-             var userFilter = []
-             for (var i = 0; i < filtered.length; i++){
-               if (filtered[i].userid == userId){
-                 userFilter.push(filtered[i]);
-               }
-             }
-             filtered = userFilter;
-           }
-
-           if (jobId != null){
-             var jobFilter = []
-             for (var i = 0; i < filtered.length; i++){
-               if (filtered[i].job == jobId){
-                 jobFilter.push(filtered[i]);
-               }
-             }
-             filtered = jobFilter;
-
-           }
-
-           if (taskId != null){
-             var taskFilter = []
-             for (var i = 0; i < filtered.length; i++){
-               if (filtered[i].task == taskId){
-                 taskFilter.push(filtered[i]);
-               }
-             }
-             filtered = taskFilter;
-
-           }
-
-           if (startDate.isValid()){
-             var startFilter = []
-             for (var i = 0; i < filtered.length; i++){
-               if (moment(filtered[i].clock_out).isAfter(startDate)){
-                 startFilter.push(filtered[i]);
-               }
-             }
-             filtered = startFilter;
-
-           }
-
-           if (endDate.isValid()){
-             var endFilter = []
-             for (var i = 0; i < filtered.length; i++){
-               if (moment(filtered[i].clock_in).isBefore(endDate)){
-                 endFilter.push(filtered[i]);
-               }
-             }
-             filtered = endFilter;
-
-           }
-
-
-
-
-         cb(filtered);
-
-       });
-
-   }, 
 
     newInventoryItem:(name, quantity, cb) =>{
       con.query('INSERT INTO inventory (name, quantity) VALUES (?, ?)', [name, quantity],(err) => {

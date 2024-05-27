@@ -499,6 +499,7 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
 
 
         var render = defaultRender(req);
+        db.updateAllDurations();
         db.getJobs(req, res, function (err, jobs){
 
           render.jobs = jobs;
@@ -541,27 +542,32 @@ app.post('/searchTimesheetToCSV', mid.isAuth, function(req, res){
               }
               
               if (req.body.taskId == -1){
-                            req.body.taskId = null;
+                req.body.taskId = null;
               }
 
 
               if (req.body.weekId == -1){
-                            req.body.weekId = null;
+                req.body.weekId = null;
               }
 
-              db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId, req.body.weekId,  function(err,rows){
+              db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId, req.body.weekId,  function(err, timesheetData){
 
-                if (!err && rows.length > 0){
-                  render.results = rows;
+                if (!err && timesheetData.length > 0){
+                  render.startDate = startDate;
+                  render.endDate = endDate;
+                  render.results = timesheetData;
+                  console.log(rows);
+                  fs.writeFile('timesheet.csv', arrayToCSV(timesheetData), function(){
+                    res.download('timesheet.csv');
+                  });
+                } else {
+                  console.log(error);
                 }
 
-                render.startDate = startDate;
-                render.endDate = endDate;
+              
 
                 
-    fs.writeFile('timesheet.csv',arrayToCSV(rows), function(){
-      res.download('timesheet.csv');
-    });
+            
               }); 
 
             });
