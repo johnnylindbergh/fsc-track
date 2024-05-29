@@ -57,11 +57,20 @@
 table {
   border-collapse: collapse;
   border-spacing: 0;
-  padding:5px;
+  padding:3px;
 }
 
 td {
-  padding:10px;
+  padding:15px;
+}
+
+.hiddenDiv {
+  display: none;
+}
+
+.hoverMe:hover + .hiddenDiv {
+  display: block;
+  color: red;
 }
 
 tr:nth-child(even) {

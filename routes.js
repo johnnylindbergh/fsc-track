@@ -155,6 +155,7 @@ module.exports = function(app) {
 
                       db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId, req.body.weekId,  function(err,rows){
                         if (!err && rows.length > 0){
+                          console.log(rows);
                           render.results = rows;
                         }
 

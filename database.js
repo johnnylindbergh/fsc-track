@@ -458,36 +458,157 @@ module.exports = {
 
   },
 
+  getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,  cb) => {
 
-getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,  cb) => {
+    // format dates into strings for query, and make inclusive range
+    var startString = startDate.format('YYYY-MM-DD');
+    var endString = endDate.add(1, 'days').format('YYYY-MM-DD');
+  con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, timesheet.notes, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in;', (err, rows) => {
+      // AND (timesheet.clock_in BETWEEN ? and ?)
 
-         // format dates into strings for query, and make inclusive range
-         var startString = startDate.format('YYYY-MM-DD');
-         var endString = endDate.add(1, 'days').format('YYYY-MM-DD');
-       con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, timesheet.notes, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in;', (err, rows) => {
-           // AND (timesheet.clock_in BETWEEN ? and ?)
+      //combine rows by matching job, task, userid, 
 
-           //combine rows by matching job, task, userid, 
+        duplicates = false;
+        for (var i = 0; i < rows.length; i++){
+          // update blank durations
+          if (rows[i].duration == undefined){
+            var clock_in = moment(rows[i].clock_in);
+            var clock_out = moment(rows[i].clock_out);
+            rows[i].clock_in = clock_in; 
+            rows[i].clock_out = clock_out; 
 
-           //  duplicates = false;
-             for (var i = 0; i < rows.length; i++){
+     
+      
+          }
+        }
 
-               // update blank durations
-               var clock_in = moment(rows[i].clock_in).format('MMMM Do YYYY, h:mm:ss a');
-               var clock_out = moment(rows[i].clock_out).format('MMMM Do YYYY, h:mm:ss a');
-               rows[i].clock_in = clock_in;
-               rows[i].clock_out = clock_out;
+      var duplicates = true;
+        while (duplicates){
+        for (var i = 0; i < rows.length; i++){
+          for (var j = i; j < rows.length; j++){
+            duplicates = false;
+            if (i != j && rows[i].isArchived ==0 && rows[j].isArchived == 0 && rows[i].userid == rows[j].userid && rows[i].job == rows[j].job && rows[i].task == rows[j].task){
+              duplicates = true;
 
-             }
+              rows[i].duration = rows[i].duration + rows[j].duration
+              rows[j].isArchived = 1;
+
+
+            }
+
+          }
+        }
+
+      }
+    // remove deleted indicies to not confuse the mustache and format the duration
+     var noDup = [];
+      for (var i = 0; i < rows.length; i++){
+        if (rows[i].isArchived == 0){
+          //rows[i].formattedDuration = moment.utc(moment.duration(rows[i].duration, 'h').asMilliseconds()).format('HH:mm');
+
+          noDup.push(rows[i]);
+        }
+      }
+
+  
+
+      var filtered = rows;
+
+     if (weekId != null){
+        filtered = cachedWeeks[weekId];
+      }
 
 
 
+      if (userId != null){
+        var userFilter = []
+        for (var i = 0; i < filtered.length; i++){
+          if (filtered[i].userid == userId){
+            userFilter.push(filtered[i]);
+          }
+        }
+        filtered = userFilter;
+      }
 
-         cb(err, rows)
+      if (jobId != null){
+        var jobFilter = []
+        for (var i = 0; i < filtered.length; i++){
+          if (filtered[i].job == jobId){
+            jobFilter.push(filtered[i]);
+          }
+        }
+        filtered = jobFilter;
 
-       });
+      }
 
-   },
+      if (taskId != null){
+        var taskFilter = []
+        for (var i = 0; i < filtered.length; i++){
+          if (filtered[i].task == taskId){
+            taskFilter.push(filtered[i]);
+          }
+        }
+        filtered = taskFilter;
+
+      }
+
+      if (startDate.isValid()){
+        var startFilter = []
+        for (var i = 0; i < filtered.length; i++){
+          if (moment(filtered[i].clock_out).isAfter(startDate)){
+            filtered[i].clock_out = moment(filtered[i].clock_out).format('YYYY-MM-DD');
+            
+            startFilter.push(filtered[i]);
+          }
+        }
+        filtered = startFilter;
+
+      }
+
+      if (endDate.isValid()){
+        var endFilter = []
+        for (var i = 0; i < filtered.length; i++){
+          if (moment(filtered[i].clock_in).isBefore(endDate)){
+            endFilter.push(filtered[i]);
+          }
+        }
+        filtered = endFilter;
+
+      }
+
+
+       if (weekId != null){
+        filtered = cachedWeeks[weekId];
+      }
+
+      for(var i = 0; i < filtered.length; i++){
+        filtered[i].date = moment(filtered[i].clock_in).format('Do MMMM, YYYY');
+        filtered[i].clock_in= moment(filtered[i].clock_in).format('hh:mm a');
+        filtered[i].clock_out= moment(filtered[i].clock_out).format('hh:mm a');
+
+      }
+
+      let transformedArray = filtered.map(item => {
+        return {
+          username: item.username,
+          date: item.date,
+          clock_in: item.clock_in,
+          clock_out: item.clock_out,
+          duration: item.duration,
+          notes: item.notes,
+          name: item.name,
+          taskname: item.taskname
+        };
+      });
+      console.log(transformedArray);
+
+
+
+    cb(err, transformedArray)
+
+  });
+
+},
 
     newInventoryItem:(name, quantity, cb) =>{
       con.query('INSERT INTO inventory (name, quantity) VALUES (?, ?)', [name, quantity],(err) => {
@@ -728,7 +849,7 @@ getTimesheetQuery: (req, res, startDate, endDate, userId, jobId, taskId, weekId,
           var weekNumber = (lookBack/7) - i // inverted
           var weekString;
           var weekObject;
-          if (weekNumber == 1){
+          if (weekNumber == 4){
             weekString = "Week " + weekNumber + " (last entered week)";
             weekObject = {};
             weekObject.id = i;

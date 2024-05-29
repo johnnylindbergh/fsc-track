@@ -152,12 +152,12 @@
             {{/tasks}}
           </select>
 
-          <select  name="inventory" >
+          <!-- <select  name="inventory" >
             <option value="-1">All Inventory</option>
             {{#inventory}}
             <option value="{{id}}"{{#selected}}selected{{/selected}}>{{name}}</option>
             {{/inventory}}
-          </select>
+          </select> -->
 
           
             <b>From:</b> <input type="date" name="startDate" value="{{startDate}}"><b>To:</b>&nbsp;
@@ -184,6 +184,9 @@ $("#searchResults").css("border-color", "red");
   <table>
     <th>
       <tr>
+        <td>
+          Date
+        </td>
        <td>
         Start Time
       </td>
@@ -196,20 +199,23 @@ $("#searchResults").css("border-color", "red");
         <td>        
         Name
       </td>
-       <td>
+       <td class="hoverMe">
         Duration
       </td>
+
     </tr>
     </th>
    
 
     {{#results}}
           <tr>
+            <td>{{date}}</td>
             <td>{{clock_in}}</td>
             <td>{{clock_out}}</td>
             <td>{{name}} - {{taskname}}</td>
             <td>{{username}}</td>
-             <td>{{formattedDuration}}</td>
+             <td>{{duration}}</td>
+             <td> <div class = "hiddenDiv">{{notes}}</div></td>
           </tr>
     {{/results}}
   </table>
