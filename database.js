@@ -385,27 +385,27 @@ module.exports = {
           
           //combine rows by matching job, task, userid, 
         
-            duplicatfes = false;
+         
             for (var i = 0; i < rows.length; i++){
               // update blank durations
-              if (rows[i].duration == undefined){
-                var clock_in = moment(rows[i].clock_in)
-                var clock_out = moment(rows[i].clock_out)
-                rows[i].clock_in = clock_in
-                rows[i].clock_out = clock_out
-                var diff = moment.duration(clock_out.diff(clock_in));
-                // duration in hours
-                var hours = parseInt(diff.asHours());
-                // duration in minutes
-                var minutes = parseInt(diff.asMinutes()) % 60;
-                //duration in seconds
-                var seconds = parseInt(diff.asSeconds()) % 3600;
+              // if (rows[i].duration == undefined){
+              //   var clock_in = moment(rows[i].clock_in)
+              //   var clock_out = moment(rows[i].clock_out)
+              //   rows[i].clock_in = clock_in
+              //   rows[i].clock_out = clock_out
+              //   var diff = moment.duration(clock_out.diff(clock_in));
+              //   // duration in hours
+              //   var hours = parseInt(diff.asHours());
+              //   // duration in minutes
+              //   var minutes = parseInt(diff.asMinutes()) % 60;
+              //   //duration in seconds
+              //   var seconds = parseInt(diff.asSeconds()) % 3600;
 
-                rows[i].duration = hours + (minutes/60) + (seconds /3600);
-                con.query('UPDATE timesheet SET duration = ? WHERE id = ?;', [rows[i].duration, rows[i].uid], (err) =>{
-                  console.log(err)
-                });
-              }
+              //   rows[i].duration = hours + (minutes/60) + (seconds /3600);
+              //   con.query('UPDATE timesheet SET duration = ? WHERE id = ?;', [rows[i].duration, rows[i].uid], (err) =>{
+              //     console.log(err)
+              //   });
+              // }
             }
           var duplicates = false;// dont remove duplicates 
             while (duplicates){
@@ -431,7 +431,7 @@ module.exports = {
          var noDup = [];
           for (var i = 0; i < rows.length; i++){
             if (rows[i].isArchived == 0){
-              rows[i].formattedDuration = moment.utc(moment.duration(rows[i].duration, 'h').asMilliseconds()).format('HH:mm');
+             // rows[i].formattedDuration = moment.utc(moment.duration(rows[i].duration, 'h').asMilliseconds()).format('HH:mm');
               noDup.push(rows[i]);
             }
           }
@@ -482,7 +482,8 @@ module.exports = {
           }
         }
 
-      var duplicates = true;
+      var duplicates = false;
+      // do not remove duplicates it confuses mayo
         while (duplicates){
         for (var i = 0; i < rows.length; i++){
           for (var j = i; j < rows.length; j++){
@@ -490,7 +491,7 @@ module.exports = {
             if (i != j && rows[i].isArchived ==0 && rows[j].isArchived == 0 && rows[i].userid == rows[j].userid && rows[i].job == rows[j].job && rows[i].task == rows[j].task){
               duplicates = true;
 
-              rows[i].duration = rows[i].duration + rows[j].duration
+              //rows[i].duration = rows[i].duration + rows[j].duration
               rows[j].isArchived = 1;
 
 
