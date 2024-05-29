@@ -407,7 +407,7 @@ module.exports = {
                 });
               }
             }
-          var duplicates = true;
+          var duplicates = false;// dont remove duplicates 
             while (duplicates){
             for (var i = 0; i < rows.length; i++){
               for (var j = i; j < rows.length; j++){
@@ -415,8 +415,8 @@ module.exports = {
                 if (i != j && rows[i].isArchived ==0 && rows[j].isArchived == 0 && rows[i].userid == rows[j].userid && rows[i].job == rows[j].job && rows[i].task == rows[j].task){
                   duplicates = true;
 
-                  rows[i].duration = rows[i].duration + rows[j].duration
-                  rows[j].isArchived = 1;
+                  //rows[i].duration = rows[i].duration + rows[j].duration
+                  //rows[j].isArchived = 1;
 
                   //console.log(rows);
 
