@@ -400,6 +400,7 @@ app.post('/searchTimesheet', mid.isAuth, function(req, res){
 
 
         var render = defaultRender(req);
+        db.updateAllDurations();
 
         db.getCachedWeeks(function(err, getCachedWeeks){
 
