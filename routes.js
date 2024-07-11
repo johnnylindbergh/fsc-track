@@ -309,6 +309,20 @@ x                      }
 
   });
 
+    app.get('/hours', mid.isAuth, (req, res) => {
+     if (req.isAuthenticated() && req.user && req.user.local){
+        var render = defaultRender(req);
+
+        db.getUserHours(req.user.local.id, function(err,rows){
+            render.hours = rows;
+            console.log(rows);
+            res.render("hours.html", render);
+        });
+
+     }
+
+  });
+
 
 app.post('/addJob',mid.isAuth, function (req, res){
         // start with default render object

@@ -218,6 +218,19 @@ module.exports = {
 
   },
 
+  getUserHours: (userid, cb) => {
+
+    con.query('SELECT timesheet.userid AS UserID, users.name AS name, timesheet.duration, timesheet.clock_in FROM timesheet JOIN users ON users.id = timesheet.userid WHERE timesheet.userid = ? ORDER BY timesheet.clock_in DESC;', [userid], (err, rows) =>{
+
+      if (!err && rows !== undefined && rows.length > 0){
+      cb(err,rows);
+     } else {
+      cb(err || "failed to get users;")
+     }
+    });
+
+  },
+
   getReorderEmail: (cb) =>{
     cb(creds.serverEmail);
   },
@@ -406,6 +419,7 @@ module.exports = {
               //     console.log(err)
               //   });
               // }
+
             }
           var duplicates = false;// dont remove duplicates 
             while (duplicates){
@@ -463,15 +477,24 @@ module.exports = {
     // format dates into strings for query, and make inclusive range
     var startString = startDate.format('YYYY-MM-DD');
     var endString = endDate.add(1, 'days').format('YYYY-MM-DD');
-  con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, timesheet.notes, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in;', (err, rows) => {
+  con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, TIMEDIFF(timesheet.clock_out, timesheet.clock_in) as duration, timesheet.notes, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in;', (err, rows) => {
       // AND (timesheet.clock_in BETWEEN ? and ?)
+
+      // format the duration 
+
+      var duration;
+      for (var i = 0; i < rows.length; i++){
+        duration = moment.duration(rows[i].duration);
+        rows[i].duration = duration.asHours().toFixed(3);
+      }
+
 
       //combine rows by matching job, task, userid, 
 
         duplicates = false;
         for (var i = 0; i < rows.length; i++){
           // update blank durations
-          if (rows[i].duration == undefined){
+  //        if (rows[i].duration == undefined){
             var clock_in = moment(rows[i].clock_in);
             var clock_out = moment(rows[i].clock_out);
             rows[i].clock_in = clock_in; 
@@ -479,11 +502,11 @@ module.exports = {
 
      
       
-          }
+         // }
         }
 
       var duplicates = false;
-      // do not remove duplicates it confuses mayo
+
         while (duplicates){
         for (var i = 0; i < rows.length; i++){
           for (var j = i; j < rows.length; j++){
