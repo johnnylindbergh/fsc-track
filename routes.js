@@ -117,7 +117,7 @@ module.exports = function(app) {
                         if (render.users[i].id == req.body.userId){
                           render.users[i].selected = true;
                         }
-                      }
+x                      }
               
                       for (var i = 0; i < render.jobs.length; i++){
                         if (render.jobs[i].id == req.body.jobId){
