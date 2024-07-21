@@ -46,7 +46,7 @@ https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
   <div class="navbar">
     <ul> 
       <li><a href="/">{{defaults.sysName}}</a></li>
-      <li><a href="/admin">admin</a></li>
+      {{#isAdmin}} <li><a href="/admin">admin</a></li> {{/isAdmin}} 
       <li><a href="/hours">hours</a></li>
       <div style="float:right">
         <li><a href="/auth/google">Log In</a></li>
