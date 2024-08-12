@@ -15,7 +15,7 @@
   margin-right: auto;
   width: 80%;
   background-color: #f5f5f5;
-  padding:10px;
+  padding:8px 21px;
 
 }
 #clock{
@@ -65,6 +65,11 @@ td {
   padding:5px;
 }
 
+th {
+  padding:8px;
+
+}
+
 .hiddenDiv {
   display: none;
 }
@@ -96,7 +101,7 @@ tr:nth-child(even) {
   padding:10px;
 }
 
-input[type=button], input[type=submit], input[type=reset] {
+button, input[type=button], input[type=submit], input[type=reset] {
   background-color: #01aaff;
   border: none;
   color: white;
