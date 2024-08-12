@@ -5,8 +5,9 @@ A simple time tracking web application.
 1. Clone the repository: `git clone https://github.com/johnylindbergh/fsc-track.git`
 2. Install Node 
 3. Install the required packages: `npm install`
-4. Get google Oauth api key 
-5. Create credentials.js of the form: 
+4. install mysql and run db.sql with `source db.sql`
+5. Get google Oauth api key 
+6. Create credentials.js of the form: 
 
 
 ```javascript
@@ -35,6 +36,7 @@ module.exports = {
 
 }
 ```
+
 
 
 
