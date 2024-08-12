@@ -2,20 +2,47 @@
 A simple time tracking web application.
 
 ## Installation
-1. Clone the repository: `git clone https://github.com/your-username/fsc-track.git`
-2. Install the required packages: `pip install package1 package2`
+1. Clone the repository: `git clone https://github.com/johnylindbergh/fsc-track.git`
+2. Install Node 
+3. Install the required packages: `npm install`
+4. Get google Oauth api key 
+5. Create credentials.js of the form: 
+
+
+```javascript
+module.exports = {
+
+  // Google OAuth2 credentials for user authentication
+  GOOGLE_CLIENT_ID: '{your_google_client_id}',
+  GOOGLE_CLIENT_SECRET: 'your_client_secret',
+
+  // session encryption secret
+  SESSION_SECRET: 'your_session_secret',
+
+  // MySQL credentials
+  MYSQL_USERNAME: 'your_mysql_username',
+  MYSQL_PASSWORD: 'your_mysql_password',
+
+  // ssl stuff
+  approvedDomains: 'yourapproveddomain.com',
+  domain: 'https://your_domain.coc',
+  greenlockEmail:'your_greenlock_email',
+
+  // email stuff
+
+  serverEmail: "optional_server_email",
+  emailPassword: "server_email_password"
+
+}
+```
+
+
 
 ## Usage
 1. Navigate to the project directory: `cd fsc-track`
-2. Run the application: `python app.py`
+2. Run the application: `node server.js > logFileName.log &`
 3. Open your web browser and visit `http://localhost:5000`
 
-## Contributing
-1. Fork the repository
-2. Create a new branch: `git checkout -b feature/your-feature`
-3. Make your changes and commit them: `git commit -m "Add your changes"`
-4. Push to the branch: `git push origin feature/your-feature`
-5. Open a pull request
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
