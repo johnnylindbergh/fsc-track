@@ -155,7 +155,7 @@ module.exports = function (app) {
 
                         db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId, req.body.weekId, function (err, rows) {
                           if (!err && rows.length > 0) {
-                            console.log(rows);
+                            //console.log(rows);
                             render.results = rows;
                           }
 
@@ -271,8 +271,8 @@ module.exports = function (app) {
             render.tasks = tasks;
             db.lookUpUser(userEmail, function (err, user) {
               render.isAdmin = (req.user.local.user_type == 1);
-               console.log("User GET / : ",user.name);
-               console.log("adminStatus", render.isAdmin )
+               console.log("User GET / :",user.name);
+               //console.log("adminStatus", render.isAdmin )
               render.clockedIn = user.clockedIn;
               //res.send(render)
               render.clockedIn = user.clockedIn;
@@ -312,9 +312,14 @@ module.exports = function (app) {
       var render = defaultRender(req);
 
       db.getUserHours(req.user.local.id, function (err, rows) {
-        render.hours = rows;
-        console.log(rows);
-        res.render("hours.html", render);
+        if (!err){
+          render.hours = rows;
+          //console.log(rows);
+          res.render("hours.html", render);
+        } else {
+          console.log(err);
+        }
+       
       });
 
     }
@@ -404,6 +409,13 @@ module.exports = function (app) {
 
   });
 
+  app.post('/default_url_when_press_enter', mid.isAuth, function (req, res) {
+    res.err({
+      fr: "You pressed enter", 
+      li: "/admin",
+      ti: "Please choose a valid option: download or display"
+    });  });
+
   app.post('/searchTimesheet', mid.isAuth, function (req, res) {
 
     if (req.isAuthenticated() && req.user && req.user.local) {
@@ -412,7 +424,6 @@ module.exports = function (app) {
 
 
         var render = defaultRender(req);
-        db.updateAllDurations();
 
         db.getCachedWeeks(function (err, getCachedWeeks) {
 
@@ -513,7 +524,6 @@ module.exports = function (app) {
 
 
         var render = defaultRender(req);
-        db.updateAllDurations();
         db.getJobs(req, res, function (err, jobs) {
 
           render.jobs = jobs;
@@ -570,12 +580,16 @@ module.exports = function (app) {
                   render.startDate = startDate;
                   render.endDate = endDate;
                   render.results = timesheetData;
-                  console.log(rows);
+                 // console.log(rows);
                   fs.writeFile('timesheet.csv', arrayToCSV(timesheetData), function () {
                     res.download('timesheet.csv');
                   });
                 } else {
-                  console.log(error);
+                  res.err({
+                    fr: "Unable to find hours for this user", 
+                    li: "/admin",
+                    ti: "Maybe they have never clocked in"
+                  });
                 }
 
 

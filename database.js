@@ -220,7 +220,10 @@ module.exports = {
 
   getUserHours: (userid, cb) => {
 
-    con.query('SELECT timesheet.userid AS UserID, users.name AS name, timesheet.duration, timesheet.clock_in FROM timesheet JOIN users ON users.id = timesheet.userid WHERE timesheet.userid = ? ORDER BY timesheet.clock_in DESC;', [userid], (err, rows) =>{
+    con.query('SELECT timesheet.userid AS UserID, users.name AS name, timesheet.duration, timesheet.clock_in,  TIMEDIFF(clock_out, clock_in) as duration FROM timesheet JOIN users ON users.id = timesheet.userid WHERE timesheet.userid = ? ORDER BY timesheet.clock_in DESC;', [userid], (err, rows) =>{
+      rows.forEach((row) => {
+        row.duration = moment.duration(row.duration).asHours().toFixed(3);
+      });
 
       if (!err && rows !== undefined && rows.length > 0){
       cb(err,rows);
@@ -267,13 +270,17 @@ module.exports = {
   },
 
   clockIn: (id, jobId, taskId, cb) => {
-    con.query('INSERT INTO timesheet (userid, job, task, clock_in) values (?, ?, ?, NOW()); SELECT * FROM timesheet WHERE id = LAST_INSERT_ID(); UPDATE users SET clockedIn = 1 where id = ?;', [id, jobId, taskId, id], (err, rows) =>{
-        if (!err) {
-          cb(err);
-        } else {
-          cb (err || "Failed to clock in.")
-        } 
-    });
+    if (jobId && taskId){
+      con.query('INSERT INTO timesheet (userid, job, task, clock_in) values (?, ?, ?, NOW()); SELECT * FROM timesheet WHERE id = LAST_INSERT_ID(); UPDATE users SET clockedIn = 1 where id = ?;', [id, jobId, taskId, id], (err, rows) =>{
+          if (!err) {
+            cb(err);
+          } else {
+            cb (err || "Failed to clock in.")
+          } 
+      });
+    } else {
+      cb("Failed to clock in, missing job or task id");
+    }
   },
 
   getClockInDuration: (userId, cb) => {
@@ -299,14 +306,38 @@ module.exports = {
     var task = req.body.taskName;
     var userId = req.user.local.id;
     var notes = req.body.notes;
-    
-    con.query('UPDATE timesheet SET clock_out = NOW(), notes = ? WHERE userid = ? AND clock_out IS NULL; UPDATE users SET clockedIn = 0 WHERE id = ?;', [notes, userId, userId], (err) =>{
-        if (!err) {
-          cb(err);
-        } else {
-          cb (err || "Failed to clock out.")
-        } 
+
+    con.query('select * from timesheet where userid = ? and clock_out is NULL;', [userId], (err, rows) => {
+      if (!err && rows !== undefined && rows[0]){
+        con.query('UPDATE timesheet SET clock_out = NOW(), notes = ? WHERE userid = ? AND clock_out IS NULL; UPDATE users SET clockedIn = 0 WHERE id = ?;', [notes, userId, userId], (err) =>{
+          if (!err) {
+            con.query('UPDATE timesheet set duration = TIMESTAMPDIFF(SECOND, timesheet.clock_in, timesheet.clock_out)/3600  WHERE id = ? AND clock_out IS NOT NULL;', [rows[0].id], (err) =>{
+              if (!err){
+                cb(err);
+              } else {
+                cb(err || "Failed to update duration");
+              }
+            });
+          } else {
+            cb (err || "Failed to clock out.")
+          } 
+        });
+      }
     });
+    
+    // con.query('UPDATE timesheet SET clock_out = NOW(), notes = ? WHERE userid = ? AND clock_out IS NULL; UPDATE users SET clockedIn = 0 WHERE id = ?;', [notes, userId, userId], (err) =>{
+    //     if (!err) {
+    //       con.query('UPDATE timesheet set duration = TIMEDIFF(clock_out, clock_in)/3600 WHERE id = LAST_INSERT_ID() AND clock_out IS NOT NULL AND duration IS NULL;', [userId], (err) =>{
+    //         if (!err){
+    //           cb(err);
+    //         } else {
+    //           cb(err || "Failed to update duration");
+    //         }
+    //       });
+    //     } else {
+    //       cb (err || "Failed to clock out.")
+    //     } 
+    // });
   },
 
 
@@ -366,32 +397,32 @@ module.exports = {
 
   },            
 
-  updateAllDurations: () =>{
-    con.query('SELECT clock_in, clock_out, TIMEDIFF(clock_out, clock_in) as duration FROM timesheet;', (err, rows)=>{
-      if (!err && rows.length >0){
-        // compute durations
-        for (let i = 0; i < rows.length; i++){
-          console.log(rows[i].duration);
-          var duration = moment.duration(rows[i].duration);
-          console.log(duration.asHours());
-          rows[i].duration = duration.asHours();
+  // updateAllDurations: () =>{
+  //   con.query('SELECT clock_in, clock_out, TIMEUPDATE timesheet set duration = TIMESTAMPDIFF(SECOND, timesheet.clock_in, timesheet.clock_out)/3600;', (err, rows)=>{
+  //     if (!err && rows.length >0){
+  //       // compute durations
+  //       for (let i = 0; i < rows.length; i++){
+  //         //console.log(rows[i].duration);
+  //        // var duration = moment.duration(rows[i].duration);
+  //         //console.log(duration.asHours());
+  //         //rows[i].duration = duration.asHours();
 
 
 
-          con.query('UPDATE timesheet SET duration = ? WHERE id = ?;', [rows[i].duration, rows[i].id], (err) => {
-            if (!err){
-              //console.log("updated duration")
-            } else {
-              console.log("error updating durations", err);
-            }
-          });
-        }
-      } else {
-        console.log(err);
-      }
+  //         con.query('UPDATE timesheet SET duration = ? WHERE id = ?;', [rows[i].duration, rows[i].id], (err) => {
+  //           if (!err){
+  //             //console.log("updated duration")
+  //           } else {
+  //             console.log(err);
+  //           }
+  //         });
+  //       }
+  //     } else {
+  //       console.log(err);
+  //     }
       
-    });
-  },
+  //   });
+  // },
 
   getTimesheet: (req, res, cb) => {
     con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in ASC;', (err, rows) => {
@@ -400,27 +431,15 @@ module.exports = {
         
          
             for (var i = 0; i < rows.length; i++){
-              // update blank durations
-              // if (rows[i].duration == undefined){
-              //   var clock_in = moment(rows[i].clock_in)
-              //   var clock_out = moment(rows[i].clock_out)
-              //   rows[i].clock_in = clock_in
-              //   rows[i].clock_out = clock_out
-              //   var diff = moment.duration(clock_out.diff(clock_in));
-              //   // duration in hours
-              //   var hours = parseInt(diff.asHours());
-              //   // duration in minutes
-              //   var minutes = parseInt(diff.asMinutes()) % 60;
-              //   //duration in seconds
-              //   var seconds = parseInt(diff.asSeconds()) % 3600;
 
-              //   rows[i].duration = hours + (minutes/60) + (seconds /3600);
-              //   con.query('UPDATE timesheet SET duration = ? WHERE id = ?;', [rows[i].duration, rows[i].uid], (err) =>{
-              //     console.log(err)
-              //   });
-              // }
+                con.query('UPDATE timesheet SET duration = ? WHERE id = ?;', [rows[i].duration, rows[i].uid], (err) =>{
+                  if (err){
+                    console.log(err);
+                  }
+                });
+              }
 
-            }
+            // format the duration
           var duplicates = false;// dont remove duplicates 
             while (duplicates){
             for (var i = 0; i < rows.length; i++){
@@ -624,7 +643,7 @@ module.exports = {
           taskname: item.taskname
         };
       });
-      console.log(transformedArray);
+      //console.log(transformedArray);
 
 
 
@@ -781,10 +800,10 @@ module.exports = {
 
 
     updateUser: (req, res, cb) =>{
-      console.log("userid:",req.body.id)
-      console.log("name:",req.body.name)
-      console.log("userType change to dropdown:",req.body.user_type)
-      console.log("email:",req.body.email)
+      //console.log("userid:",req.body.id)
+      // console.log("name:",req.body.name)
+      // console.log("userType change to dropdown:",req.body.user_type)
+      // console.log("email:",req.body.email)
 
       con.query('UPDATE users SET name = ?, user_type = ?, email = ? WHERE id = ?;', [req.body.name, req.body.user_type,req.body.email, req.body.id], (err)=>{
 
@@ -802,7 +821,7 @@ module.exports = {
       var randomDate = moment();
       for (var i = 0; i < n; i++){
         randomDate.subtract(Math.random() * 5, 'd');
-        console.log(randomDate.format('YYYY-MM-DD'));
+        //(randomDate.format('YYYY-MM-DD'));
 
         con.query('INSERT INTO timesheet (userid, job, task, clock_in, clock_out) VALUES (1, 1, 1, ?, ?)', [randomDate.format('YYYY-MM-DD'), randomDate.format('YYYY-MM-DD')]);
 
