@@ -220,7 +220,7 @@ module.exports = {
 
   getUserHours: (userid, cb) => {
 
-    con.query('SELECT timesheet.userid AS UserID, users.name AS name, timesheet.duration, timesheet.clock_in,  TIMEDIFF(clock_out, clock_in) as duration FROM timesheet JOIN users ON users.id = timesheet.userid WHERE timesheet.userid = ? ORDER BY timesheet.clock_in DESC;', [userid], (err, rows) =>{
+    con.query('SELECT timesheet.userid AS UserID, users.name AS name, timesheet.duration, timesheet.clock_in,  TIMEDIFF(clock_out, clock_in) as duration FROM timesheet JOIN users ON users.id = timesheet.userid WHERE timesheet.userid = ? ORDER BY timesheet.clock_in DESC LIMIT 18;', [userid], (err, rows) =>{
       rows.forEach((row) => {
         row.duration = moment.duration(row.duration).asHours().toFixed(3);
       });
@@ -375,11 +375,24 @@ module.exports = {
 
   // clockout all users;
   clockOutAll: (cb) => {
-    con.query('UPDATE timesheet SET clocked_out = NOW() WHERE clocked_out IS NULL;', (err) =>{
-      cb(err);
+    con.query('select * from timesheet where clock_out is NULL;', (err, rows) => {
+      if (!err && rows !== undefined && rows.length > 0){
+        for (var i = 0; i < rows.length; i++){
+          var userStillClockedIn = rows[i];
+          con.query('UPDATE timesheet SET clock_out = NOW(), notes = "-- auto clock out --" WHERE id = ?;', [userStillClockedIn.id], (err) =>{
+            if (!err){
+              con.query('UPDATE timesheet set duration = TIMESTAMPDIFF(SECOND, timesheet.clock_in, timesheet.clock_out)/3600  WHERE id = ? AND clock_out IS NOT NULL; UPDATE users SET clockedIn = 0 where id = ?', [userStillClockedIn.id, userStillClockedIn.userid], (err)=>{
+                if (!err){
+
+                } else {
+
+                }
+              });
+            }
+          });
+        };
+      }
     });
-
-
   },
 
   getWholeTimesheet: (req,res,cb) =>{

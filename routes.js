@@ -13,12 +13,12 @@ const fs = require('fs');
 
 const job = schedule.scheduleJob('* 59 23 * *', function () {
   db.clockOutAll(function (err) {
-    console.log('All users have been automatically clocked out at: ', new Date.toLocaleTimeString());
+    console.log("It is now midnight, all users have been clocked out.");
   });
 });
 
 module.exports = function (app) {
-
+  // GET requests
   app.get('/admin', mid.isAuth, (req, res) => {
 
     if (req.isAuthenticated() && req.user && req.user.local) {

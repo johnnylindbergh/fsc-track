@@ -1,2 +1,2 @@
 #!/bin/sh
-forever server.js & disown
+node /var/www/fsc/server.js > fscTrack.log  & disown
