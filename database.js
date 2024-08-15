@@ -269,9 +269,9 @@ module.exports = {
     });
   },
 
-  clockIn: (id, jobId, taskId, cb) => {
-    if (jobId && taskId){
-      con.query('INSERT INTO timesheet (userid, job, task, clock_in) values (?, ?, ?, NOW()); SELECT * FROM timesheet WHERE id = LAST_INSERT_ID(); UPDATE users SET clockedIn = 1 where id = ?;', [id, jobId, taskId, id], (err, rows) =>{
+  clockIn: (id, cb) => {
+    if (id){
+      con.query('INSERT INTO timesheet (userid, clock_in) values (?, NOW()); SELECT * FROM timesheet WHERE id = LAST_INSERT_ID(); UPDATE users SET clockedIn = 1 where id = ?;', [id, id], (err, rows) =>{
           if (!err) {
             cb(err);
           } else {
@@ -309,8 +309,10 @@ module.exports = {
 
     con.query('select * from timesheet where userid = ? and clock_out is NULL;', [userId], (err, rows) => {
       if (!err && rows !== undefined && rows[0]){
-        con.query('UPDATE timesheet SET clock_out = NOW(), notes = ? WHERE userid = ? AND clock_out IS NULL; UPDATE users SET clockedIn = 0 WHERE id = ?;', [notes, userId, userId], (err) =>{
+        console.log("attempting to update timesheet");
+        con.query('UPDATE timesheet SET clock_out = NOW(), notes = ?, job = ?, task = ? WHERE userid = ? AND clock_out IS NULL; UPDATE users SET clockedIn = 0 WHERE id = ?;', [notes, job, task, userId, userId], (err) =>{
           if (!err) {
+            console.log("attempting to update duration");
             con.query('UPDATE timesheet set duration = TIMESTAMPDIFF(SECOND, timesheet.clock_in, timesheet.clock_out)/3600  WHERE id = ? AND clock_out IS NOT NULL;', [rows[0].id], (err) =>{
               if (!err){
                 cb(err);
@@ -342,7 +344,7 @@ module.exports = {
 
 
   // toggle user clock in status
-
+// need to be updated
   clockInAndOut: (userId, jobId, taskId, cb) => {
     con.query('SELECT clockedIn FROM users WHERE (id = ?);', [userId], (err, rows) =>{
       if (!err && rows !== undefined && rows.length > 0) {

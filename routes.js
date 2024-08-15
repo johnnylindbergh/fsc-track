@@ -357,11 +357,10 @@ module.exports = function (app) {
   });
 
 
-  app.post('/clockIn', mid.isAuth, function (req, res) {
-    var job = req.body.jobName;
-    var task = req.body.taskName;
+    app.post('/clockIn', mid.isAuth, function (req, res) {
+
     var userId = req.user.local.id;
-    db.clockIn(userId, job, task, function (err) { // this function now must add the clock_in time to the user table
+    db.clockIn(userId, function (err) { 
       if (!err) {
         res.redirect('/');
       } else {
@@ -370,6 +369,20 @@ module.exports = function (app) {
     });
 
   });
+
+  // app.post('/clockIn', mid.isAuth, function (req, res) {
+  //   var job = req.body.jobName;
+  //   var task = req.body.taskName;
+  //   var userId = req.user.local.id;
+  //   db.clockIn(userId, job, task, function (err) { // this function now must add the clock_in time to the user table
+  //     if (!err) {
+  //       res.redirect('/');
+  //     } else {
+  //       res.send(err);
+  //     }
+  //   });
+
+  // });
 
   app.post('/deleteJob', mid.isAuth, function (req, res) {
     var job = req.body.jobName;
@@ -398,14 +411,21 @@ module.exports = function (app) {
   });
 
   app.post('/clockOut', mid.isAuth, function (req, res) {
-
-    db.clockOut(req, function (err) { // this function must update the user table to set clockedIn to false and set the clock_in time to null (this shouldn't really search timesheet)
-      if (!err) {
-        res.redirect('/');
+    if (req.isAuthenticated() && req.user && req.user.local) {
+      if (req.body.jobName && req.body.taskName) {
+        db.clockOut(req, function (err) { // this function must update the user table to set clockedIn to false and set the clock_in time to null (this shouldn't really search timesheet)
+          if (!err) {
+            res.redirect('/');
+          } else {
+            res.send(err);
+          }
+        });
       } else {
-        res.send(err);
+        res.redirect('/');
       }
-    });
+    } else {
+      res.redirect('/');
+    }
 
   });
 
