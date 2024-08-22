@@ -11,7 +11,7 @@ const schedule = require('node-schedule');
 const fs = require('fs');
 
 
-const job = schedule.scheduleJob('* 59 23 * *', function () {
+const job = schedule.scheduleJob('0 0 * * *', function () {
   db.clockOutAll(function (err) {
     console.log("It is now midnight, all users have been clocked out.");
   });
@@ -421,7 +421,7 @@ module.exports = function (app) {
           }
         });
       } else {
-        res.redirect('/');
+        res.render('error.html', { friendly: "You must select a job and task to clock out.", link: "/" });
       }
     } else {
       res.redirect('/');

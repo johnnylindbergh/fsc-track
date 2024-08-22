@@ -16,9 +16,6 @@ https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
   <p id="clock_in" style="display: none;">{{clock_in}}</p>
 
   <script>
-      {{^clockedIn}}
-      alert("warning: changes made");
-      {{/clockedIn}}
       var clock_in = moment($('#clock_in').html());
       var now;
       console.log($('#clock_in').html()); // Fix typo in console.log statement
@@ -40,8 +37,38 @@ https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
       }
 
       setInterval(loadDuration, 1000);
+  </script>
+  <script>
+    function radioValidation() {
+      var jobName = document.getElementsByName('jobName');
+      var taskName = document.getElementsByName('taskName');
+      var jobChecked = false;
+      var taskChecked = false;
 
+      for (var i = 0; i < jobName.length; i++) {
+        if (jobName[i].checked) {
+          jobChecked = true;
+        }
+      }
 
+      for (var i = 0; i < taskName.length; i++) {
+        if (taskName[i].checked) {
+          taskChecked = true;
+        }
+      }
+
+      if (!jobChecked) {
+        alert('Please select a job');
+        return false;
+      }
+
+      if (!taskChecked) {
+        alert('Please select a task');
+        return false;
+      }
+
+      return true;
+    }
   </script>
 </head>
 <body>
@@ -65,41 +92,12 @@ https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
     </h2> </br>
   {{/auth}}
     {{^clockedIn}}
-    You are clocked out. </br>
-     <form action="/clockIn" method="POST">
-      <input type="submit" value="Clock In">
+    <div>
+      You are clocked out. </br>
+      <form action="/clockIn" method="POST">
+        <input type="submit" value="Clock In">
       </form>
-
-    <!-- <form action="/clockIn" method="POST">
-      
-         {{#jobs}}
-            <tr>
-              <td>
-                <input type="radio" id="jobName" name="jobName" value="{{id}}">
-              </td>
-
-              <td>
-                {{name}}
-              </td> </br>
-            </tr>
-          {{/jobs}} </br>
-
-        <h2> Tasks </h2>
-          {{#tasks}}
-            <tr>
-              <td>
-                <input type="radio" id="taskName" name="taskName" value="{{id}}">
-              </td>
-
-              <td>
-                {{name}}
-              </td> </br>
-            </tr>
-          {{/tasks}} </br>
-
-      <input type="submit" value="Clock In">
-    </form> -->
-
+    </div>
     {{/clockedIn}}
 
     {{#clockedIn}}
@@ -109,7 +107,7 @@ https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
        <h1 id="duration">00:00</h1> 
        <p id="hours">0.0</p> 
      </div>
-      <form action="/clockOut" method = "POST">
+      <form action="/clockOut" onsubmit="return validateForm()" method = "POST">
         <h2> Jobs </h2>
         {{#jobs}}
         <tr>
@@ -141,7 +139,7 @@ https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
 
         <h2>Notes</h2>
         <textarea name="notes" cols="40" rows="5">{{notes}}</textarea> </br>
-        <input type="submit" value="Clock Out">
+        <input type="submit" value="Clock Out" onclick="return radioValidation()">
       </form>
     {{/clockedIn}}
 

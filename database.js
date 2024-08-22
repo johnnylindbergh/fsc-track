@@ -307,6 +307,10 @@ module.exports = {
     var userId = req.user.local.id;
     var notes = req.body.notes;
 
+    if (!task && !job){
+      cb("Failed to clock out, missing job or task id");
+    }
+
     con.query('select * from timesheet where userid = ? and clock_out is NULL;', [userId], (err, rows) => {
       if (!err && rows !== undefined && rows[0]){
         console.log("attempting to update timesheet");
@@ -614,7 +618,7 @@ module.exports = {
         var startFilter = []
         for (var i = 0; i < filtered.length; i++){
           if (moment(filtered[i].clock_out).isAfter(startDate)){
-            filtered[i].clock_out = moment(filtered[i].clock_out).format('YYYY-MM-DD');
+            //filtered[i].clock_out = moment(filtered[i].clock_out).format('YYYY-MM-DD');
             
             startFilter.push(filtered[i]);
           }
