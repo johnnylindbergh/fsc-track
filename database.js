@@ -402,7 +402,7 @@ module.exports = {
   },
 
   getWholeTimesheet: (req,res,cb) =>{
-        con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, timesheet.notes, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in ASC;', (err, rows) => {
+        con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, timesheet.duration, timesheet.notes, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet LEFT JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id LEFT JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in ASC;', (err, rows) => {
           if (!err){
             cb(rows);
           } else {
@@ -515,7 +515,7 @@ module.exports = {
     // format dates into strings for query, and make inclusive range
     var startString = startDate.format('YYYY-MM-DD');
     var endString = endDate.add(1, 'days').format('YYYY-MM-DD');
-  con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, TIMEDIFF(timesheet.clock_out, timesheet.clock_in) as duration, timesheet.notes, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id INNER JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in;', (err, rows) => {
+  con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, TIMEDIFF(timesheet.clock_out, timesheet.clock_in) as duration, timesheet.notes, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet LEFT JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id LEFT JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in;', (err, rows) => {
       // AND (timesheet.clock_in BETWEEN ? and ?)
 
       // format the duration 
