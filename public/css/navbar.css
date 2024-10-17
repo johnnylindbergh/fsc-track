@@ -9,7 +9,8 @@
   top: 0;
   width: 100%;
   font-size: 14px;
-  background-color: rgba(0, 0, 20, 0.24);
+  /* purple (r,g,b) = (90,72,130) */
+  background-color: rgba(90, 72, 130, 0.24);
   z-index: 3;
 }
 

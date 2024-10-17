@@ -65,7 +65,7 @@ module.exports = function (app) {
 
       } else {
         var params = [];
-        params.fr = "You are not an admin :) sowwy bestie"
+        params.fr = "You are not an admin"
         res.err(params)
       }
 

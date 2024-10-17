@@ -1,8 +1,4 @@
 
-/*
-  database.js: Database connection & query functions
-*/
-
 const creds   = require('./credentials.js');
 const sys     = require('./settings.js');
 const mysql   = require('mysql');
@@ -220,7 +216,7 @@ module.exports = {
 
   getUserHours: (userid, cb) => {
 
-    con.query('SELECT timesheet.userid AS UserID, users.name AS name, timesheet.duration, timesheet.clock_in,  TIMEDIFF(clock_out, clock_in) as duration FROM timesheet JOIN users ON users.id = timesheet.userid WHERE timesheet.userid = ? ORDER BY timesheet.clock_in DESC LIMIT 18;', [userid], (err, rows) =>{
+    con.query('SELECT timesheet.userid AS UserID, users.name AS name, timesheet.duration, timesheet.clock_in,  TIMEDIFF(clock_out, clock_in) as duration FROM timesheet JOIN users ON users.id = timesheet.userid WHERE timesheet.userid = ? ORDER BY timesheet.clock_in DESC LIMIT 32;', [userid], (err, rows) =>{
       rows.forEach((row) => {
         row.duration = moment.duration(row.duration).asHours().toFixed(3);
       });
@@ -313,10 +309,8 @@ module.exports = {
 
     con.query('select * from timesheet where userid = ? and clock_out is NULL;', [userId], (err, rows) => {
       if (!err && rows !== undefined && rows[0]){
-        console.log("attempting to update timesheet");
         con.query('UPDATE timesheet SET clock_out = NOW(), notes = ?, job = ?, task = ? WHERE userid = ? AND clock_out IS NULL; UPDATE users SET clockedIn = 0 WHERE id = ?;', [notes, job, task, userId, userId], (err) =>{
           if (!err) {
-            console.log("attempting to update duration");
             con.query('UPDATE timesheet set duration = TIMESTAMPDIFF(SECOND, timesheet.clock_in, timesheet.clock_out)/3600  WHERE id = ? AND clock_out IS NOT NULL;', [rows[0].id], (err) =>{
               if (!err){
                 cb(err);
@@ -330,20 +324,6 @@ module.exports = {
         });
       }
     });
-    
-    // con.query('UPDATE timesheet SET clock_out = NOW(), notes = ? WHERE userid = ? AND clock_out IS NULL; UPDATE users SET clockedIn = 0 WHERE id = ?;', [notes, userId, userId], (err) =>{
-    //     if (!err) {
-    //       con.query('UPDATE timesheet set duration = TIMEDIFF(clock_out, clock_in)/3600 WHERE id = LAST_INSERT_ID() AND clock_out IS NOT NULL AND duration IS NULL;', [userId], (err) =>{
-    //         if (!err){
-    //           cb(err);
-    //         } else {
-    //           cb(err || "Failed to update duration");
-    //         }
-    //       });
-    //     } else {
-    //       cb (err || "Failed to clock out.")
-    //     } 
-    // });
   },
 
 
