@@ -1,28 +1,72 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title> Main | {{defaults.sysName}}</title>
   <link rel="stylesheet" type="text/css" href="css/reset.css">
   <link rel="stylesheet" type="text/css" href="css/defaults.css">
   <link rel="stylesheet" type="text/css" href="css/navbar.css">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
-<script src="
+  <script src="
 https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
-"></script>  
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <p id="clock_in" style="display: none;">{{clock_in}}</p>
 
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
   <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var calendarEl = document.getElementById('calendar');
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridWeek'
+      });
+
+
+      calendar.batchRendering(function () {
+        calendar.changeView('timeGridWeek');
+
+
+        // query getUserHours and add them to the calender
+
+        $.ajax({
+          url: '/getUserHours',
+          type: 'GET',
+          success: function (data) {
+            console.log(data);
+
+            data.forEach(function (hour) {
+
+              var start = new Date(hour.clock_in); // will be in local time
+              var end = new Date(hour.clock_out); // will be in local time
+              calendar.addEvent({
+                title: hour.duration.toString() + " " + hour.notes,
+                start: hour.clock_in,
+                end: hour.clock_out,
+                description:hour.notes,
+                color: 'blue',
+              });
+            });
+          }
+        });
+        calendar.render();
+
+
+      });
+    });
+
+
 
 
   </script>
 </head>
+
 <body>
   <div class="navbar">
-    <ul> 
+    <ul>
       <li><a href="/">{{defaults.sysName}}</a></li>
       <li><a href="/admin">admin</a></li>
       <li><a href="/">clock in</a></li>
@@ -32,44 +76,47 @@ https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
       </div>
     </ul>
   </div>
-  {{#auth}} 
+  {{#auth}}
   <div class="container">
     <h2>
       {{#message}}
-        <p>{{message}}</p>
+      <p>{{message}}</p>
       {{/message}}
     </h2> </br>
-  {{/auth}}
-   
+    {{/auth}}
+</div>
+<!--  -->
+<div class="hours">
 
-   <table>
-    <tr>
-      <th>
-        Date
-      </th>
-      <th>
-        Duration
-      </th>
+    <table >
+      <tr>
+        <th>
+          Date
+        </th>
+        <th>
+          Duration
+        </th>
 
-    </tr>
-    {{#hours}}
-    <tr>
-      <td>
-        {{clock_in}}
-      </td>
-      <td>
-        {{duration}}
-      </td>
-    </tr>
-    {{/hours}}
+      </tr>
+      {{#hours}}
+      <tr>
+        <td>
+          {{clock_in}}
+        </td>
+        <td>
+          {{duration}}
+        </td>
+      </tr>
+      {{/hours}}
 
-   </table>
-
-
+    </table>
 
 
+
+  </div>
+  <div style="width:70%; margin: 10%" id='calendar'></div>
 
 
 </body>
-</html>
 
+</html>

@@ -307,6 +307,17 @@ module.exports = function (app) {
 
   });
 
+  app.get('/getUserHours', mid.isAuth, (req, res) => {
+
+    if (req.isAuthenticated() && req.user && req.user.local) {
+      db.getUserHours(req.user.local.id, function (err, rows) {
+        res.send(rows);
+      });
+    }
+    
+  });
+
+
   app.get('/hours', mid.isAuth, (req, res) => {
     if (req.isAuthenticated() && req.user && req.user.local) {
       var render = defaultRender(req);

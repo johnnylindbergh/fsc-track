@@ -2,9 +2,9 @@
 const creds   = require('./credentials.js');
 const sys     = require('./settings.js');
 const mysql   = require('mysql');
-const moment = require('moment');
+const moment = require('moment-timezone');
 const date = require('date-and-time') 
-moment().format();
+moment.tz([2012, 0], 'America/New_York').format('zz');    // Eastern Standard Time
 
 // establish database connection
 const con = mysql.createPool({
@@ -216,9 +216,10 @@ module.exports = {
 
   getUserHours: (userid, cb) => {
 
-    con.query('SELECT timesheet.userid AS UserID, users.name AS name, timesheet.duration, timesheet.clock_in,  TIMEDIFF(clock_out, clock_in) as duration FROM timesheet JOIN users ON users.id = timesheet.userid WHERE timesheet.userid = ? ORDER BY timesheet.clock_in DESC LIMIT 32;', [userid], (err, rows) =>{
+    con.query('SELECT timesheet.userid AS UserID, users.name AS name, timesheet.duration, timesheet.clock_in,  TIMEDIFF(clock_out, clock_in) as duration, notes, job, task FROM timesheet JOIN users ON users.id = timesheet.userid WHERE timesheet.userid = ? ORDER BY timesheet.clock_in DESC;', [userid], (err, rows) =>{
       rows.forEach((row) => {
         row.duration = moment.duration(row.duration).asHours().toFixed(3);
+        row.clock_in = moment(row.clock_in).format('YYYY-MM-DD');
       });
 
       if (!err && rows !== undefined && rows.length > 0){

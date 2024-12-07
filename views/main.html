@@ -16,23 +16,23 @@ https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
   <p id="clock_in" style="display: none;">{{clock_in}}</p>
 
   <script>
-      var clock_in = moment($('#clock_in').html());
+      var clock_in = moment($('#clock_in').html()).subtract(1,'hours');
       var now;
       console.log($('#clock_in').html()); // Fix typo in console.log statement
 
       function loadDuration(){
         now = moment();
         // computes duration, does not post value to the server (value can be corrupted by user)
-        var diff = moment.duration(now.diff(clock_in));
-        console.log(diff)
+        var diff = moment.duration(now.diff(clock_in))+1; // plus 1 for dst
+        console.log(diff+1)
         console.log(new Date(diff).toISOString().substring(11, 16));
         var duration = new Date(diff).toISOString().substring(11, 16);
-
+	//duration = duration.add(1,'hours');
         $("#duration").html(duration);
 
      
 
-        $("#hours").html((diff/3600000).toFixed(2));
+        $("#hours").html((diff/3600000).toFixed(2)) + 1;
 
       }
 
