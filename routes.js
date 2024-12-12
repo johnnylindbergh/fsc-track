@@ -9,6 +9,8 @@ const mid = require('./middleware.js');
 const moment = require('moment');
 const schedule = require('node-schedule');
 const fs = require('fs');
+const { GOOGLE_CLIENT_ID } = require('./credentials.js');
+const credentials = require('./credentials.js');
 
 
 const job = schedule.scheduleJob('0 0 * * *', function () {
@@ -281,7 +283,7 @@ module.exports = function (app) {
                 if (!err && err == null) {
                   render.clock_in = row[0].clock_in;
                 }
-
+                render.googleMapsApiKey = credentials.googleMapsApiKey;
                 res.render("main.html", render);
               });
             });
@@ -294,6 +296,21 @@ module.exports = function (app) {
   });
 
   //app.post("clockIn")
+
+  app.post('/location', mid.isAuth, (req, res) => {
+    console.log(req.user.name.givenName + " is located at: ", req.body.address , " at ", req.body.latitude+ ","+req.body.longitude,  moment().calendar()); // use system time
+    console.log("Location Delta: ", req.body.locationDelta);
+    if (req.isAuthenticated() && req.user && req.user.local) {
+      res.send("Location updated");
+      // db.updateLocation(req, function (err) {
+      //   if (!err) {
+      //     res.send("Location updated");
+      //   } else {
+      //     res.send(err);
+      //   }
+      // });
+    }
+  });
 
 
   app.get('/clockInDuration', mid.isAuth, (req, res) => {
@@ -774,7 +791,7 @@ function defaultAdminRender(req) {
       },
       defaults: {
         sysName: sys.SYSTEM_NAME,
-        domain: sys.DOMAIN
+        domain: sys.DOMAIN,
       }
     };
   } else {

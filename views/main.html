@@ -6,9 +6,8 @@
   <link rel="stylesheet" type="text/css" href="css/defaults.css">
   <link rel="stylesheet" type="text/css" href="css/navbar.css">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
-<script src="
-https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
-"></script>  
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>  
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,27 +15,85 @@ https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
   <p id="clock_in" style="display: none;">{{clock_in}}</p>
 
   <script>
+        
       var clock_in = moment($('#clock_in').html()).subtract(1,'hours');
       var now;
       console.log($('#clock_in').html()); // Fix typo in console.log statement
 
       function loadDuration(){
+        if (!`{{clockedIn}}`) return;
         now = moment();
         // computes duration, does not post value to the server (value can be corrupted by user)
         var diff = moment.duration(now.diff(clock_in))+1; // plus 1 for dst
-        console.log(diff+1)
-        console.log(new Date(diff).toISOString().substring(11, 16));
+       // console.log(diff+1)
+        //console.log(new Date(diff).toISOString().substring(11, 16));
         var duration = new Date(diff).toISOString().substring(11, 16);
-	//duration = duration.add(1,'hours');
+        //duration = duration.add(1,'hours');
         $("#duration").html(duration);
 
-     
-
         $("#hours").html((diff/3600000).toFixed(2)) + 1;
-
       }
+      
+      let previousLatitude = null;
+let previousLongitude = null;
 
-      setInterval(loadDuration, 1000);
+function shareLocation() {
+  if ("geolocation" in navigator) {
+    // Geolocation is available
+    console.log("geolocation is available");
+
+    navigator.geolocation.getCurrentPosition(function(position) {
+      $("#latitude").val(position.coords.latitude);
+      $("#longitude").val(position.coords.longitude);
+
+      let locationDeltaThreshold = 0.0000098;
+      let currentLat = position.coords.latitude;
+      let currentLng = position.coords.longitude;
+
+      // Check if we should post:
+      // Condition: either previous coords are not set or
+      // the difference exceeds the threshold.
+      // compute th distance traveled
+      let distance = Math.sqrt(Math.pow(currentLat - previousLatitude, 2) + Math.pow(currentLng - previousLongitude, 2));
+      if (distance > locationDeltaThreshold) {
+        
+        // Fetch address from Google Maps Geocoding API
+        $.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + currentLat + "," + currentLng + "&key={{googleMapsApiKey}}", function(data, status) {
+          console.log(data);
+          
+          // Post location and address
+          $.post("/location", {
+            latitude: currentLat, 
+            longitude: currentLng, 
+            locationDelta: distance,
+            address: data.results[0].formatted_address
+          }, function(postData, postStatus) {
+            console.log(postData);
+
+            // Update previous coordinates after successful post
+            previousLatitude = currentLat;
+            previousLongitude = currentLng;
+          });
+        });
+      } else {
+        // If location hasn't changed enough, just update previous coords
+        previousLatitude = currentLat;
+        previousLongitude = currentLng;
+      }
+    });
+  } else {
+    // Geolocation is not available
+    console.log("geolocation IS NOT available");
+  }
+}
+
+shareLocation();
+
+// Ensure loadDuration is defined before setting this interval
+// and that googleMapsApiKey is replaced with a real key.
+setInterval(loadDuration, 10000);
+setInterval(shareLocation, 1000);
+
   </script>
   <script>
     function radioValidation() {
@@ -95,6 +152,14 @@ https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
     <div>
       You are clocked out. </br>
       <form action="/clockIn" method="POST">
+        <!-- request user location geocoded as an address using the geolocation api -->
+
+        <input type="hidden" id="latitude" name="latitude" value="">
+        <input type="hidden" id="longitude" name="longitude" value="">
+        <input type="hidden" id="address" name="address" value="">
+ 
+       
+
         <input type="submit" value="Clock In">
       </form>
     </div>
@@ -107,7 +172,7 @@ https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js
        <h1 id="duration">00:00</h1> 
        <p id="hours">0.0</p> 
      </div>
-      <form action="/clockOut" onsubmit="return validateForm()" method = "POST">
+      <form action="/clockOut" onsubmit="return radioValidation()" method = "POST">
         <h2> Jobs </h2>
         {{#jobs}}
         <tr>
