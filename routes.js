@@ -206,7 +206,11 @@ module.exports = function (app) {
     }
   });
 
+app.get('/location', mid.isAuth, (req,res) => {
+// make json req to get query location history from bouncie
+// get auth from 
 
+};
   app.get('/qrGen/:jobId/', mid.isAuth, (req, res) => {
     var render = defaultRender(req);
     var jobId = req.params.jobId;
