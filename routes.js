@@ -12,6 +12,7 @@ const fs = require('fs');
 const { GOOGLE_CLIENT_ID } = require('./credentials.js');
 const credentials = require('./credentials.js');
 
+var bouncieAccessToken = null;
 
 const job = schedule.scheduleJob('0 0 * * *', function () {
   db.clockOutAll(function (err) {
@@ -206,11 +207,96 @@ module.exports = function (app) {
     }
   });
 
-app.get('/location', mid.isAuth, (req,res) => {
-// make json req to get query location history from bouncie
-// get auth from 
+  // bouncie oauth
+  app.get('/bouncie', mid.isAuth, (req, res) => {
+    var url = 'https://auth.bouncie.com/dialog/authorize?client_id=' + 'fsc-track' + '&redirect_uri=' + credentials.domain + '/bouncie/callback&response_type=code';
+    console.log(url);
+    res.redirect(url);
 
-};
+  });
+
+  // bouncie oauth callback
+  app.get('/bouncie/callback', mid.isAuth, (req, res) => {
+    var code = req.query.code;
+    var state = req.query.state;
+    var url = 'https://auth.bouncie.com/oauth/token';
+    var data = {
+      grant_type: 'authorization_code',
+      code: code,
+      client_id: 'fsc-track',
+      client_secret: credentials.bouncie_client_secret,
+      redirect_uri: credentials.domain + '/bouncie/callback'
+    };
+
+    const axios = require('axios').default;
+
+    const options = {
+      method: 'POST',
+      url: url,
+      headers: { 'Content-Type': 'application/json' },
+      data: data
+    };
+
+    axios.request(options).then(function (response) {
+      console.log(response.data);
+      // save the access token in req.user.local.bouncie_access_token
+      bouncieAccessToken = response.data.access_token;
+
+    }).catch(function (error) {
+      console.error(error);
+    });
+
+  });
+
+  app.get('/location', mid.isAuth, async (req, res) => {
+    // make json req to get query location history from bouncie
+    // use the url in credentials.js
+    //https://api.bouncie.dev/v1/vehicles
+    // use the api key in credentials.js
+    // get vehicle id from req
+    // get start and end time from req
+    // return json
+
+    // var vehicleId = req.query.vehicleId;
+    // var startTime = req.query.startTime;
+    // var endTime = req.query.endTime;
+
+    // use test data for now
+    var vehicleId = "1";
+    var startTime = "2021-12-14T00:00:00Z";
+    var endTime = "2024-12-16T00:00:00Z";
+    var imei = '';
+
+// imei string Unique bouncie device identifier
+// limit number Number of search results to limit (for paging)> 0 
+// skip number Number of search results to skip (for paging) > 0
+// vin string Vehicle Identification Number for vehicle
+
+
+    // make get request to bouncie  
+
+    const axios = require('axios').default;
+
+   
+    console.log(bouncieAccessToken);
+
+
+    const options = {
+      method: 'GET',
+      url: 'https://api.bouncie.dev/v1/vehicles',
+      params: {imei: imei, limit:1},
+      headers: {Authorization: bouncieAccessToken, 'Content-Type': '', Accept: 'application/json'}
+    };
+
+    try {
+      const { data } = await axios.request(options);
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
+
+  });
+
   app.get('/qrGen/:jobId/', mid.isAuth, (req, res) => {
     var render = defaultRender(req);
     var jobId = req.params.jobId;

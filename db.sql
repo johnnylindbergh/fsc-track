@@ -1,8 +1,8 @@
 
-DROP DATABASE IF EXISTS fscTrack;
-CREATE DATABASE fscTrack;
+-- DROP DATABASE IF EXISTS fscTrack;
+-- CREATE DATABASE fscTrack;
 
-USE fscTrack;
+-- USE fscTrack;
 
 -- user roles
 CREATE TABLE user_types (
@@ -24,6 +24,7 @@ CREATE TABLE users (
   phone_number VARCHAR(64) NULL UNIQUE,
   clockedIn TINYINT(1) DEFAULT 0,
   public_key VARCHAR(64),
+  bouncie_imei VARCHAR(64),
   authentication_token VARCHAR(64),
   isArchived TINYINT(1) DEFAULT 0,
   FOREIGN KEY (user_type) REFERENCES user_types(id),
