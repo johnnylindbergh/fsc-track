@@ -257,6 +257,11 @@ module.exports = function (app) {
     // get start and end time from req
     // return json
 
+    // if the access token is null, redirect to /bouncie
+    if (bouncieAccessToken == null) {
+      res.redirect('/bouncie');
+    }
+
     // var vehicleId = req.query.vehicleId;
     // var startTime = req.query.startTime;
     // var endTime = req.query.endTime;
@@ -533,7 +538,14 @@ module.exports = function (app) {
       if (req.body.jobName && req.body.taskName) {
         db.clockOut(req, function (err) { // this function must update the user table to set clockedIn to false and set the clock_in time to null (this shouldn't really search timesheet)
           if (!err) {
-            res.redirect('/');
+            // check user
+            // does user have an imei in the db?
+            // if so, query bouncie for location history between clock in and clock out for a vehicle with that imei
+            // process the location history and sumarize it into a set of top location points like short addresses with their associated durations ex. "1234 Main St. 2 hours"
+            // insert the location history into the db
+            // insert the summarized location history into the db
+            // if not
+              res.redirect('/');
           } else {
             res.send(err);
           }

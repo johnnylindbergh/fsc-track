@@ -95,3 +95,13 @@ CREATE TABLE inventory_job (
 );
 
 
+-- new table for location history 
+CREATE TABLE location_history (
+  id INT NOT NULL AUTO_INCREMENT,
+  userid INT,
+  latitude DECIMAL(10, 8),
+  longitude DECIMAL(11, 8),
+  timeRecorded DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (userid) REFERENCES users(id),
+  PRIMARY KEY (id)
+);
