@@ -241,6 +241,7 @@ module.exports = function (app) {
       console.log(response.data);
       // save the access token in req.user.local.bouncie_access_token
       bouncieAccessToken = response.data.access_token;
+      res.redirect('/location');
 
     }).catch(function (error) {
       console.error(error);
@@ -270,7 +271,7 @@ module.exports = function (app) {
     var vehicleId = "1";
     var startTime = "2021-12-14T00:00:00Z";
     var endTime = "2024-12-16T00:00:00Z";
-    var imei = '';
+    var imei = '862255068921813';
 
 // imei string Unique bouncie device identifier
 // limit number Number of search results to limit (for paging)> 0 
@@ -296,6 +297,7 @@ module.exports = function (app) {
     try {
       const { data } = await axios.request(options);
       console.log(data);
+      res.send(data);
     } catch (error) {
       console.error(error);
     }
@@ -436,6 +438,11 @@ module.exports = function (app) {
 
       db.getUserHours(req.user.local.id, function (err, rows) {
         if (!err){
+
+          // for each row, format the time
+          for (var i = 0; i < rows.length; i++) {
+            rows[i].clock_in = moment(rows[i].clock_in).format("MMMM Do, YYYY h:mm:ss a");
+          }
           render.hours = rows;
           //console.log(rows);
           res.render("hours.html", render);
@@ -654,7 +661,7 @@ module.exports = function (app) {
 
       } else {
 
-        res.send("You are not an admin :) sowwy bestie")
+        res.send("You are not an admin.")
       }
 
     } else {

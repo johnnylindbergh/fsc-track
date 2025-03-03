@@ -16,7 +16,7 @@
 
   <script>
         
-      var clock_in = moment($('#clock_in').html()).subtract(1,'hours');
+      var clock_in = moment($('#clock_in').html());
       var now;
       console.log($('#clock_in').html()); // Fix typo in console.log statement
 
@@ -24,8 +24,8 @@
         if (!`{{clockedIn}}`) return;
         now = moment();
         // computes duration, does not post value to the server (value can be corrupted by user)
-        var diff = moment.duration(now.diff(clock_in))+1; // plus 1 for dst
-       // console.log(diff+1)
+        var diff = moment.duration(now.diff(clock_in));
+       // console.log(diff)
         //console.log(new Date(diff).toISOString().substring(11, 16));
         var duration = new Date(diff).toISOString().substring(11, 16);
         //duration = duration.add(1,'hours');
@@ -91,8 +91,9 @@ shareLocation();
 
 // Ensure loadDuration is defined before setting this interval
 // and that googleMapsApiKey is replaced with a real key.
-setInterval(loadDuration, 10000);
-setInterval(shareLocation, 1000);
+loadDuration();
+setInterval(loadDuration, 10);
+setInterval(shareLocation, 10000);
 
   </script>
   <script>
@@ -132,10 +133,10 @@ setInterval(shareLocation, 1000);
   <div class="navbar">
     <ul> 
       <li><a href="/">{{defaults.sysName}}</a></li>
+
       {{#isAdmin}} <li><a href="/admin">admin</a></li> {{/isAdmin}} 
       <li><a href="/hours">hours</a></li>
       <div style="float:right">
-        <li><a href="/auth/google">Log In</a></li>
         <li><a href="/logout">Log Out</a></li>
       </div>
     </ul>
@@ -183,7 +184,7 @@ setInterval(shareLocation, 1000);
           <td>
             {{name}}
           </td> </br>
-        </tr>
+        </tr> </br>
       {{/jobs}} </br>
 
     <h2> Tasks </h2>
@@ -196,7 +197,7 @@ setInterval(shareLocation, 1000);
           <td>
             {{name}}
           </td> </br>
-        </tr>
+        </tr> </br>
       {{/tasks}} </br>
 
 

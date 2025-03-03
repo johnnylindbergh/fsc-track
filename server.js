@@ -73,6 +73,7 @@ const routes = require('./routes.js')(app);
 // unhandled routes redirect to home
 app.get('*', (req, res) => { res.redirect('/'); });
 
+/*
 if (!sys.inDevMode) {
         var lex = require('greenlock-express')
         lex.init({
@@ -88,9 +89,9 @@ if (!sys.inDevMode) {
 
        
 }
-
+*/
 
 // start server listening
-//var server = app.listen(sys.PORT, () => {
- // console.log(sys.SYSTEM_NAME + ' server listening on port %d', server.address().port);
-//});
+var server = app.listen(sys.PORT, () => {
+  console.log(sys.SYSTEM_NAME + ' server listening on port %d', server.address().port);
+});

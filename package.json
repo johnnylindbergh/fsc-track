@@ -26,6 +26,7 @@
     "date-and-time": "^3.3.0",
     "dayjs": "^1.11.11",
     "express": "^4.17.1",
+    "forever-monitor": "^3.0.3",
     "greenlock": "^2.8.8",
     "greenlock-express": "^4.0.3",
     "greenlock-store-fs": "^3.2.2",

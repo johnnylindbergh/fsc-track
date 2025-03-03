@@ -1,0 +1,152 @@
+/* 
+  defaults.css: Desktop-friendly styles
+*/
+
+/* Global font settings */
+* {
+  font-family: Helvetica, sans-serif;
+  box-sizing: border-box; /* Ensures padding doesn't overflow */
+}
+
+/* Container for central content */
+.container {
+  display: block;
+  margin: 0 auto;
+  width: 70%; /* Adjusted width for desktop */
+  max-width: 1200px; /* Limit width for larger screens */
+  background-color: #f5f5f5;
+  padding: 16px 24px; /* Increased padding for readability */
+  border-radius: 8px; /* Rounded edges */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+}
+
+/* Clock styling */
+#clock {
+  width: 70%; /* Keep it proportional to the container */
+  max-width: 600px; /* Limit its width */
+  display: block;
+  margin: 24px auto;
+  color: #ffffff;
+  background-color: #01aaff;
+  padding: 16px;
+  text-align: center; /* Center-align content */
+  border-radius: 12px; /* Rounded corners */
+  font-size: 1.5rem; /* Larger text for visibility */
+}
+
+/* QR container with columns */
+.qrcontainer {
+  padding: 24px; /* Reduced padding for better alignment */
+  width: 100%;
+  column-width: 400px; /* Desktop-friendly columns */
+  column-gap: 24px; /* Increase space between columns */
+}
+
+/* Hover animation box */
+.zoom-in-out-box:hover {
+  margin: 16px;
+  width: 50px;
+  height: 50px;
+  background: #f50057;
+  animation: zoom-in-zoom-out;
+}
+
+/* Keyframes for animation */
+@keyframes zoom-in-zoom-out {
+  0% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.5, 1.5);
+  }
+}
+
+/* Table styling for desktop */
+table {
+  width: 100%; /* Ensure the table spans the container */
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 1rem; /* Larger font size for desktop */
+}
+
+td, th {
+  padding: 12px;
+  text-align: left; /* Align text to the left */
+  border: 1px solid #ddd; /* Add borders for clarity */
+}
+
+tr:nth-child(even) {
+  background-color: #f9f9f9; /* Subtle background for alternate rows */
+}
+
+/* Search bar */
+.searchBar {
+  display: block;
+  margin: 16px auto;
+  width: 70%; /* Matches container width */
+  max-width: 600px; /* Limit width */
+  background-color: #f5f5f5;
+  padding: 12px;
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Barcode styling */
+#barcode {
+  display: inline-block;
+  margin: 10px 0;
+  background-color: #f5f5f5;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 1rem; /* Larger text for readability */
+}
+
+/* Button styling */
+button, input[type=button], input[type=submit], input[type=reset] {
+  background-color: #01aaff;
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  font-size: 1rem;
+  border-radius: 4px; /* Rounded corners */
+  margin: 8px 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+button:hover {
+  background-color: #0288d1; /* Slightly darker on hover */
+}
+
+/* Hours section */
+.hours {
+  display: block;
+  margin: 16px auto;
+  width: 70%; /* Matches container width */
+  max-height: 500px; /* Larger height for desktop */
+  overflow-y: scroll; /* Enable scrolling */
+  background-color: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Hidden div behavior */
+.hiddenDiv {
+  display: none;
+}
+
+.hoverMe:hover + .hiddenDiv {
+  display: block;
+  color: red;
+}
+
+/* Original styles for hover effect */
+.timesheet th {
+  background-color: #04aa6d;
+  color: white;
+}
+
+.timesheet tr:hover {
+  background-color: coral;
+}

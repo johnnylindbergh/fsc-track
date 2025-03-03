@@ -1,49 +1,54 @@
-
-/*
-  defaults.css: Default style to apply to all pages 
+/* 
+  defaults.css: Mobile-friendly styles
 */
 
-
-/* set a wildcard for all fonts to be Hevetica */
+/* Global font settings */
 * {
   font-family: Helvetica, sans-serif;
+  box-sizing: border-box; /* Ensures padding doesn't overflow */
 }
+
+/* Responsive container */
 .container {
-     display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 80%;
+  display: block;
+  margin: 0 auto;
+  width: 90%;
+  max-width: 600px; /* Restrict width on larger screens */
   background-color: #f5f5f5;
-  padding:8px 21px;
-
+  padding: 12px 16px;
 }
-#clock{
-  width:80%;
-       display: block;
 
-    margin-left: auto;
-  margin-right: auto;
-  color:#ffffff;
+/* Clock styling */
+#clock {
+  width: 100%; /* Full width on small screens */
+  max-width: 400px;
+  display: block;
+  margin: 16px auto;
+  color: #ffffff;
   background-color: #01aaff;
-  padding:10px;
+  padding: 16px;
+  text-align: center; /* Center-align content */
+  border-radius: 8px; /* Rounded corners */
 }
 
+/* QR container */
 .qrcontainer {
-  padding:50px;
-  width:90%;
-  column-width: 500px;
-
-
+  padding: 16px;
+  width: 100%;
+  column-width: 300px; /* Adjust for mobile */
+  column-gap: 16px; /* Space between columns */
 }
 
+/* Zoom box animation */
 .zoom-in-out-box:hover {
-  margin: 24px;
+  margin: 16px;
   width: 50px;
   height: 50px;
   background: #f50057;
-  animation: zoom-in-zoom-out ;
+  animation: zoom-in-zoom-out;
 }
 
+/* Keyframes for animation */
 @keyframes zoom-in-zoom-out {
   0% {
     transform: scale(1, 1);
@@ -51,87 +56,96 @@
   50% {
     transform: scale(1.5, 1.5);
   }
- 
 }
 
+/* Table styling */
 table {
+  width: 100%;
   border-collapse: collapse;
-  border-spacing: 0;
-  padding:1px;
+  margin: 16px 0;
 }
 
-td {
-  padding:8px;
-}
-
-th {
-  padding:12px;
-
-}
-
-.hiddenDiv {
-  display: none;
-}
-
-.hoverMe:hover + .hiddenDiv {
-  display: block;
-  color: red;
+td, th {
+  padding: 12px;
+  text-align: left;
+  word-wrap: break-word; /* Prevent overflow */
 }
 
 tr:nth-child(even) {
-  background-color: #ffffff
+  background-color: #ffffff;
 }
 
+/* Search bar */
 .searchBar {
   display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 80%;
+  margin: 16px auto;
+  width: 100%;
+  max-width: 400px;
   background-color: #f5f5f5;
-  padding:10px;
-
+  padding: 12px;
+  border-radius: 8px; /* Rounded corners */
 }
 
+/* Barcode styling */
 #barcode {
-  display: inline;
-  margin-left: 10px;
-  margin-right: auto;
+  display: inline-block;
+  margin: 10px auto;
   background-color: #f5f5f5;
-  padding:10px;
+  padding: 12px;
+  border-radius: 8px;
 }
 
+/* Button styling */
 button, input[type=button], input[type=submit], input[type=reset] {
   background-color: #01aaff;
   border: none;
   color: white;
-  padding: 8px 16px;
-  text-decoration: none;
-  margin: 6px 4px;
+  padding: 10px 20px;
+  text-align: center;
+  font-size: 16px;
+  border-radius: 4px;
+  margin: 6px auto;
   cursor: pointer;
+  display: block; /* Full width for better touch targets */
 }
 
+
+input[type=radio]  {
+  height: 25px;
+  width: 25px;
+  margin: 0 8px;
+}
+
+button:hover {
+  background-color: #0288d1; /* Slightly darker on hover */
+}
+
+/* Hours section */
 .hours {
   display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 80%;
-  max-height: 400px; 
+  margin: 16px auto;
+  width: 100%;
+  max-width: 600px;
+  max-height: 300px; /* Ensure it doesn't overflow on small screens */
   overflow-y: scroll;
   background-color: #f5f5f5;
-  padding:10px;
-}
-/*
-.timesheet {
-    margin-left: auto;
-  margin-right: auto;
-  width: 80%;
-}
-.timesheet th {
-  background-color: #04AA6D;
-  color: gray;
+  padding: 12px;
+  border-radius: 8px;
 }
 
-.timesheet td {
-  padding:5px;
+/* Responsive tweaks for smaller screens */
+@media (max-width: 600px) {
+  .container, #clock, .searchBar, .hours {
+    width: 95%;
+    padding: 12px;
+  }
+
+  table, th, td {
+    font-size: 14px; /* Adjust font size for readability */
+  }
+
+  button {
+    font-size: 14px; /* Smaller button text */
+    padding: 8px 12px;
+  }
 }
-.timesheet tr:hover {background-color: coral;}*/

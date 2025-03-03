@@ -61,6 +61,7 @@ CREATE TABLE timesheet (
   clock_out DATETIME,
   duration FLOAT(8, 3),
   notes VARCHAR(64),
+  locations VARCHAR(64),
   FOREIGN KEY (job) REFERENCES jobs(id),
   FOREIGN KEY (task) REFERENCES tasks(id),
   FOREIGN KEY (userid) REFERENCES users(id),
