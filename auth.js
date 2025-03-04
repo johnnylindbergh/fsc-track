@@ -92,7 +92,16 @@ module.exports = (app, passport) => {
 
   // logout handler
   app.get('/logout', mid.checkReturnTo, (req, res) => {
-    req.logout();
+    req.logout(function(err) {
+      if (err) {
+        res.err({
+          r: err,
+          fr: "An error occurred while logging out.",
+          li: "/",
+          ti: "Return to homepage"
+        });
+      }
+    });
     res.redirect(req.session.returnTo || '/');
   });
 

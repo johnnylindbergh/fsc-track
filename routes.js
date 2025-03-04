@@ -12,6 +12,41 @@ const fs = require('fs');
 const { GOOGLE_CLIENT_ID } = require('./credentials.js');
 const credentials = require('./credentials.js');
 
+const xlsx = require('xlsx');
+
+function convertArrayToXLSX(array, cb) {
+  const ws = xlsx.utils.json_to_sheet(array);
+  const wb = xlsx.utils.book_new();
+  xlsx.utils.book_append_sheet(wb, ws, "Sheet1");
+
+  // append fomulae
+  // xlsx.utils.sheet_add_aoa(ws, [['=SUM(E1:E3)']], {origin: -1});
+  // xlsx.utils.sheet_add_aoa(ws, [['=SUM(A1:A3)']], {origin: -1});
+  // xlsx.utils.sheet_add_aoa(ws, [['=MAX(A1:A3)']], {origin: -1});
+  //  xlsx.utils.sheet_add_aoa(ws, [['=MIN(A1:A3)']], {origin: -1});
+  // for each row, set col E to be a formula that calculates the duration
+
+  for (var i = 0; i < array.length; i++) {
+    var row = i + 2;
+    var formula = 'D' + row + '-C' + row;
+    xlsx.utils.sheet_add_aoa(ws, [[{ t: 'n', f: formula }]], { origin: 'E' + row });
+  }
+
+  // append sum of row E
+  var lastRow = array.length + 2;
+  xlsx.utils.sheet_add_aoa(ws, [[{ t: 'n', f: 'SUM(E2:E' + (lastRow - 1) + ')' }]], { origin: 'E' + lastRow });
+
+
+
+  const buffer = xlsx.write(wb, { type: 'buffer' });
+  fs.writeFile('timesheet.xlsx', buffer, (err) => {
+    if (err) {
+      return cb(err);
+    }
+    cb(null);
+  });
+}
+
 var bouncieAccessToken = null;
 
 const job = schedule.scheduleJob('0 0 * * *', function () {
@@ -166,7 +201,7 @@ module.exports = function (app) {
                           render.endDate = endDate;
                           //render.nominalWeeks = db.nominalWeeks;
                           render.searchScroll = true;
-                          
+
                           res.render("admin.html", render);
                         });
 
@@ -273,25 +308,25 @@ module.exports = function (app) {
     var endTime = "2024-12-16T00:00:00Z";
     var imei = '862255068921813';
 
-// imei string Unique bouncie device identifier
-// limit number Number of search results to limit (for paging)> 0 
-// skip number Number of search results to skip (for paging) > 0
-// vin string Vehicle Identification Number for vehicle
+    // imei string Unique bouncie device identifier
+    // limit number Number of search results to limit (for paging)> 0 
+    // skip number Number of search results to skip (for paging) > 0
+    // vin string Vehicle Identification Number for vehicle
 
 
     // make get request to bouncie  
 
     const axios = require('axios').default;
 
-   
+
     console.log(bouncieAccessToken);
 
 
     const options = {
       method: 'GET',
       url: 'https://api.bouncie.dev/v1/vehicles',
-      params: {imei: imei, limit:1},
-      headers: {Authorization: bouncieAccessToken, 'Content-Type': '', Accept: 'application/json'}
+      params: { imei: imei, limit: 1 },
+      headers: { Authorization: bouncieAccessToken, 'Content-Type': '', Accept: 'application/json' }
     };
 
     try {
@@ -370,8 +405,8 @@ module.exports = function (app) {
             render.tasks = tasks;
             db.lookUpUser(userEmail, function (err, user) {
               render.isAdmin = (req.user.local.user_type == 1);
-               console.log("User GET / :",user.name);
-               //console.log("adminStatus", render.isAdmin )
+              console.log("User GET / :", user.name);
+              //console.log("adminStatus", render.isAdmin )
               render.clockedIn = user.clockedIn;
               //res.send(render)
               render.clockedIn = user.clockedIn;
@@ -395,7 +430,7 @@ module.exports = function (app) {
   //app.post("clockIn")
 
   app.post('/location', mid.isAuth, (req, res) => {
-    console.log(req.user.name.givenName + " is located at: ", req.body.address , " at ", req.body.latitude+ ","+req.body.longitude,  moment().calendar()); // use system time
+    console.log(req.user.name.givenName + " is located at: ", req.body.address, " at ", req.body.latitude + "," + req.body.longitude, moment().calendar()); // use system time
     console.log("Location Delta: ", req.body.locationDelta);
     if (req.isAuthenticated() && req.user && req.user.local) {
       res.send("Location updated");
@@ -428,7 +463,7 @@ module.exports = function (app) {
         res.send(rows);
       });
     }
-    
+
   });
 
 
@@ -437,7 +472,7 @@ module.exports = function (app) {
       var render = defaultRender(req);
 
       db.getUserHours(req.user.local.id, function (err, rows) {
-        if (!err){
+        if (!err) {
 
           // for each row, format the time
           for (var i = 0; i < rows.length; i++) {
@@ -449,7 +484,7 @@ module.exports = function (app) {
         } else {
           console.log(err);
         }
-       
+
       });
 
     }
@@ -487,10 +522,10 @@ module.exports = function (app) {
   });
 
 
-    app.post('/clockIn', mid.isAuth, function (req, res) {
+  app.post('/clockIn', mid.isAuth, function (req, res) {
 
     var userId = req.user.local.id;
-    db.clockIn(userId, function (err) { 
+    db.clockIn(userId, function (err) {
       if (!err) {
         res.redirect('/');
       } else {
@@ -552,7 +587,7 @@ module.exports = function (app) {
             // insert the location history into the db
             // insert the summarized location history into the db
             // if not
-              res.redirect('/');
+            res.redirect('/');
           } else {
             res.send(err);
           }
@@ -568,17 +603,18 @@ module.exports = function (app) {
 
   app.post('/default_url_when_press_enter', mid.isAuth, function (req, res) {
     res.err({
-      fr: "You pressed enter", 
+      fr: "You pressed enter",
       li: "/admin",
       ti: "Please choose a valid option: download or display"
-    });  });
+    });
+  });
 
   app.post('/searchTimesheet', mid.isAuth, function (req, res) {
+    console.log("/searchTimesheet", req.body);
 
     if (req.isAuthenticated() && req.user && req.user.local) {
 
       if (req.user.local.user_type == 1) {
-
 
         var render = defaultRender(req);
 
@@ -594,11 +630,33 @@ module.exports = function (app) {
               db.getUsers(function (err, rows) {
                 render.users = rows;
 
+                let selectedUsers = [];
+                // parse the ints in req.body.userId
+                if (req.body.userId) {
+  
+                  // check if userId is an array
+                  if (!Array.isArray(req.body.userId)) {
+                    req.body.userId = [req.body.userId];
+                  }
+                  
+                  for (var i = 0; i < req.body.userId.length; i++) {
+                    selectedUsers.push(parseInt(req.body.userId[i]));
+  
+                  }
+  
+                  for (var i = 0; i < render.users.length; i++) {
+                    if (selectedUsers.includes(render.users[i].id)) {
+                      render.users[i].selected = true;
+                    }
+                  }
+                } 
+
                 for (var i = 0; i < render.weeks.length; i++) {
                   if (render.weeks[i].id == req.body.weekId) {
                     render.weeks[i].selected = true;
                   }
                 }
+
 
                 for (var i = 0; i < render.users.length; i++) {
                   if (render.users[i].id == req.body.userId) {
@@ -624,6 +682,8 @@ module.exports = function (app) {
                 var startDate = moment(req.body.startDate);
                 var endDate = moment(req.body.endDate);
 
+
+                console.log("Users selected: ", req.body.userId);
                 if (req.body.userId == -1) {
                   req.body.userId = null;
                 }
@@ -636,7 +696,7 @@ module.exports = function (app) {
                   req.body.taskId = null;
                 }
 
-                db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId, req.body.weekId, function (err, rows) {
+                db.getTimesheetQuery(req, res, startDate, endDate, selectedUsers, req.body.jobId, req.body.taskId, req.body.weekId, function (err, rows) {
 
                   if (!err && rows.length > 0) {
                     render.results = rows;
@@ -674,6 +734,7 @@ module.exports = function (app) {
 
 
   app.post('/searchTimesheetToCSV', mid.isAuth, function (req, res) {
+    console.log("/searchTimesheetToCSV", req.body);
 
     if (req.isAuthenticated() && req.user && req.user.local) {
 
@@ -690,11 +751,28 @@ module.exports = function (app) {
             db.getUsers(function (err, rows) {
               render.users = rows;
 
-              for (var i = 0; i < render.users.length; i++) {
-                if (render.users[i].id == req.body.userId) {
-                  render.users[i].selected = true;
+              let selectedUsers = [];
+              // parse the ints in req.body.userId
+              if (req.body.userId) {
+
+                // check if userId is an array
+                if (!Array.isArray(req.body.userId)) {
+                  req.body.userId = [req.body.userId];
                 }
-              }
+                
+                for (var i = 0; i < req.body.userId.length; i++) {
+                  selectedUsers.push(parseInt(req.body.userId[i]));
+
+                }
+
+                for (var i = 0; i < render.users.length; i++) {
+                  if (selectedUsers.includes(render.users[i].id)) {
+                    render.users[i].selected = true;
+                  }
+                }
+              } 
+
+              console.log("selected users: ", selectedUsers);
 
               for (var i = 0; i < render.jobs.length; i++) {
                 if (render.jobs[i].id == req.body.jobId) {
@@ -731,27 +809,26 @@ module.exports = function (app) {
                 req.body.weekId = null;
               }
 
-              db.getTimesheetQuery(req, res, startDate, endDate, req.body.userId, req.body.jobId, req.body.taskId, req.body.weekId, function (err, timesheetData) {
+              db.getTimesheetQuery(req, res, startDate, endDate, selectedUsers, req.body.jobId, req.body.taskId, req.body.weekId, function (err, timesheetData) {
 
                 if (!err && timesheetData.length > 0) {
                   render.startDate = startDate;
                   render.endDate = endDate;
                   render.results = timesheetData;
-                 // console.log(rows);
-                  fs.writeFile('timesheet.csv', arrayToCSV(timesheetData), function () {
-                    res.download('timesheet.csv');
-                  });
+                   console.log(timesheetData);
+                   convertArrayToXLSX(timesheetData, function(err){
+                      if(!err){
+                        res.download('timesheet.xlsx');
+                      }
+                   });
+                   //res.download('timesheet.xlsx');
                 } else {
                   res.err({
-                    fr: "Unable to find hours for this user", 
+                    fr: "Unable to find hours for this user",
                     li: "/admin",
                     ti: "Maybe they have never clocked in"
                   });
                 }
-
-
-
-
 
               });
 

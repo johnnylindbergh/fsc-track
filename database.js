@@ -496,7 +496,7 @@ module.exports = {
     // format dates into strings for query, and make inclusive range
     var startString = startDate.format('YYYY-MM-DD');
     var endString = endDate.add(1, 'days').format('YYYY-MM-DD');
-  con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, TIMEDIFF(timesheet.clock_out, timesheet.clock_in) as duration, timesheet.notes, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet LEFT JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id LEFT JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.clock_in;', (err, rows) => {
+  con.query('SELECT timesheet.id as uid, timesheet.userid, timesheet.job, timesheet.task, timesheet.clock_in, timesheet.clock_out, TIMEDIFF(timesheet.clock_out, timesheet.clock_in) as duration, timesheet.notes, jobs.name, jobs.isArchived, users.id, users.name AS username, tasks.name AS taskname FROM timesheet LEFT JOIN jobs  ON  timesheet.job = jobs.id AND jobs.isArchived = 0 AND timesheet.clock_out IS NOT NULL INNER JOIN users ON timesheet.userid = users.id LEFT JOIN tasks ON tasks.id = timesheet.task AND tasks.isArchived = 0 ORDER BY timesheet.userid;', (err, rows) => {
       // AND (timesheet.clock_in BETWEEN ? and ?)
 
       // format the duration 
@@ -564,9 +564,17 @@ module.exports = {
 
 
       if (userId != null){
-        var userFilter = []
+        console.log("plying user filter");
+        var userFilter = [];
+       
         for (var i = 0; i < filtered.length; i++){
-          if (filtered[i].userid == userId){
+
+          // if the array userId contains the userid
+
+          // console.log("filtered[i].userid", filtered[i].userid);
+          // console.log("userId", userId);
+
+          if (userId.includes(filtered[i].userid)){
             userFilter.push(filtered[i]);
           }
         }
@@ -639,7 +647,7 @@ module.exports = {
           clock_out: item.clock_out,
           duration: item.duration,
           notes: item.notes,
-          name: item.name,
+          jobname: item.name,
           taskname: item.taskname
         };
       });

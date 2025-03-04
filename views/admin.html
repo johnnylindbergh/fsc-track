@@ -130,7 +130,7 @@
 
            or
 
-          <select name="userId">
+          <select name="userId" multiple>
             <option value="-1">All Users</option>
             {{#users}}
             <option value="{{id}}"{{#selected}}selected{{/selected}}>{{name}}</option>
@@ -211,7 +211,7 @@ $("#searchResults").css("border-color", "red");
             <td>{{date}}</td>
             <td>{{clock_in}}</td>
             <td>{{clock_out}}</td>
-            <td>{{name}} - {{taskname}}</td>
+            <td>{{jobname}} - {{taskname}}</td>
             <td>{{username}}</td>
              <td>{{duration}}</td>
              <td class="overflow-hidden">{{notes}}</td>
