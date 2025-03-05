@@ -772,7 +772,6 @@ module.exports = function (app) {
                 }
               } 
 
-              console.log("selected users: ", selectedUsers);
 
               for (var i = 0; i < render.jobs.length; i++) {
                 if (render.jobs[i].id == req.body.jobId) {
@@ -815,7 +814,6 @@ module.exports = function (app) {
                   render.startDate = startDate;
                   render.endDate = endDate;
                   render.results = timesheetData;
-                   console.log(timesheetData);
                    convertArrayToXLSX(timesheetData, function(err){
                       if(!err){
                         res.download('timesheet.xlsx');

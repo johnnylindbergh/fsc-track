@@ -564,15 +564,9 @@ module.exports = {
 
 
       if (userId != null){
-        console.log("plying user filter");
         var userFilter = [];
        
         for (var i = 0; i < filtered.length; i++){
-
-          // if the array userId contains the userid
-
-          // console.log("filtered[i].userid", filtered[i].userid);
-          // console.log("userId", userId);
 
           if (userId.includes(filtered[i].userid)){
             userFilter.push(filtered[i]);
@@ -634,8 +628,8 @@ module.exports = {
 
       for(var i = 0; i < filtered.length; i++){
         filtered[i].date = moment(filtered[i].clock_in).format('Do MMMM, YYYY');
-        filtered[i].clock_in= moment(filtered[i].clock_in).format('hh:mm a');
-        filtered[i].clock_out= moment(filtered[i].clock_out).format('hh:mm a');
+        filtered[i].clock_in= moment(filtered[i].clock_in).format('DD-MM-YYYY hh:mm a');
+        filtered[i].clock_out= moment(filtered[i].clock_out).format('DD-MM-YYYY hh:mm a');
 
       }
 
