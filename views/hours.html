@@ -2,11 +2,11 @@
 <html>
 
 <head>
-  <title> Main | {{defaults.sysName}}</title>
+  <title>Main | {{defaults.sysName}}</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="css/reset.css">
+  <!-- <link rel="stylesheet" type="text/css" href="css/reset.css">
   <link rel="stylesheet" type="text/css" href="css/defaults.css">
-  <link rel="stylesheet" type="text/css" href="css/navbar.css">
+  <link rel="stylesheet" type="text/css" href="css/navbar.css"> -->
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
@@ -30,7 +30,7 @@
         // style the calendar
         calendar.setOption('height', 'auto');
         calendar.setOption('contentHeight', 'auto');
-        calendar.setOption('slotDuration', '00:15:00');
+//        calendar.setOption('slotDuration', '00:15:00');
 
         // query getUserHours and add them to the calendar
         $.ajax({
@@ -80,38 +80,43 @@
   </nav>
 
   <div class="container mt-4">
-    <div class="table-responsive">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Duration</th>
-            <th>Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#hours}}
-          <tr>
-            <td>{{clock_in}}</td>
-            <td>{{duration}}</td>
-            <td>{{notes}}</td>
-          </tr>
-          {{/hours}}
-        </tbody>
-      </table>
+    <div class="card">
+      <div class="card-header">
+        <h3>Hours</h3>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Duration</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#hours}}
+              <tr>
+                <td>{{clock_in}}</td>
+                <td>{{duration}}</td>
+                <td>{{notes}}</td>
+              </tr>
+              {{/hours}}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-
-  <div id='calendar' style="min-height: 600px;"></div>
-
-
-
-
-
+    <div class="card mt-4">
+      <div class="card-header">
+        <h3>Calendar</h3>
+      </div>
+      <div class="card-body">
+        <div id='calendar' style="height: 300px;"></div>
+      </div>
+    </div>
   </div>
-
-</br>
-</br>
 
 </body>
 
