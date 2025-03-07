@@ -11,7 +11,7 @@ const email  = require('./email.js');
 const schedule = require('node-schedule');
 
 // call a function that sends an email to all users with incomplete timesheets
-schedule.scheduleJob('*/10 * * * *', function(){
+schedule.scheduleJob('0 10 * * 2', function(){
     console.log('job triggered...');
     batchSendTimesheetNotificationEmails(function (){
         console.log('emails sent');

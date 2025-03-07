@@ -1,31 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>An Error Occurred! | {{defaults.sysName}}</title>
-  <link rel="stylesheet" type="text/css" href="css/reset.css">
-  <link rel="stylesheet" type="text/css" href="css/defaults.css">
-  <link rel="stylesheet" type="text/css" href="css/navbar.css">
+  <title>An Error Occurred! | {{defaults.sysName}}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
-  <div class="navbar">
-    <ul>
-      <li><a href="/">{{defaults.sysName}}</a></li>
-      <li><a href="/">FSCTrack</a></li>
-      <div style="float:right">
-        <li><a href="/auth/google">Log In</a></li>
-        <li><a href="/logout">Log Out</a></li>
-      </div>
-    </ul>
-  </div>
-  <div class="container">
-  	{{#defaults.devMode}}
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">{{defaults.sysName}}</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/">FSCTrack</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/auth/google">Log In</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/logout">Log Out</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <div class="container mt-4">
+    {{#defaults.devMode}}
       <pre>{{raw}}</pre>
     {{/defaults.devMode}}
 
-  	<p>{{friendly}}</p>
-
+    <p class="alert alert-danger">{{friendly}}</p>
     {{#link}}
-      <a href="{{link}}">{{linkTitle}}</a>
+      <a href="{{link}}" class="btn btn-primary">{{linkTitle}}</a>
     {{/link}}
   </div>
 </body>

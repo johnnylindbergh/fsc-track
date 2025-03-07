@@ -266,9 +266,9 @@ module.exports = {
     });
   },
 
-  clockIn: (id, cb) => {
+  clockIn: (id, address, cb) => {
     if (id){
-      con.query('INSERT INTO timesheet (userid, clock_in) values (?, NOW()); SELECT * FROM timesheet WHERE id = LAST_INSERT_ID(); UPDATE users SET clockedIn = 1 where id = ?;', [id, id], (err, rows) =>{
+      con.query('INSERT INTO timesheet (userid, clock_in, locations) values (?, NOW(), ?); SELECT * FROM timesheet WHERE id = LAST_INSERT_ID(); UPDATE users SET clockedIn = 1 where id = ?;', [id, address, id], (err, address, rows) =>{
           if (!err) {
             cb(err);
           } else {

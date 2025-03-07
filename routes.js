@@ -12,6 +12,9 @@ const fs = require('fs');
 const { GOOGLE_CLIENT_ID } = require('./credentials.js');
 const credentials = require('./credentials.js');
 
+const axios = require('axios').default;
+
+
 const xlsx = require('xlsx');
 
 function convertArrayToXLSX(array, cb) {
@@ -523,16 +526,44 @@ module.exports = function (app) {
 
 
   app.post('/clockIn', mid.isAuth, function (req, res) {
-
     var userId = req.user.local.id;
-    db.clockIn(userId, function (err) {
-      if (!err) {
-        res.redirect('/');
-      } else {
-        res.send(err);
-      }
-    });
 
+    // get the address from the request
+    const { latitude, longitude } = req.body;
+
+    if (!latitude || !longitude) {
+      return res.render('error.html', { friendly: "Location services are required.", link: "/", linkTitle: "Return to homepage" });
+    }
+
+
+    // use the google maps api to get the address from the lat and long
+    // https://maps.googleapis.com/maps/api/geocode/json?latlng=40.714224,-73.961452&key=YOUR_API_KEY
+
+    let address = null;
+
+    const options = {
+      method: 'GET',
+      url: 'https://maps.googleapis.com/maps/api/geocode/json',
+      params: { latlng: latitude + ',' + longitude, key: credentials.googleMapsApiKey }
+    };
+
+    axios.request(options).then(function (response) {
+      if (response.data && response.data.results && response.data.results.length > 0) {
+        address = response.data.results[0].formatted_address;
+        db.clockIn(userId, address, function (err) {
+          if (!err) {
+            res.redirect('/');
+          } else {
+            res.render('error.html', { friendly: err, link: "/" });
+          }
+        });
+      } else {
+        res.render('error.html', { friendly: "Unable to retrieve address from coordinates.", link: "/" });
+      }
+    }).catch(function (error) {
+      console.error(error);
+      res.render('error.html', { friendly: "Error retrieving address from coordinates.", link: "/" });
+    });
   });
 
   // app.post('/clockIn', mid.isAuth, function (req, res) {

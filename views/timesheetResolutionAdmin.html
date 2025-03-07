@@ -22,8 +22,9 @@
                 <p class="card-text"><strong>Notes:</strong> {{notes}}</p>
                 <p class="card-text"><strong>Locations:</strong> {{locations}}</p>
                 <p class="card-text"><strong>Marked as Incomplete:</strong> {{#marked_as_incomplete}}Yes{{/marked_as_incomplete}}{{^marked_as_incomplete}}No{{/marked_as_incomplete}}</p>
-                <p class="card-text"><strong>Name:</strong> {{name}}</p>
-                <button class="btn btn-primary" onclick="markAsIncomplete('{{id}}')">Mark as Incomplete</button>
+                {{^marked_as_incomplete}}<button class="btn btn-primary" onclick="markAsIncomplete('{{id}}')">Mark as Incomplete</button>{{/marked_as_incomplete}}
+                {{#marked_as_incomplete}}<button class="btn btn-primary" onclick="markAsComplete('{{id}}')">Mark as Complete</button>{{/marked_as_incomplete}}
+
             </div>
         </div>
         {{/incompleteEntries}}

@@ -1,100 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title> Main | {{defaults.sysName}}</title>
-  <link rel="stylesheet" type="text/css" href="css/reset.css">
+  <title>Main | {{defaults.sysName}}</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- <link rel="stylesheet" type="text/css" href="css/reset.css">
   <link rel="stylesheet" type="text/css" href="css/defaults.css">
-  <link rel="stylesheet" type="text/css" href="css/navbar.css">
+  <link rel="stylesheet" type="text/css" href="css/navbar.css"> -->
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-<script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>  
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.30.1/moment.min.js"></script>  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <p id="clock_in" style="display: none;">{{clock_in}}</p>
 
   <script>
-        
-      var clock_in = moment($('#clock_in').html());
-      var now;
-      console.log($('#clock_in').html()); // Fix typo in console.log statement
+    var clock_in = moment($('#clock_in').html());
+    var now;
+    console.log($('#clock_in').html());
 
-      function loadDuration(){
-        if (!`{{clockedIn}}`) return;
-        now = moment();
-        // computes duration, does not post value to the server (value can be corrupted by user)
-        var diff = moment.duration(now.diff(clock_in));
-       // console.log(diff)
-        //console.log(new Date(diff).toISOString().substring(11, 16));
-        var duration = new Date(diff).toISOString().substring(11, 16);
-        //duration = duration.add(1,'hours');
-        $("#duration").html(duration);
+    function loadDuration(){
+      if (!`{{clockedIn}}`) return;
+      now = moment();
+      var diff = moment.duration(now.diff(clock_in));
+      var duration = new Date(diff).toISOString().substring(11, 16);
+      $("#duration").html(duration);
+      $("#hours").html((diff/3600000).toFixed(2)) + 1;
+    }
 
-        $("#hours").html((diff/3600000).toFixed(2)) + 1;
-      }
-      
-      let previousLatitude = null;
-let previousLongitude = null;
+    let previousLatitude = null;
+    let previousLongitude = null;
 
-function shareLocation() {
-  if ("geolocation" in navigator) {
-    // Geolocation is available
-    console.log("geolocation is available");
-
-    navigator.geolocation.getCurrentPosition(function(position) {
-      $("#latitude").val(position.coords.latitude);
-      $("#longitude").val(position.coords.longitude);
-
-      let locationDeltaThreshold = 0.0000098;
-      let currentLat = position.coords.latitude;
-      let currentLng = position.coords.longitude;
-
-      // Check if we should post:
-      // Condition: either previous coords are not set or
-      // the difference exceeds the threshold.
-      // compute th distance traveled
-      let distance = Math.sqrt(Math.pow(currentLat - previousLatitude, 2) + Math.pow(currentLng - previousLongitude, 2));
-      if (distance > locationDeltaThreshold) {
-        
-        // Fetch address from Google Maps Geocoding API
-        $.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + currentLat + "," + currentLng + "&key={{googleMapsApiKey}}", function(data, status) {
-          console.log(data);
-          
-          // Post location and address
-          $.post("/location", {
-            latitude: currentLat, 
-            longitude: currentLng, 
-            locationDelta: distance,
-            address: data.results[0].formatted_address
-          }, function(postData, postStatus) {
-            console.log(postData);
-
-            // Update previous coordinates after successful post
-            previousLatitude = currentLat;
-            previousLongitude = currentLng;
-          });
+    function shareLocation() {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          $("#latitude").val(position.coords.latitude);
+          $("#longitude").val(position.coords.longitude);
         });
-      } else {
-        // If location hasn't changed enough, just update previous coords
-        previousLatitude = currentLat;
-        previousLongitude = currentLng;
       }
-    });
-  } else {
-    // Geolocation is not available
-    console.log("geolocation IS NOT available");
-  }
-}
+    }
 
-shareLocation();
-
-// Ensure loadDuration is defined before setting this interval
-// and that googleMapsApiKey is replaced with a real key.
-loadDuration();
-setInterval(loadDuration, 10);
-setInterval(shareLocation, 10000);
-
+    shareLocation();
+    loadDuration();
+    setInterval(loadDuration, 10);
+    setInterval(shareLocation, 10000);
   </script>
   <script>
     function radioValidation() {
@@ -130,90 +81,75 @@ setInterval(shareLocation, 10000);
   </script>
 </head>
 <body>
-  <div class="navbar">
-    <ul> 
-      <li><a href="/">{{defaults.sysName}}</a></li>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">{{defaults.sysName}}</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto"></ul>
+        {{#isAdmin}} <li class="nav-item"><a class="nav-link" href="/admin">Admin</a></li> {{/isAdmin}}
+        <li class="nav-item"><a class="nav-link" href="/hours">Hours</a></li>
+        <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
+      </ul>
+    </div>
+  </nav>
 
-      {{#isAdmin}} <li><a href="/admin">admin</a></li> {{/isAdmin}} 
-      <li><a href="/hours">hours</a></li>
-      <div style="float:right">
-        <li><a href="/logout">Log Out</a></li>
-      </div>
-    </ul>
-  </div>
-  {{#auth}} 
-  <div class="container">
-    <h2>
+  <div class="container mt-4">
+    {{#auth}}
+    <div class="alert alert-info">
       {{#message}}
         <p>{{message}}</p>
       {{/message}}
-    </h2> </br>
-  {{/auth}}
-    {{^clockedIn}}
-    <div>
-      You are clocked out. </br>
-      <form action="/clockIn" method="POST">
-        <!-- request user location geocoded as an address using the geolocation api -->
+    </div>
+    {{/auth}}
 
+    {{^clockedIn}}
+    <div class="alert alert-warning">
+      You are clocked out.
+      <form action="/clockIn" method="POST">
         <input type="hidden" id="latitude" name="latitude" value="">
         <input type="hidden" id="longitude" name="longitude" value="">
         <input type="hidden" id="address" name="address" value="">
- 
-       
-
-        <input type="submit" value="Clock In">
+        <button type="submit" class="btn btn-primary mt-2">Clock In</button>
       </form>
     </div>
     {{/clockedIn}}
 
     {{#clockedIn}}
-    <div id="clock">
-      You Are Clocked in </br>
-
-       <h1 id="duration">00:00</h1> 
-       <p id="hours">0.0</p> 
-     </div>
-      <form action="/clockOut" onsubmit="return radioValidation()" method = "POST">
-        <h2> Jobs </h2>
+    <div class="alert alert-success">
+      You Are Clocked in
+      <h1 id="duration">00:00</h1>
+      <p id="hours">0.0</p>
+    </div>
+    <form action="/clockOut" onsubmit="return radioValidation()" method="POST">
+      <h2>Jobs</h2>
+      <div class="form-group">
         {{#jobs}}
-        <tr>
-          <td>
-            <input type="radio" id="jobName" name="jobName" value="{{id}}">
-          </td>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" id="jobName" name="jobName" value="{{id}}">
+          <label class="form-check-label" for="jobName">{{name}}</label>
+        </div>
+        {{/jobs}}
+      </div>
 
-          <td>
-            {{name}}
-          </td> </br>
-        </tr> </br>
-      {{/jobs}} </br>
+      <h2>Tasks</h2>
+      <div class="form-group">
+        {{#tasks}}
+        <div class="form-check">
+          <input class="form-check-input" type="radio" id="taskName" name="taskName" value="{{id}}">
+          <label class="form-check-label" for="taskName">{{name}}</label>
+        </div>
+        {{/tasks}}
+      </div>
 
-    <h2> Tasks </h2>
-      {{#tasks}}
-        <tr>
-          <td>
-            <input type="radio" id="taskName" name="taskName" value="{{id}}">
-          </td>
-
-          <td>
-            {{name}}
-          </td> </br>
-        </tr> </br>
-      {{/tasks}} </br>
-
-
-
-
-        <h2>Notes</h2>
-        <textarea name="notes" cols="40" rows="5">{{notes}}</textarea> </br>
-        <input type="submit" value="Clock Out" onclick="return radioValidation()">
-      </form>
+      <h2>Notes</h2>
+      <div class="form-group">
+        <textarea class="form-control" name="notes" cols="40" rows="5">{{notes}}</textarea>
+      </div>
+      <button type="submit" class="btn btn-danger">Clock Out</button>
+    </form>
     {{/clockedIn}}
-
-
-
-
-
-
+  </div>
 </body>
 </html>
-
