@@ -171,6 +171,31 @@ module.exports = function(app)  {
                     console.log(err);
                     res.send('error');
                 }
+                res.redirect('/resolveAdmin');  
+            }
+            );
+        } else {
+            // if user is not authenticated, redirect to login page
+            res.err({
+                r: new Error('Unauthorized access'),
+                fr: 'You are not authorized to access this resource.',
+                li: '/auth/google?returnTo=' + querystring.escape(req.url),
+                ti: 'Authenticate as a different user'
+            });
+        }
+    }
+    );
+
+    app.post("/markTimesheetEntryAsComplete", mid.isAuth, (req, res) => {
+        // if user is authenticated and has a local account
+        if (req.user && req.user.local && req.user.local.user_type === 1) {
+            // render the timesheetResolution page
+            const {timesheet_id} = req.body;
+            db.connection.query('UPDATE timesheet SET marked_as_incomplete = 0 WHERE id = ?', [timesheet_id], (err, rows) => {
+                if (err) {
+                    console.log(err);
+                    res.send('error');
+                }
                 res.send('success');
             }
             );
