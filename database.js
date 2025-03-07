@@ -628,8 +628,8 @@ module.exports = {
 
       for(var i = 0; i < filtered.length; i++){
         filtered[i].date = moment(filtered[i].clock_in).format('Do MMMM, YYYY');
-        filtered[i].clock_in= moment(filtered[i].clock_in).format('DD-MM-YYYY hh:mm a');
-        filtered[i].clock_out= moment(filtered[i].clock_out).format('DD-MM-YYYY hh:mm a');
+        filtered[i].clock_in= moment(filtered[i].clock_in).format('YYYY-MM-DD hh:mm a');
+        filtered[i].clock_out= moment(filtered[i].clock_out).format('YYYY-MM-DD hh:mm a');
 
       }
 
