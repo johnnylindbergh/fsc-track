@@ -85,15 +85,14 @@ function batchSendTimesheetNotificationEmails(cb) {
 // a timesheet entry is sus if the notes column is empty or whitespace
 // a timesheet entry is sus if the notes = '-- auto clock out --'
 function getSusTimesheetEntries(cb) {
-    db.connection.query('SELECT timesheet.*, users.name as user_name, jobs.name as job_name, tasks.name as task_name FROM timesheet JOIN users ON timesheet.userid = users.id JOIN jobs ON timesheet.job = jobs.id JOIN tasks ON timesheet.task = tasks.id WHERE clock_in > DATE_SUB(NOW(), INTERVAL 15 DAY) AND (notes IS NULL OR notes = "" OR notes = "-- auto clock out --")', (err, rows) => {
+    db.connection.query('SELECT timesheet.*, users.name as user_name, jobs.name as job_name, tasks.name as task_name FROM timesheet JOIN users ON timesheet.userid = users.id JOIN jobs ON timesheet.job = jobs.id JOIN tasks ON timesheet.task = tasks.id WHERE clock_in > DATE_SUB(NOW(), INTERVAL 15 DAY) AND (notes IS NULL OR notes = "" OR notes = "-- auto clock out --") ORDER BY timesheet.clock_in DESC', (err, rows) => {
         if (err) {
             console.log(err);
             cb(err);
           }
         console.log(rows);
         cb(rows);
-    }
-    );
+    });
 }
 
 
