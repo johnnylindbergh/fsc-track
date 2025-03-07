@@ -15,7 +15,7 @@ module.exports = {
   DB_NAME: 'fscTrack',
 
   // domain through which server is accessible
-  DOMAIN: 'https://fsc.johnnylindbergh.com',
+  DOMAIN: 'https://shop.franksaulconstrction.com',
 
   /*  does the system allow automatic creation of new user accounts
       when authentication is attempted. */
@@ -28,6 +28,7 @@ module.exports = {
   // name of this system
   SYSTEM_NAME: 'FSCTrack',
 
+  
   
   // admin
   // inventory add/delete/ reorder options
