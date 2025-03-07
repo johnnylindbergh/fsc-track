@@ -15,7 +15,7 @@ module.exports = {
   DB_NAME: 'fscTrack',
 
   // domain through which server is accessible
-  DOMAIN: 'https://shop.franksaulconstrction.com',
+  DOMAIN: 'https://shop.franksaulconstruction.com',
 
   /*  does the system allow automatic creation of new user accounts
       when authentication is attempted. */
@@ -29,7 +29,7 @@ module.exports = {
   SYSTEM_NAME: 'FSCTrack',
 
   
-  
+
   // admin
   // inventory add/delete/ reorder options
   // inventory job associations menu (list of job_iventory items grouped and counted)
