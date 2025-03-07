@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timesheet Resolution</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Timesheet Resolution</h1>
+
+        <!--  message that says you have 'number' incomplete timesheet entries. -->
+        <div class="alert alert-warning" role="alert">
+            You have {{incompleteEntries.length}} incomplete timesheet {{#isSingleEntry}}entry{{/isSingleEntry}} {{^isSingleEntry}}entries{{/isSingleEntry}}.
+        </div>
+        
+        {{#incompleteEntries}}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Timesheet Details</h5>
+                <p class="card-text"><strong>Job:</strong> {{job_name}}</p>
+                <p class="card-text"><strong>Task:</strong> {{task_name}}</p>
+                <p class="card-text"><strong>Clock In:</strong> {{clock_in}}</p>
+                <p class="card-text"><strong>Duration:</strong> {{duration}}</p>
+                <p class="card-text"><strong>Notes:</strong> {{notes}}</p>
+                <p class="card-text"><strong>Marked as Incomplete:</strong> {{#marked_as_incomplete}}Yes{{/marked_as_incomplete}}{{^marked_as_incomplete}}No{{/marked_as_incomplete}}</p>
+                <button class="btn btn-primary" onclick="resolutionIntent('{{id}}')">Resolve</button>
+            </div>
+        </div>
+        {{/incompleteEntries}}
+    </div>
+
+    <!--  hidden dialog that is shown when user clicks reslove -->
+
+    <div class="modal fade" id="resolveDialog" tabindex="-1" role="dialog" aria-labelledby="resolveDialogLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resolveDialogLabel">Resolve Timesheet</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="resolveForm" action="/resolveTimesheet" method="POST">
+                    <div class="modal-body">
+                        <p>Please explain the tasks performed during this time period. </p>
+                        <textarea class="form-control" name="note" rows="3" required></textarea>
+                        <input type="hidden" name="timesheet_id" id="timesheet_id">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Resolve</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function resolutionIntent(id) {
+            document.getElementById('timesheet_id').value = id;
+            $('#resolveDialog').modal('show');
+        }
+    </script>
+
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

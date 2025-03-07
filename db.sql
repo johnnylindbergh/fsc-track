@@ -62,6 +62,7 @@ CREATE TABLE timesheet (
   duration FLOAT(8, 3),
   notes VARCHAR(64),
   locations VARCHAR(64),
+  marked_as_incomplete TINYINT(1) DEFAULT 0,
   FOREIGN KEY (job) REFERENCES jobs(id),
   FOREIGN KEY (task) REFERENCES tasks(id),
   FOREIGN KEY (userid) REFERENCES users(id),
